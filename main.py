@@ -36,6 +36,7 @@ def main():
         culture_id = dynasty_config['cultureID']
         religion_id = dynasty_config['faithID']
         gender_law = dynasty_config['genderLaw']
+        is_house = dynasty_config['isHouse']
         progenitor_birth_year = dynasty_config['progenitorMaleBirthYear']
         dynasty_prefix = dynasty_id.split('_')[1] if '_' in dynasty_id else dynasty_id
 
@@ -48,6 +49,7 @@ def main():
             sex="Male",
             birth_year=progenitor_birth_year,
             dynasty=dynasty_id,
+            is_house=is_house,
             culture=culture_id,
             religion=religion_id,
             gender_law=gender_law,
@@ -68,6 +70,7 @@ def main():
             sex="Female",
             birth_year=spouse_birth_year,  # Same year
             dynasty=None,  # Lowborn, no dynasty
+            is_house=is_house,
             culture=culture_id,
             religion=religion_id,
             gender_law=gender_law,

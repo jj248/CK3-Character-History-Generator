@@ -168,22 +168,26 @@ class Simulation:
         # Determine dynasty and culture based on marriage laws and parents
         if mother.gender_law == 'male' and father.gender_law == 'male':
             child_dynasty = father.dynasty
+            child_is_house = father.is_house
             child_culture = father.culture
             child_religion = father.religion
             child_gender_law = father.gender_law
         elif mother.gender_law == 'female' and mother.sex == "Female":
             child_dynasty = mother.dynasty
+            child_is_house = mother.is_house
             child_culture = mother.culture
             child_religion = mother.religion
             child_gender_law = mother.gender_law
         else:
             if random.random() < 0.5:
                 child_dynasty = father.dynasty
+                child_is_house = father.is_house
                 child_culture = father.culture
                 child_religion = father.religion
                 child_gender_law = father.gender_law
             else:
                 child_dynasty = mother.dynasty
+                child_is_house = mother.is_house
                 child_culture = mother.culture
                 child_religion = mother.religion
                 child_gender_law = mother.gender_law
@@ -204,6 +208,7 @@ class Simulation:
             sex=child_sex,
             birth_year=birth_year,
             dynasty=child_dynasty,
+            is_house=child_is_house,            
             culture=child_culture,
             religion=child_religion,
             gender_law=child_gender_law,
@@ -418,6 +423,7 @@ class Simulation:
 
         # Assign dynasty based on parent
         child_dynasty = parent.dynasty
+        child_is_house = parent.is_house       
         child_culture = parent.culture
         child_religion = parent.religion
         child_gender_law = parent.gender_law
@@ -453,6 +459,7 @@ class Simulation:
             sex=child_sex,
             birth_year=birth_year,
             dynasty=child_dynasty,
+            is_house=child_is_house,            
             culture=child_culture,
             religion=child_religion,
             gender_law=child_gender_law,

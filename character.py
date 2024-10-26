@@ -14,6 +14,7 @@ class Character:
         religion, 
         gender_law, 
         sexuality_distribution, 
+        is_house=False,
         generation=1, 
         is_progenitor=False
     ):
@@ -35,6 +36,7 @@ class Character:
         self.gender_law = gender_law
         self.generation = generation
         self.is_progenitor = is_progenitor
+        self.is_house = is_house
         self.events = []
         self.father = None
         self.mother = None
@@ -151,7 +153,10 @@ class Character:
         # Collect dynasty and parents information
         sections = []
         if self.dynasty:
-            sections.append(f"\tdynasty = {self.dynasty}")
+            if self.is_house:
+                sections.append(f"\tdynasty_house = {self.dynasty}")
+            else:
+                sections.append(f"\tdynasty = {self.dynasty}")
         if self.father or self.mother:
             if self.father:
                 sections.append(f"\tfather = {self.father.char_id}")

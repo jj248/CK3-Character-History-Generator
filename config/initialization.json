@@ -2,6 +2,7 @@
   "dynasties": [
 	{
       "dynastyID": "dynasty_aragorn",
+      "isHouse": false,
       "faithID": "faith_jelut",
       "cultureID": "jelut",
       "genderLaw": "male",
@@ -14,6 +15,7 @@
     },
 	{
       "dynastyID": "dynasty_bilbo",
+      "isHouse": false,
       "faithID": "faith_jelut",
       "cultureID": "jelut",
       "genderLaw": "male",
@@ -26,6 +28,7 @@
     },
 	{
       "dynastyID": "dynasty_celeborn",
+      "isHouse": false,
       "faithID": "faith_jelut",
       "cultureID": "jelut",
       "genderLaw": "male",
@@ -38,6 +41,7 @@
     },
 	{
       "dynastyID": "dynasty_balin",
+      "isHouse": false,
       "faithID": "faith_jelut",
       "cultureID": "jelut",
       "genderLaw": "male",
@@ -50,6 +54,7 @@
     },
 	{
       "dynastyID": "dynasty_eomer",
+      "isHouse": false,
       "faithID": "faith_jelut",
       "cultureID": "jelut",
       "genderLaw": "male",
@@ -62,6 +67,7 @@
     },
 	{
       "dynastyID": "dynasty_frodo",
+      "isHouse": false,
       "faithID": "faith_jelut",
       "cultureID": "jelut",
       "genderLaw": "male",
@@ -74,6 +80,7 @@
     },
 	{
       "dynastyID": "dynasty_glorfindel",
+      "isHouse": false,
       "faithID": "faith_jelut",
       "cultureID": "jelut",
       "genderLaw": "male",
