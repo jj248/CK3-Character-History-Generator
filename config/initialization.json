@@ -1,0 +1,92 @@
+{
+  "dynasties": [
+	{
+      "dynastyID": "dynasty_aragorn",
+      "faithID": "faith_jelut",
+      "cultureID": "jelut",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6790,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+	{
+      "dynastyID": "dynasty_bilbo",
+      "faithID": "faith_jelut",
+      "cultureID": "jelut",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6785,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+	{
+      "dynastyID": "dynasty_celeborn",
+      "faithID": "faith_jelut",
+      "cultureID": "jelut",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6797,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+	{
+      "dynastyID": "dynasty_balin",
+      "faithID": "faith_jelut",
+      "cultureID": "jelut",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6793,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+	{
+      "dynastyID": "dynasty_eomer",
+      "faithID": "faith_jelut",
+      "cultureID": "jelut",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6792,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+	{
+      "dynastyID": "dynasty_frodo",
+      "faithID": "faith_jelut",
+      "cultureID": "jelut",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6791,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+	{
+      "dynastyID": "dynasty_glorfindel",
+      "faithID": "faith_jelut",
+      "cultureID": "jelut",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6788,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    }
+  ],
+  "initialCharID": 1,
+  "minYear": 6500,
+  "maxYear": 7033,
+  "generationMax": 10
+}
