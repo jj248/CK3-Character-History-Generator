@@ -3,6 +3,7 @@ import logging
 from character import Character
 from utils import generate_random_date, generate_char_id
 from name_loader import NameLoader
+from title_history import TitleHistory
 
 class Simulation:
     def __init__(self, config, name_loader):
@@ -11,6 +12,7 @@ class Simulation:
         self.current_char_id = self.config['initialization']['initialCharID']
         self.character_count = 0
         self.dynasty_char_counters = {}
+        self.title_history = TitleHistory()
         self.all_characters = []
         self.character_pool = {}
         self.unmarried_males = {}
@@ -559,8 +561,10 @@ class Simulation:
                     if self.character_death_check(character):
                         character.alive = False
                         character.death_year = year
-                        self.remove_from_unmarried_pools(character)
                         death_date = generate_random_date(year)
+                        character.death_year, character.death_month, character.death_day = map(int, death_date.split('.'))
+                        self.remove_from_unmarried_pools(character)
+                        self.title_history.process_death(character)
                         if character.age > 65:
                             death_cause = "death_natural_causes"
                         elif character.age < 18:

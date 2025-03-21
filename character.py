@@ -26,6 +26,8 @@ class Character:
         self.birth_day = 1    # Default day
         self.age = 0  # Will be updated annually
         self.death_year = None
+        self.death_month = None
+        self.death_day = None
         self.alive = True
         self.married = False
         self.spouse = None

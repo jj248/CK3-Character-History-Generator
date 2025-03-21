@@ -3,6 +3,7 @@ from config_loader import ConfigLoader
 from name_loader import NameLoader
 from simulation import Simulation
 from character import Character
+from title_history import TitleHistory
 from utils import generate_char_id, generate_random_date
 import random
 
@@ -59,6 +60,8 @@ def main():
         )
         simulation.add_character_to_pool(progenitor_male)
         simulation.all_characters.append(progenitor_male)
+        if len(simulation.all_characters) == 1:  # First character gets the title
+            simulation.title_history.assign_initial_holder(progenitor_male)
 
         # Generate progenitor female spouse
         spouse_birth_year = progenitor_birth_year  # Same year as male
@@ -90,6 +93,9 @@ def main():
 
     # Export characters
     simulation.export_characters("family_history.txt")
+
+    #Export Title History
+    simulation.title_history.export_title_history("title_history.txt")
 
 if __name__ == "__main__":
     main()

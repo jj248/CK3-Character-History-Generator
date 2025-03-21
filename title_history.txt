@@ -1,0 +1,23 @@
+title_name = {
+    6790.11.01 = {
+        holder = lineofaragorn1
+    }
+    6884.12.01 = {
+        holder = lineofaragorn4
+    }
+    6904.06.07 = {
+        holder = lineofglorfindel10
+    }
+    6923.08.02 = {
+        holder = lineofbalin16
+    }
+    6973.06.26 = {
+        holder = lineofglorfindel58
+    }
+    6997.07.23 = {
+        holder = lineofaragorn49
+    }
+    7026.01.02 = {
+        holder = lineofglorfindel176
+    }
+}
