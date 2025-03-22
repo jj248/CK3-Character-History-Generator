@@ -1,0 +1,30 @@
+dynn_tarimez = {
+	name = "dynn_tarimez"
+	culture = "clyan"
+	motto = dynn_tarimez_motto
+}
+
+dynn_ramzeket = {
+	name = "dynn_ramzeket"
+	culture = "clyan"
+	motto = dynn_ramzeket_motto
+}
+
+dynn_adarfiruzen = {
+	name = "dynn_adarfiruzen"
+	culture = "clyan"
+	motto = dynn_adarfiruzen_motto
+}
+
+dynn_ganagahan = {
+	name = "dynn_ganagahan"
+	culture = "clyan"
+	motto = dynn_ganagahan_motto
+}
+
+dynn_visnarmaken = {
+	name = "dynn_visnarmaken"
+	culture = "clyan"
+	motto = dynn_visnarmaken_motto
+}
+

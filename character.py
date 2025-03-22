@@ -32,7 +32,8 @@ class Character:
         self.married = False
         self.spouse = None
         self.children = []
-        self.dynasty = dynasty  # Can be None for lowborn
+        self.dynasty = dynasty if dynasty else "Lowborn"
+        self.gender_law = gender_law if gender_law in ["male", "female", "equal"] else "equal"
         self.culture = culture
         self.religion = religion
         self.gender_law = gender_law

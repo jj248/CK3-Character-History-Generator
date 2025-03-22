@@ -317,10 +317,17 @@ class Simulation:
         # Exclude existing names
         filtered_names = [name for name in available_names if name not in existing_names]
         
-        if not filtered_names:
-            logging.error(f"No available unique names left for culture '{culture}' and sex '{child_sex}'.")
-            return None  # Or handle as desired
-        return random.choice(filtered_names)
+        if filtered_names:
+            return random.choice(filtered_names)
+        
+        # If no unique names remain, pick a completely random name
+        if available_names:
+            # logging.warning(f"No unique names left for culture '{culture}' and sex '{child_sex}'. Assigning a completely random name.")
+            return random.choice(available_names)
+        
+        # logging.error(f"No available names at all for culture '{culture}' and sex '{child_sex}'.")
+        return "Unnamed"
+
 
     def match_marriages(self, males, females, year):
         # Attempt to marry males with females from other dynasties first
@@ -595,15 +602,26 @@ class Simulation:
 
     def export_characters(self, output_filename="family_history.txt"):
         # Initialize the counter
+        dynasty_groups = {}
         exported_character_count = 0
-		
+
+        for character in self.all_characters:
+            if character.dynasty not in dynasty_groups:
+                dynasty_groups[character.dynasty] = []
+            dynasty_groups[character.dynasty].append(character)
+
         with open(output_filename, 'w', encoding='utf-8') as file:
-            for character in self.all_characters:
-                character_data = character.format_for_export()
-                file.write(character_data)
+            for dynasty, characters in sorted(dynasty_groups.items(), key=lambda x: x[0] or ""):
+                file.write("################\n")
+                file.write(f"### Dynasty {dynasty}\n")
+                file.write("################\n\n")
+
+                for character in sorted(characters, key=lambda c: c.birth_year):
+                    file.write(character.format_for_export())
+                    file.write("\n")  # Separate characters for readability
 				
-				# Increment the counter after each character is written
-                exported_character_count += 1
+                    # Increment the counter after each character is written
+                    exported_character_count += 1
 				
         logging.info(f"Character history exported to {output_filename}")
         logging.info(f"Total characters exported: {exported_character_count}")

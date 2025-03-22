@@ -4,6 +4,7 @@ from name_loader import NameLoader
 from simulation import Simulation
 from character import Character
 from title_history import TitleHistory
+from dynasty_creation import generate_dynasty_definitions
 from utils import generate_char_id, generate_random_date
 import random
 
@@ -20,6 +21,7 @@ def main():
     setup_logging()
     try:
         config_loader = ConfigLoader('config')  # Ensure 'config' directory is correct
+        generate_dynasty_definitions("config/initialization.json", "dynasty_definitions.txt")
     except Exception as e:
         logging.error(f"Failed to load configuration: {e}")
         return
@@ -60,8 +62,7 @@ def main():
         )
         simulation.add_character_to_pool(progenitor_male)
         simulation.all_characters.append(progenitor_male)
-        if len(simulation.all_characters) == 1:  # First character gets the title
-            simulation.title_history.assign_initial_holder(progenitor_male)
+        simulation.title_history.assign_initial_holder(progenitor_male)
 
         # Generate progenitor female spouse
         spouse_birth_year = progenitor_birth_year  # Same year as male
