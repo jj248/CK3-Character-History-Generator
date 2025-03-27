@@ -28,3 +28,15 @@ dynn_visnarmaken = {
 	motto = dynn_visnarmaken_motto
 }
 
+dynn_X = {
+	name = "dynn_X"
+	culture = "clyan"
+	motto = dynn_X_motto
+}
+
+dynn_Y = {
+	name = "dynn_Y"
+	culture = "clyan"
+	motto = dynn_Y_motto
+}
+

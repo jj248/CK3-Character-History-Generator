@@ -25,6 +25,7 @@ class NameLoader:
                 names = ["Alex", "Jordan"]  # Use more meaningful fallback names
             self.name_cache[key] = names
         return random.choice(self.name_cache[key])
+
     def get_all_names(self, culture, sex):
         key = f"{culture}_{sex}"
         if key not in self.name_cache:
@@ -33,6 +34,8 @@ class NameLoader:
                 with open(file_path, 'r', encoding='utf-8') as f:
                     names = [line.strip() for line in f if line.strip()]
                     self.name_cache[key] = names
+                    if not names:
+                        logging.warning(f"Name list for {culture}_{sex} is empty. Ensure {file_path} has valid names.")
             except FileNotFoundError:
                 logging.error(f"Name list file not found: {file_path}")
                 self.name_cache[key] = []

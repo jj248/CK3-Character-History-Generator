@@ -58,7 +58,33 @@
       "faithID": "faith_tilanik",
       "cultureID": "clyan",
       "genderLaw": "male",
-      "progenitorMaleBirthYear": 6703,
+      "progenitorMaleBirthYear": 6792,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+	{
+      "dynastyID": "dynasty_X",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6751,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+	{
+      "dynastyID": "dynasty_Y",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6718,
       "nameInheritance": {
         "grandparentNameInheritanceChance": 0.05,
         "parentNameInheritanceChance": 0.05,

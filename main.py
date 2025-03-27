@@ -88,6 +88,13 @@ def main():
         # Marry them
         marriage_year = progenitor_male.birth_year + life_stages_config.get('marriageMinAge', 18)
         simulation.marry_characters(progenitor_male, progenitor_female, marriage_year)
+        # Ensure at least 3 children per dynasty
+        for i in range(3):
+            child_birth_year = marriage_year + i + 1  # Stagger births
+            child = simulation.create_child(progenitor_female, progenitor_male, child_birth_year)
+            if child:
+                simulation.add_character_to_pool(child)
+                simulation.all_characters.append(child)
 
     # Run the simulation
     simulation.run_simulation()
