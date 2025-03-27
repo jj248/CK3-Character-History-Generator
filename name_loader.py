@@ -11,7 +11,7 @@ class NameLoader:
             os.makedirs(self.name_list_folder, exist_ok=True)
 
     def load_names(self, culture, gender):
-        """Load names from a file based on culture and gender. If file is not found, return fallback names."""
+        """Load names from a file based on culture and gender. If no file is found, log a warning and retry."""
         key = (culture, gender)
         if key not in self.name_cache:
             file_path = os.path.join(self.name_list_folder, f"{culture}_{gender}.txt")
@@ -20,11 +20,12 @@ class NameLoader:
                     names = [line.strip() for line in file if line.strip()]
                 if not names:
                     raise ValueError("Name list is empty.")
-            except (FileNotFoundError, ValueError) as e:
-                logging.warning(f"Name file not found or empty for {culture}_{gender}. Using fallback names.")
-                names = ["Alex", "Jordan"]  # Use more meaningful fallback names
+            except (FileNotFoundError, ValueError):
+                logging.warning(f"Name file missing or empty for {culture}_{gender}. Using fallback namelist.")
+                names = ["FallbackName1", "FallbackName2"]  # Ensure a default fallback list
             self.name_cache[key] = names
         return random.choice(self.name_cache[key])
+
 
     def get_all_names(self, culture, sex):
         key = f"{culture}_{sex}"

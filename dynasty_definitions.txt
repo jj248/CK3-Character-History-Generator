@@ -1,13 +1,7 @@
-dynn_tarimez = {
-	name = "dynn_tarimez"
+dynn_dadfiruzen = {
+	name = "dynn_dadfiruzen"
 	culture = "clyan"
-	motto = dynn_tarimez_motto
-}
-
-dynn_ramzeket = {
-	name = "dynn_ramzeket"
-	culture = "clyan"
-	motto = dynn_ramzeket_motto
+	motto = dynn_dadfiruzen_motto
 }
 
 dynn_adarfiruzen = {
@@ -16,10 +10,28 @@ dynn_adarfiruzen = {
 	motto = dynn_adarfiruzen_motto
 }
 
-dynn_ganagahan = {
-	name = "dynn_ganagahan"
+dynn_bahlikaran = {
+	name = "dynn_bahlikaran"
 	culture = "clyan"
-	motto = dynn_ganagahan_motto
+	motto = dynn_bahlikaran_motto
+}
+
+dynn_khudaradmen = {
+	name = "dynn_khudaradmen"
+	culture = "clyan"
+	motto = dynn_khudaradmen_motto
+}
+
+dynn_esrecarzen = {
+	name = "dynn_esrecarzen"
+	culture = "clyan"
+	motto = dynn_esrecarzen_motto
+}
+
+dynn_tarimez = {
+	name = "dynn_tarimez"
+	culture = "clyan"
+	motto = dynn_tarimez_motto
 }
 
 dynn_visnarmaken = {
@@ -28,15 +40,21 @@ dynn_visnarmaken = {
 	motto = dynn_visnarmaken_motto
 }
 
-dynn_X = {
-	name = "dynn_X"
+dynn_kerhamez = {
+	name = "dynn_kerhamez"
 	culture = "clyan"
-	motto = dynn_X_motto
+	motto = dynn_kerhamez_motto
 }
 
-dynn_Y = {
-	name = "dynn_Y"
+dynn_namdarez = {
+	name = "dynn_namdarez"
 	culture = "clyan"
-	motto = dynn_Y_motto
+	motto = dynn_namdarez_motto
+}
+
+dynn_mentarez = {
+	name = "dynn_mentarez"
+	culture = "clyan"
+	motto = dynn_mentarez_motto
 }
 

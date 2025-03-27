@@ -49,34 +49,35 @@ class Simulation:
 
     def desperation_marriage_check(self, character, year):
         """Check if an unmarried character is willing to marry a lowborn due to desperation."""
-        age = character.age
-        desperation_chance = self.desperation_rates.get(age, 0)
-        
+        desperation_chance = self.desperation_rates.get(character.age, 0)
         if random.random() < desperation_chance:
             # Generate a lowborn spouse
             spouse_char_id = generate_char_id("lowborn", self.dynasty_char_counters)
             spouse_name = self.name_loader.load_names(character.culture, "male" if character.sex == "Female" else "female")
+            
+            # Ensure lowborn is human and fertile
             spouse = Character(
                 char_id=spouse_char_id,
-                name=spouse_name,
-                sex="Male" if character.sex == "Female" else "Female",
-                birth_year=year - random.randint(18, 40),  # Random adult age
-                dynasty=None,  # Lowborn
-                is_house=False,
+                dynasty=None,  # Lowborns do not have a dynasty
+                species="human",  # Ensure lowborns are human
+                fertile=True,  # Ensure lowborns are fertile
                 culture=character.culture,
                 religion=character.religion,
                 gender_law=character.gender_law,
+                generation=character.generation,
+                name=spouse_name,
+                sex="Male" if character.sex == "Female" else "Female",
                 sexuality_distribution=self.config['skills_and_traits']['sexualityDistribution'],
-                generation=character.generation
+                is_house=False,
             )
-            
-            # Determine marriage type
-            marriage_type = "add_spouse" if character.sex == "Male" else "add_matrilineal_spouse"
-            spouse_dynasty = character.dynasty
-            
-            self.marry_characters(character, spouse, year, marriage_type, spouse_dynasty)
-            return True
-        return False
+
+            # Check fertility + existing children
+            if not spouse.fertile or self.lowborn_has_many_children(spouse):
+                return  # Do not proceed with marriage
+
+            spouse_dynasty = character.dynasty  # Noble's dynasty does not transfer
+            self.marry_characters(character, spouse, year, marriage_type="desperation", children_dynasty=spouse_dynasty)
+
 
 
     def character_death_check(self, character):
@@ -172,7 +173,28 @@ class Simulation:
         if child_generation > self.config['initialization']['generationMax']:
             return None  # Do not create child
 
-        child_sex = "Male" if random.random() < 0.5 else "Female"
+        # **Determine Gender Preference Based on Laws**
+        gender_preference = None
+        if father.gender_law == "male":
+            gender_preference = "Male"
+        elif mother.gender_law == "female":
+            gender_preference = "Female"
+
+        # **Check existing siblings**
+        siblings = mother.children + father.children  # Combine both parents' children
+        has_male_sibling = any(sibling.sex == "Male" for sibling in siblings)
+        has_female_sibling = any(sibling.sex == "Female" for sibling in siblings)
+
+        # **Apply gender bias (+25%) only if no sibling of that gender exists**
+        base_chance = 0.5
+        if gender_preference == "Male" and not has_male_sibling:
+            male_chance = min(0.75, base_chance + 0.25)
+        elif gender_preference == "Female" and not has_female_sibling:
+            male_chance = max(0.25, base_chance - 0.25)
+        else:
+            male_chance = base_chance  # No modification
+
+        child_sex = "Male" if random.random() < male_chance else "Female"
 
         # Determine dynasty and culture based on marriage laws and parents
         if mother.gender_law == 'male' and father.gender_law == 'male':
@@ -206,9 +228,9 @@ class Simulation:
 
         child_char_id = generate_char_id(dynasty_prefix, self.dynasty_char_counters)
         
-		# Assign name based on inheritance chances
+        # Assign name based on inheritance chances
         child_name = self.assign_child_name(child_sex, mother, father, child_dynasty)
-		
+        
         sexuality_distribution = self.config['skills_and_traits']['sexualityDistribution']
 
         child = Character(
@@ -242,6 +264,7 @@ class Simulation:
         self.couple_last_child_year[couple_key] = birth_year
 
         return child
+
 		
     def assign_child_name(self, child_sex, mother, father, child_dynasty):
         """Assigns a child's name based on dynasty inheritance chances."""
@@ -586,10 +609,14 @@ class Simulation:
                             death_cause = random.choice([
                                 "death_ill",
                                 "death_cancer",
-                                "death_in_battle",
+                                "death_battle",
                                 "death_attacked",
                                 "death_accident", 
-                                "death_murder"
+                                "death_murder", 
+                                "death_natural_causes", 
+                                "death_drinking_passive", 
+                                "death_dungeon_passive", 
+                                "death_giant"
                             ])
                         else:
                             death_cause = random.choice([
@@ -612,12 +639,13 @@ class Simulation:
         exported_character_count = 0
 
         for character in self.all_characters:
-            if character.dynasty not in dynasty_groups:
-                dynasty_groups[character.dynasty] = []
-            dynasty_groups[character.dynasty].append(character)
+            if character.dynasty:  # Only group characters with a valid dynasty
+                if character.dynasty not in dynasty_groups:
+                    dynasty_groups[character.dynasty] = []
+                dynasty_groups[character.dynasty].append(character)
 
         with open(output_filename, 'w', encoding='utf-8') as file:
-            for dynasty, characters in sorted(dynasty_groups.items(), key=lambda x: x[0] or ""):
+            for dynasty, characters in sorted(dynasty_groups.items(), key=lambda x: x[0]):
                 file.write("################\n")
                 file.write(f"### Dynasty {dynasty}\n")
                 file.write("################\n\n")
@@ -625,9 +653,10 @@ class Simulation:
                 for character in sorted(characters, key=lambda c: c.birth_year):
                     file.write(character.format_for_export())
                     file.write("\n")  # Separate characters for readability
-				
+                
                     # Increment the counter after each character is written
                     exported_character_count += 1
-				
+
         logging.info(f"Character history exported to {output_filename}")
         logging.info(f"Total characters exported: {exported_character_count}")
+

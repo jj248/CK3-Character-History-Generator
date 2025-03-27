@@ -155,16 +155,16 @@ class Character:
 
         # Collect dynasty and parents information
         sections = []
-        if self.dynasty:
+        if self.dynasty and self.dynasty != "Lowborn":  # Avoid printing "dynasty = Lowborn"
             if self.is_house:
                 sections.append(f"\tdynasty_house = {self.dynasty}")
             else:
                 sections.append(f"\tdynasty = {self.dynasty}")
-        if self.father or self.mother:
-            if self.father:
-                sections.append(f"\tfather = {self.father.char_id}")
-            if self.mother:
-                sections.append(f"\tmother = {self.mother.char_id}")
+        
+        if self.father:
+            sections.append(f"\tfather = {self.father.char_id}")
+        if self.mother:
+            sections.append(f"\tmother = {self.mother.char_id}")
 
         # Add dynasty and parents sections if they exist
         if sections:
@@ -186,8 +186,7 @@ class Character:
             lines.append("")
             for trait in self.traits:
                 lines.append(f"\ttrait = {trait}")
-		
-
+        
         # Include personality traits and education
         if self.personality_traits or self.education_tier is not None or self.congenital_traits:
             lines.append("")

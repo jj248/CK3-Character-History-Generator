@@ -1,7 +1,7 @@
 {
   "dynasties": [
 	{
-      "dynastyID": "dynasty_tarimez",
+      "dynastyID": "dynasty_dadfiruzen",
       "isHouse": false,
       "faithID": "faith_tilanik",
       "cultureID": "clyan",
@@ -14,7 +14,7 @@
       }
     },
 	{
-      "dynastyID": "dynasty_ramzeket",
+      "dynastyID": "dynasty_adarfiruzen",
       "isHouse": false,
       "faithID": "faith_tilanik",
       "cultureID": "clyan",
@@ -27,7 +27,7 @@
       }
     },
 	{
-      "dynastyID": "dynasty_adarfiruzen",
+      "dynastyID": "dynasty_bahlikaran",
       "isHouse": false,
       "faithID": "faith_tilanik",
       "cultureID": "clyan",
@@ -40,7 +40,7 @@
       }
     },
 	{
-      "dynastyID": "dynasty_ganagahan",
+      "dynastyID": "dynasty_khudaradmen",
       "isHouse": false,
       "faithID": "faith_tilanik",
       "cultureID": "clyan",
@@ -53,7 +53,7 @@
       }
     },
 	{
-      "dynastyID": "dynasty_visnarmaken",
+      "dynastyID": "dynasty_esrecarzen",
       "isHouse": false,
       "faithID": "faith_tilanik",
       "cultureID": "clyan",
@@ -66,7 +66,7 @@
       }
     },
 	{
-      "dynastyID": "dynasty_X",
+      "dynastyID": "dynasty_tarimez",
       "isHouse": false,
       "faithID": "faith_tilanik",
       "cultureID": "clyan",
@@ -79,7 +79,46 @@
       }
     },
 	{
-      "dynastyID": "dynasty_Y",
+      "dynastyID": "dynasty_visnarmaken",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6718,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+  {
+      "dynastyID": "dynasty_kerhamez",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6718,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+  {
+      "dynastyID": "dynasty_namdarez",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6718,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+  {
+      "dynastyID": "dynasty_mentarez",
       "isHouse": false,
       "faithID": "faith_tilanik",
       "cultureID": "clyan",
