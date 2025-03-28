@@ -60,7 +60,7 @@ class FamilyTree:
             char_data["is_bastard"] = True if is_bastard_match else False  # Flag for bastard trait
 
             # Debugging output
-            print(f"Is Female: {is_female_match}, Is Bastard: {char_data['is_bastard']}")
+            # print(f"Is Female: {is_female_match}, Is Bastard: {char_data['is_bastard']}")
 
             # Extract birth and death years
             birth_match = re.search(r"(\d{4})\.\d{2}\.\d{2}\s*=\s*\{\s*birth\s*=\s*yes", content)

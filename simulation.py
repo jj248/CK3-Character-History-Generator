@@ -491,8 +491,8 @@ class Simulation:
 
         sexuality_distribution = self.config['skills_and_traits']['sexualityDistribution']
         
-        logging.info(f"Creating bastard child. Parent {parent.char_id} (Born: {parent.birth_year}, Age: {parent.age}). Given birth year: {birth_year}")
-        logging.info(f"Current year: {birth_year}\n")
+        # logging.info(f"Creating bastard child. Parent {parent.char_id} (Born: {parent.birth_year}, Age: {parent.age}). Given birth year: {birth_year}")
+        # logging.info(f"Current year: {birth_year}\n")
 
         adjusted_birth_year = max(birth_year, parent.birth_year + 16)
         child = Character(
@@ -530,7 +530,7 @@ class Simulation:
         child.assign_education(self.config['skills_and_traits']['educationProbabilities'])
         child.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
 
-        logging.info(f"Bastard child {child.char_id} ({child.name}, Age {child.age}) born to {'female' if is_male else 'male'} parent {parent.char_id}.")
+        # logging.info(f"Bastard child {child.char_id} ({child.name}, Age {child.age}) born to {'female' if is_male else 'male'} parent {parent.char_id}.")
 
         return child
 

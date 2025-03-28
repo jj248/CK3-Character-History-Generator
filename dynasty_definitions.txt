@@ -58,3 +58,51 @@ dynasty_mentarez = {
 	motto = dynn_mentarez_motto
 }
 
+dynasty_A = {
+	name = "dynn_A"
+	culture = "clyan"
+	motto = dynn_A_motto
+}
+
+dynasty_B = {
+	name = "dynn_B"
+	culture = "clyan"
+	motto = dynn_B_motto
+}
+
+dynasty_C = {
+	name = "dynn_C"
+	culture = "clyan"
+	motto = dynn_C_motto
+}
+
+dynasty_D = {
+	name = "dynn_D"
+	culture = "clyan"
+	motto = dynn_D_motto
+}
+
+dynasty_E = {
+	name = "dynn_E"
+	culture = "clyan"
+	motto = dynn_E_motto
+}
+
+dynasty_F = {
+	name = "dynn_F"
+	culture = "clyan"
+	motto = dynn_F_motto
+}
+
+dynasty_G = {
+	name = "dynn_G"
+	culture = "clyan"
+	motto = dynn_G_motto
+}
+
+dynasty_H = {
+	name = "dynn_H"
+	culture = "clyan"
+	motto = dynn_H_motto
+}
+
