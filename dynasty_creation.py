@@ -21,7 +21,7 @@ def generate_dynasty_definitions(config_file, output_file="dynasty_definitions.t
                 logging.warning("Skipping dynasty with missing dynastyID.")
                 continue
             
-            file.write(f"dynn_{dynasty_id} = {{\n")
+            file.write(f"dynasty_{dynasty_id} = {{\n")
             file.write(f"\tname = \"dynn_{dynasty_id}\"\n")
             file.write(f"\tculture = \"{culture_id}\"\n")
             file.write(f"\tmotto = dynn_{dynasty_id}_motto\n")
