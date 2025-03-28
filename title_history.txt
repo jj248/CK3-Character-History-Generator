@@ -1,167 +1,287 @@
 dynasty_dadfiruzen = {
-    6540.04.28 = {
+    6540.03.03 = {
         holder = lineofdadfiruzen1
     }
-    6621.06.01 = {
-        holder = lineofdadfiruzen3
+    6635.02.23 = {
+        holder = lineofdadfiruzen4
     }
-    6654.09.07 = {
-        holder = lineofdadfiruzen10
+    6651.12.21 = {
+        holder = lineofdadfiruzen5
     }
-    6739.05.15 = {
+    6656.02.06 = {
+        holder = lineofdadfiruzen8
+    }
+    6657.02.16 = {
+        holder = lineofdadfiruzen9
+    }
+    6680.09.15 = {
+        holder = lineofdadfiruzen11
+    }
+    6685.04.16 = {
+        holder = lineofdadfiruzen13
+    }
+    6693.03.25 = {
+        holder = lineofdadfiruzen18
+    }
+    6712.10.17 = {
+        holder = lineofdadfiruzen27
+    }
+    6743.03.19 = {
+        holder = lineofdadfiruzen31
+    }
+    6754.09.05 = {
+        holder = lineofdadfiruzen35
+    }
+    6758.01.12 = {
+        holder = lineofdadfiruzen29
+    }
+    6759.04.07 = {
+        holder = lineofdadfiruzen54
+    }
+    6807.06.25 = {
+        holder = lineofdadfiruzen59
+    }
+    6820.11.16 = {
         holder = 0
     }
 }
 
 dynasty_adarfiruzen = {
-    6614.03.12 = {
+    6614.01.02 = {
         holder = lineofadarfiruzen1
     }
-    6708.12.26 = {
+    6702.12.13 = {
         holder = lineofadarfiruzen3
     }
-    6728.02.12 = {
+    6727.07.07 = {
+        holder = lineofadarfiruzen16
+    }
+    6741.12.02 = {
+        holder = lineofadarfiruzen22
+    }
+    6771.08.02 = {
+        holder = lineofadarfiruzen27
+    }
+    6793.11.10 = {
+        holder = lineofadarfiruzen43
+    }
+    6808.06.24 = {
+        holder = lineofadarfiruzen46
+    }
+    6833.12.25 = {
+        holder = lineofadarfiruzen45
+    }
+    6839.02.21 = {
+        holder = lineofadarfiruzen51
+    }
+    6840.12.10 = {
+        holder = lineofadarfiruzen61
+    }
+    6852.06.09 = {
+        holder = lineofadarfiruzen58
+    }
+    6855.09.15 = {
+        holder = lineofadarfiruzen63
+    }
+    6901.07.15 = {
         holder = 0
     }
 }
 
 dynasty_bahlikaran = {
-    6493.12.26 = {
+    6493.01.10 = {
         holder = lineofbahlikaran1
     }
-    6582.04.28 = {
-        holder = lineofbahlikaran3
+    6586.05.23 = {
+        holder = lineofbahlikaran8
     }
-    6599.11.05 = {
+    6604.09.10 = {
         holder = 0
     }
 }
 
 dynasty_khudaradmen = {
-    6811.03.26 = {
+    6811.03.01 = {
         holder = lineofkhudaradmen1
     }
-    6908.05.01 = {
-        holder = lineofkhudaradmen7
+    6902.09.24 = {
+        holder = lineofkhudaradmen3
     }
-    6941.07.08 = {
-        holder = lineofkhudaradmen8
+    6918.01.06 = {
+        holder = lineofkhudaradmen78
     }
-    6963.07.13 = {
-        holder = lineofkhudaradmen12
+    6970.05.04 = {
+        holder = lineofkhudaradmen79
     }
-    6976.01.17 = {
-        holder = lineofkhudaradmen25
+    6974.03.25 = {
+        holder = lineofkhudaradmen84
     }
-    7027.03.12 = {
-        holder = 0
+    6978.05.12 = {
+        holder = lineofkhudaradmen95
+    }
+    7010.01.06 = {
+        holder = lineofkhudaradmen117
     }
 }
 
 dynasty_esrecarzen = {
-    6792.05.28 = {
+    6792.11.02 = {
         holder = lineofesrecarzen1
     }
-    6884.12.08 = {
+    6870.04.27 = {
         holder = lineofesrecarzen3
     }
-    6896.02.06 = {
-        holder = lineofesrecarzen22
+    6905.08.28 = {
+        holder = lineofesrecarzen89
     }
-    6904.08.18 = {
+    6924.12.25 = {
+        holder = lineofesrecarzen101
+    }
+    6973.08.05 = {
         holder = 0
     }
 }
 
 dynasty_tarimez = {
-    6751.12.07 = {
+    6751.11.08 = {
         holder = lineoftarimez1
     }
-    6838.12.07 = {
+    6842.07.16 = {
         holder = lineoftarimez3
     }
-    6851.10.13 = {
-        holder = lineoftarimez12
+    6845.01.10 = {
+        holder = lineoftarimez10
     }
-    6866.07.13 = {
+    6884.10.23 = {
+        holder = lineoftarimez19
+    }
+    6900.02.25 = {
+        holder = lineoftarimez27
+    }
+    6931.06.10 = {
+        holder = lineoftarimez35
+    }
+    6935.08.11 = {
+        holder = lineoftarimez57
+    }
+    6975.10.22 = {
+        holder = lineoftarimez59
+    }
+    6983.05.26 = {
+        holder = lineoftarimez74
+    }
+    7000.05.11 = {
+        holder = lineoftarimez76
+    }
+    7018.09.24 = {
         holder = 0
     }
 }
 
 dynasty_visnarmaken = {
-    6718.11.03 = {
+    6718.02.08 = {
         holder = lineofvisnarmaken1
     }
-    6801.07.21 = {
-        holder = lineofvisnarmaken3
+    6814.02.11 = {
+        holder = lineofvisnarmaken4
     }
-    6821.06.04 = {
-        holder = 0
+    6835.04.13 = {
+        holder = lineofvisnarmaken35
+    }
+    6841.08.24 = {
+        holder = lineofvisnarmaken57
+    }
+    6866.11.09 = {
+        holder = lineofvisnarmaken58
+    }
+    6873.01.06 = {
+        holder = lineofvisnarmaken59
+    }
+    6881.01.10 = {
+        holder = lineofvisnarmaken69
+    }
+    6916.07.19 = {
+        holder = lineofvisnarmaken83
+    }
+    6946.05.08 = {
+        holder = lineofvisnarmaken90
+    }
+    6956.07.19 = {
+        holder = lineofvisnarmaken100
+    }
+    6996.11.05 = {
+        holder = lineofvisnarmaken102
+    }
+    7013.05.27 = {
+        holder = lineofvisnarmaken108
+    }
+    7018.01.25 = {
+        holder = lineofvisnarmaken114
+    }
+    7026.09.07 = {
+        holder = lineofvisnarmaken117
     }
 }
 
 dynasty_kerhamez = {
-    6718.11.25 = {
+    6718.07.07 = {
         holder = lineofkerhamez1
     }
-    6811.09.05 = {
+    6803.02.23 = {
         holder = lineofkerhamez3
     }
-    6820.02.21 = {
+    6811.08.06 = {
         holder = lineofkerhamez10
     }
-    6846.05.26 = {
-        holder = lineofkerhamez14
+    6831.11.10 = {
+        holder = lineofkerhamez34
     }
-    6881.11.22 = {
-        holder = lineofkerhamez25
-    }
-    6923.02.28 = {
-        holder = lineofkerhamez45
-    }
-    6961.09.04 = {
+    6883.11.13 = {
         holder = 0
     }
 }
 
 dynasty_namdarez = {
-    6718.05.11 = {
+    6718.01.25 = {
         holder = lineofnamdarez1
     }
-    6818.11.01 = {
-        holder = lineofnamdarez5
+    6809.09.21 = {
+        holder = lineofnamdarez3
     }
-    6828.12.02 = {
-        holder = lineofnamdarez14
-    }
-    6873.08.09 = {
-        holder = lineofnamdarez23
-    }
-    6896.04.06 = {
-        holder = lineofnamdarez31
-    }
-    6931.12.08 = {
-        holder = lineofnamdarez50
-    }
-    6956.02.02 = {
+    6819.12.11 = {
         holder = 0
     }
 }
 
 dynasty_mentarez = {
-    6718.12.11 = {
+    6718.06.22 = {
         holder = lineofmentarez1
     }
-    6795.05.11 = {
-        holder = lineofmentarez7
+    6804.03.14 = {
+        holder = lineofmentarez4
     }
-    6797.08.04 = {
+    6813.03.27 = {
         holder = lineofmentarez10
     }
-    6836.02.19 = {
-        holder = lineofmentarez16
+    6820.07.15 = {
+        holder = lineofmentarez22
     }
-    6871.02.10 = {
+    6876.08.05 = {
+        holder = lineofmentarez24
+    }
+    6881.08.17 = {
+        holder = lineofmentarez25
+    }
+    6892.11.17 = {
+        holder = lineofmentarez33
+    }
+    6901.08.12 = {
+        holder = lineofmentarez38
+    }
+    6907.08.13 = {
+        holder = lineofmentarez41
+    }
+    6927.05.13 = {
         holder = 0
     }
 }

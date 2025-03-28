@@ -134,5 +134,6 @@
   "initialCharID": 1,
   "minYear": 6400,
   "maxYear": 7033,
-  "generationMax": 25
+  "generationMax": 25,
+  "treeGeneration": "LR"
 }

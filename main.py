@@ -1,5 +1,6 @@
 import logging
 from config_loader import ConfigLoader
+from family_tree import FamilyTree
 from name_loader import NameLoader
 from simulation import Simulation
 from character import Character
@@ -104,6 +105,10 @@ def main():
 
     #Export Title History
     simulation.title_history.export_title_history("title_history.txt")
+
+    tree = FamilyTree("family_history.txt", "title_history.txt", config_loader.config)  # Ensure both files exist
+    tree.build_trees()
+    tree.render_trees()
 
 if __name__ == "__main__":
     main()

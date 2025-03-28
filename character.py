@@ -58,6 +58,15 @@ class Character:
         self.birth_year, self.birth_month, self.birth_day = map(int, birth_date_str.split('.'))
         self.add_event(birth_date_str, "birth = yes")
 
+    def siblings(self):
+        # Returns a list of siblings (children of the same parents, excluding the character itself)
+        siblings = []
+        if self.father:
+            siblings.extend([child for child in self.father.children if child != self])
+        if self.mother:
+            siblings.extend([child for child in self.mother.children if child != self])
+        return siblings
+    
     def assign_sexuality(self, sexuality_distribution):
         """Assign sexuality to the character based on distribution."""
         sexualities = list(sexuality_distribution.keys())

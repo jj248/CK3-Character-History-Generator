@@ -12,8 +12,8 @@ class Simulation:
         self.current_char_id = self.config['initialization']['initialCharID']
         self.character_count = 0
         self.dynasty_char_counters = {}
-        self.title_history = TitleHistory()
         self.all_characters = []
+        self.title_history = TitleHistory(self.all_characters)
         self.character_pool = {}
         self.unmarried_males = {}
         self.unmarried_females = {}
