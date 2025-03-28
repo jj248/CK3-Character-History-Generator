@@ -225,16 +225,17 @@ class Character:
 
                     # Determine event description
                     if event_detail.startswith("add_spouse"):
-                        event_desc = f"Married at age {age}"
+                        event_desc = f"# Married at age {age}"
                     elif event_detail.startswith("add_matrilineal_spouse"):
-                        event_desc = f"Married at age {age}"
+                        event_desc = f"# Married at age {age}"
                     elif event_detail.startswith("death"):
-                        event_desc = f"Died at age {age}"
+                        # event_desc = f"Died at age {age}"
+                        event_desc = f""
                     else:
-                        event_desc = f"Event at age {age}"
+                        event_desc = f"# Event at age {age}"
 
                     # Add comment
-                    lines.append(f"\t{event_date} = {{  # {event_desc}")
+                    lines.append(f"\t{event_date} = {{  {event_desc}")
                     lines.append(f"\t    {event_detail}")
                     lines.append(f"\t}}")
 
