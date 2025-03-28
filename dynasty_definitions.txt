@@ -1,58 +1,58 @@
-dynn_dadfiruzen = {
+dynasty_dadfiruzen = {
 	name = "dynn_dadfiruzen"
 	culture = "clyan"
 	motto = dynn_dadfiruzen_motto
 }
 
-dynn_adarfiruzen = {
+dynasty_adarfiruzen = {
 	name = "dynn_adarfiruzen"
 	culture = "clyan"
 	motto = dynn_adarfiruzen_motto
 }
 
-dynn_bahlikaran = {
+dynasty_bahlikaran = {
 	name = "dynn_bahlikaran"
 	culture = "clyan"
 	motto = dynn_bahlikaran_motto
 }
 
-dynn_khudaradmen = {
+dynasty_khudaradmen = {
 	name = "dynn_khudaradmen"
 	culture = "clyan"
 	motto = dynn_khudaradmen_motto
 }
 
-dynn_esrecarzen = {
+dynasty_esrecarzen = {
 	name = "dynn_esrecarzen"
 	culture = "clyan"
 	motto = dynn_esrecarzen_motto
 }
 
-dynn_tarimez = {
+dynasty_tarimez = {
 	name = "dynn_tarimez"
 	culture = "clyan"
 	motto = dynn_tarimez_motto
 }
 
-dynn_visnarmaken = {
+dynasty_visnarmaken = {
 	name = "dynn_visnarmaken"
 	culture = "clyan"
 	motto = dynn_visnarmaken_motto
 }
 
-dynn_kerhamez = {
+dynasty_kerhamez = {
 	name = "dynn_kerhamez"
 	culture = "clyan"
 	motto = dynn_kerhamez_motto
 }
 
-dynn_namdarez = {
+dynasty_namdarez = {
 	name = "dynn_namdarez"
 	culture = "clyan"
 	motto = dynn_namdarez_motto
 }
 
-dynn_mentarez = {
+dynasty_mentarez = {
 	name = "dynn_mentarez"
 	culture = "clyan"
 	motto = dynn_mentarez_motto
