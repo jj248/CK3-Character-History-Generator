@@ -98,6 +98,6 @@
   "marriageMaxAgeDifference": 5,
   "maximumNumberOfChildren": 5,
   "minimumYearsBetweenChildren": 2,
-  "bastardyChanceMale": 0.002,
-  "bastardyChanceFemale": 0.001
+  "bastardyChanceMale": 0.00075,
+  "bastardyChanceFemale": 0.00025
 }

@@ -16,8 +16,10 @@ class Character:
         sexuality_distribution, 
         is_house=False,
         generation=1, 
-        is_progenitor=False
+        is_progenitor=False,
+        is_bastard=False
     ):
+        self.is_bastard=False
         self.char_id = char_id
         self.name = name
         self.sex = sex

@@ -106,6 +106,8 @@ def main():
     #Export Title History
     simulation.title_history.export_title_history("title_history.txt")
 
+    # if initialization_config.get['initialization']['treeGeneration'] == "both":
+         
     tree = FamilyTree("family_history.txt", "title_history.txt", config_loader.config)  # Ensure both files exist
     tree.build_trees()
     tree.render_trees()

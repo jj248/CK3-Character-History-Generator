@@ -140,7 +140,7 @@ class Simulation:
         # Enforce maximum number of children per woman
         maximum_children = self.config['life_stages']['maximumNumberOfChildren']
         if len(mother.children) >= maximum_children:
-            logging.info(f"{mother.char_id} has reached the maximum number of children ({maximum_children}).")
+            # logging.info(f"{mother.char_id} has reached the maximum number of children ({maximum_children}).")
             return None
 
         # Enforce minimum years between children
@@ -162,7 +162,7 @@ class Simulation:
         # Set a cap per dynasty per generation (adjust as needed)
         dynasty_child_cap = 12  
         if dynasty_gen_count.get((father.dynasty, father.generation), 0) >= dynasty_child_cap:
-            logging.info(f"Dynasty {father.dynasty} has reached max children per generation. No more children will be created.")
+            # logging.info(f"Dynasty {father.dynasty} has reached max children per generation. No more children will be created.")
             return None  # Prevent excess children
         
         # Proceed with child creation
@@ -439,7 +439,7 @@ class Simulation:
         maximum_children = self.config['life_stages']['maximumNumberOfChildren']
         # Check if parent has reached maximum number of children
         if len(parent.children) >= maximum_children:
-            logging.info(f"{parent.char_id} has reached the maximum number of children ({maximum_children}). Cannot have more bastard children.")
+            # logging.info(f"{parent.char_id} has reached the maximum number of children ({maximum_children}). Cannot have more bastard children.")
             return None
 
         # For females, check fertility rate again
@@ -490,19 +490,24 @@ class Simulation:
             )
 
         sexuality_distribution = self.config['skills_and_traits']['sexualityDistribution']
+        
+        logging.info(f"Creating bastard child. Parent {parent.char_id} (Born: {parent.birth_year}, Age: {parent.age}). Given birth year: {birth_year}")
+        logging.info(f"Current year: {birth_year}\n")
 
+        adjusted_birth_year = max(birth_year, parent.birth_year + 16)
         child = Character(
             char_id=child_char_id,
             name=child_name,
             sex=child_sex,
-            birth_year=birth_year,
+            birth_year=adjusted_birth_year,
             dynasty=child_dynasty,
             is_house=child_is_house,            
             culture=child_culture,
             religion=child_religion,
             gender_law=child_gender_law,
             sexuality_distribution=sexuality_distribution,
-            generation=child_generation
+            generation=child_generation,
+            is_bastard=True
         )
 
         # Set parent(s)

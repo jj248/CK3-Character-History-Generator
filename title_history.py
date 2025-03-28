@@ -18,7 +18,7 @@ class TitleHistory:
 
         birth_date = f"{character.birth_year}.{character.birth_month:02}.{character.birth_day:02}"
         self.titles[dynasty][birth_date] = {"holder": character.char_id}
-        logging.info(f"Title for dynasty {dynasty} assigned to {character.char_id} on {birth_date}.")
+        # logging.info(f"Title for dynasty {dynasty} assigned to {character.char_id} on {birth_date}.")
 
     def update_holder(self, deceased_character, new_holder):
         dynasty = deceased_character.dynasty
@@ -36,34 +36,38 @@ class TitleHistory:
         if new_holder:
             # Assign new holder only after the previous holder has died
             self.titles[dynasty][death_date] = {"holder": new_holder.char_id}
-            logging.info(f"Title for dynasty {dynasty} inherited by {new_holder.char_id} on {death_date}.")
+            # logging.info(f"Title for dynasty {dynasty} inherited by {new_holder.char_id} on {death_date}.")
         elif last_holder != 0:  # Only add `holder = 0` if it's not already 0
             self.titles[dynasty][death_date] = {"holder": 0}
-            logging.warning(f"Title for dynasty {dynasty} has no heirs on {death_date}.")
-
+            # logging.warning(f"Title for dynasty {dynasty} has no heirs on {death_date}.")
 
     def find_new_heir(self, deceased_character):
         gender_law = deceased_character.gender_law
-        male_heirs = [c for c in deceased_character.children if c.alive and c.sex == "Male" and c.dynasty == deceased_character.dynasty]
-        female_heirs = [c for c in deceased_character.children if c.alive and c.sex == "Female" and c.dynasty == deceased_character.dynasty]
+        
+        male_heirs = [c for c in deceased_character.children if c.alive and c.sex == "Male" and c.dynasty == deceased_character.dynasty and not c.is_bastard]
+        female_heirs = [c for c in deceased_character.children if c.alive and c.sex == "Female" and c.dynasty == deceased_character.dynasty and not c.is_bastard]
 
         if not male_heirs and not female_heirs:
-            # Step 1: Start with closely related members (children, parents, siblings)
+            # Step 1: Closest relatives first (children, parents, siblings)
             closely_related_members = [
-                c for c in self.characters 
-                if c.dynasty == deceased_character.dynasty and c.alive and 
+                c for c in self.characters
+                if c.dynasty == deceased_character.dynasty and c.alive and not c.is_bastard and
                 (c in deceased_character.children or c in [deceased_character.father, deceased_character.mother] or c in deceased_character.siblings())
             ]
-            
-            # Add closely related members first
+
             male_heirs.extend([c for c in closely_related_members if c.sex == "Male"])
             female_heirs.extend([c for c in closely_related_members if c.sex == "Female"])
 
-            # Step 2: If no heirs, find grandchildren and great-grandchildren first (higher priority)
+            # Step 2: Look for grandchildren & great-grandchildren
             if not male_heirs and not female_heirs:
-                # Find grandchildren (children of the deceased character's children)
-                grandchildren = [gc for c in deceased_character.children if c.alive for gc in c.children if gc.dynasty == deceased_character.dynasty]
-                great_grandchildren = [ggc for gc in grandchildren for ggc in gc.children if ggc.dynasty == deceased_character.dynasty]
+                grandchildren = [
+                    gc for c in deceased_character.children if c.alive 
+                    for gc in c.children if gc.dynasty == deceased_character.dynasty and not gc.is_bastard
+                ]
+                great_grandchildren = [
+                    ggc for gc in grandchildren 
+                    for ggc in gc.children if ggc.dynasty == deceased_character.dynasty and not ggc.is_bastard
+                ]
 
                 male_heirs.extend([c for c in grandchildren if c.sex == "Male"])
                 female_heirs.extend([c for c in grandchildren if c.sex == "Female"])
@@ -71,40 +75,67 @@ class TitleHistory:
                 male_heirs.extend([c for c in great_grandchildren if c.sex == "Male"])
                 female_heirs.extend([c for c in great_grandchildren if c.sex == "Female"])
 
-            # Step 3: If no heirs or descendants found, attempt to find cousins and beyond
+            # Step 3: Search for cousins (1st-7th, up to 5x removed)
             if not male_heirs and not female_heirs:
-                # Recursive function to collect cousins of any generation and their descendants
-                def collect_cousins(cousins_list, generation=1):
-                    new_cousins = []
-                    for cousin in cousins_list:
+                def collect_cousins(starting_relatives, max_cousin_degree=7, max_removals=5):
+                    queue = [(cousin, 1, 0) for cousin in starting_relatives]  # (Cousin, Degree, Removal Level)
+                    collected_cousins = []
+                    processed_cousins = set()  # Set to track already processed cousins
+
+                    while queue:
+                        cousin, degree, removals = queue.pop(0)
+
+                        # Skip if we've already processed this cousin
+                        if cousin in processed_cousins:
+                            continue
+
+                        if degree > max_cousin_degree or removals > max_removals:
+                            continue  # Stop at max limit
+
+                        # Mark this cousin as processed
+                        processed_cousins.add(cousin)
+
+                        if cousin.dynasty == deceased_character.dynasty and cousin.alive and not cousin.is_bastard:
+                            collected_cousins.append(cousin)
+
+                        # Find children (one level removed)
                         for cousin_child in cousin.children:
-                            if cousin_child.dynasty == deceased_character.dynasty and cousin_child.alive:
-                                new_cousins.append(cousin_child)
+                            if cousin_child.dynasty == deceased_character.dynasty and cousin_child.alive and not cousin_child.is_bastard:
+                                queue.append((cousin_child, degree, removals + 1))
 
-                    if new_cousins:
-                        cousins_list.extend(new_cousins)
-                        collect_cousins(new_cousins, generation + 1)
+                        # Find siblings of this cousin’s parents (i.e., next-degree cousins)
+                        for parent in [cousin.father, cousin.mother]:
+                            if parent and parent.father and parent.mother:  # Ensure grandparent exists
+                                for sibling in parent.father.children + parent.mother.children:
+                                    if sibling != parent:  # Avoid direct parent
+                                        for sibling_child in sibling.children:
+                                            if sibling_child.dynasty == deceased_character.dynasty and sibling_child.alive and not sibling_child.is_bastard:
+                                                queue.append((sibling_child, degree + 1, removals))
 
-                # Find first cousins (siblings of the deceased character's parents)
-                cousins = []
+                    return collected_cousins
+
+                # Find initial set of cousins (1st cousins)
+                starting_cousins = []
                 for parent in [deceased_character.father, deceased_character.mother]:
-                    if parent:  # Ensure the parent exists
-                        for sibling in parent.children:  # Get the parent's siblings
-                            if sibling != deceased_character:  # Skip the deceased character
-                                cousins.extend([c for c in sibling.children if c.dynasty == deceased_character.dynasty and c.alive])  # Ensure cousins are alive
+                    if parent:
+                        for sibling in parent.siblings():  # Parent's siblings
+                            for cousin in sibling.children:  # Their children = 1st cousins
+                                if cousin.dynasty == deceased_character.dynasty and cousin.alive and not cousin.is_bastard:
+                                    starting_cousins.append(cousin)
 
-                # Start the recursive cousin collection
-                collect_cousins(cousins)
+                # Collect all cousins up to 7th cousin, 5x removed
+                all_cousins = collect_cousins(starting_cousins)
 
-                # After collecting all cousins and their descendants, add them to heirs
-                male_heirs.extend([c for c in cousins if c.sex == "Male"])
-                female_heirs.extend([c for c in cousins if c.sex == "Female"])
+                male_heirs.extend([c for c in all_cousins if c.sex == "Male"])
+                female_heirs.extend([c for c in all_cousins if c.sex == "Female"])
 
-        # Step 4: If no heirs or descendants found, attempt to find the closest living member of the dynasty
+        # Step 4: Find the closest living dynasty member
         if not male_heirs and not female_heirs:
-            closest_dynasty_members = [c for c in self.characters if c.dynasty == deceased_character.dynasty and c.alive]
+            closest_dynasty_members = [
+                c for c in self.characters if c.dynasty == deceased_character.dynasty and c.alive and not c.is_bastard
+            ]
 
-            # Find the closest living member based on age (oldest first, or youngest depending on gender law)
+            # Sort by age
             closest_dynasty_member = None
             if closest_dynasty_members:
                 if gender_law == "male":
@@ -120,11 +151,12 @@ class TitleHistory:
                 else:
                     female_heirs.append(closest_dynasty_member)
 
-        # Step 5: If no heir found, select a random living member of the dynasty
+        # Step 5: If no heir is found, select a random dynasty member
         if not male_heirs and not female_heirs:
-            all_living_members = [c for c in self.characters if c.dynasty == deceased_character.dynasty and c.alive]
+            all_living_members = [
+                c for c in self.characters if c.dynasty == deceased_character.dynasty and c.alive and not c.is_bastard
+            ]
             if all_living_members:
-                # Randomly select a living character from the dynasty
                 selected_member = random.choice(all_living_members)
                 if selected_member.sex == "Male":
                     male_heirs.append(selected_member)
@@ -164,7 +196,6 @@ class TitleHistory:
                 if potential_heir and potential_heir.char_id == deceased_character.char_id:
                     # If the deceased character was an heir, update the title
                     self.update_holder(deceased_character, potential_heir)
-
 
     def export_title_history(self, filename="title_history.txt"):
         with open(filename, "w", encoding="utf-8") as file:

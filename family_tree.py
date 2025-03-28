@@ -1,6 +1,17 @@
 import re
 import graphviz
 from collections import defaultdict
+from config_loader import ConfigLoader
+
+#########################################################
+#   For the graph direction, valid arguments are:       #
+#   LR - Left->Right                                    #
+#   RL - Right->Left                                    #
+#   TB - Top->Bottom                                    #
+#   BT - Bottom->Top                                    #
+#   Both - Will generate LR and TB both                 #
+#########################################################
+
 
 class FamilyTree:
     def __init__(self, character_file, title_file, config):
@@ -23,10 +34,10 @@ class FamilyTree:
             if year.isdigit():  # Ensure it's a valid number
                 year = int(year)
                 if year > 4033:
-                    return f"T.A. {year - 4033}"
+                    return f"{year - 4033}"
                 elif 592 < year <= 4033:
-                    return f"S.A. {year - 592}"
-            return "Unknown"  # Default if invalid
+                    return f"{year - 592}"
+            return ""  # Default if invalid
 
         # Regex to find each character block
         character_blocks = re.findall(r"(\w+) = \{\s*((?:[^{}]*|\{(?:[^{}]*|\{[^}]*\})*\})*)\s*\}", data, re.DOTALL)
@@ -35,26 +46,35 @@ class FamilyTree:
             char_data = {"id": identifier}
 
             # Extracting values
-            char_data["id"] = identifier
             char_data["name"] = self.extract_value(r"name\s*=\s*(\w+)", content)
             char_data["father"] = self.extract_value(r"father\s*=\s*(\w+)", content, default=None)
             char_data["mother"] = self.extract_value(r"mother\s*=\s*(\w+)", content, default=None)
             char_data["dynasty"] = self.extract_value(r"dynasty\s*=\s*(\w+)", content, default="Lowborn")
 
+            # Ensure "is_female" is detected correctly
+            is_female_match = re.search(r"\bfemale\b\s*=\s*yes", content, re.IGNORECASE)
+            char_data["female"] = "yes" if is_female_match else "no"  # Default to male if absent
+
+            # Check for bastard trait
+            is_bastard_match = re.search(r"\btrait\s*=\s*bastard\b", content, re.IGNORECASE)
+            char_data["is_bastard"] = True if is_bastard_match else False  # Flag for bastard trait
+
+            # Debugging output
+            print(f"Is Female: {is_female_match}, Is Bastard: {char_data['is_bastard']}")
+
             # Extract birth and death years
             birth_match = re.search(r"(\d{4})\.\d{2}\.\d{2}\s*=\s*\{\s*birth\s*=\s*yes", content)
             death_match = re.search(r"(\d{4})\.\d{2}\.\d{2}\s*=\s*\{\s*death", content, re.DOTALL)
 
-            char_data["birth_year"] = convert_to_ingame_date(birth_match.group(1)) if birth_match else "Unknown"
-            char_data["death_year"] = convert_to_ingame_date(death_match.group(1)) if death_match else "Unknown"
+            char_data["birth_year"] = convert_to_ingame_date(birth_match.group(1)) if birth_match else ""
+            char_data["death_year"] = convert_to_ingame_date(death_match.group(1)) if death_match else ""
 
             # Store character data
             self.characters[identifier] = char_data
             self.dynasties[char_data["dynasty"]].append(identifier)  # Group by dynasty
 
-        # **Debugging Output: Ensure Characters Are Loaded**
+        # Debugging Output: Ensure Characters Are Loaded
         # print("Characters Loaded:", list(self.characters.keys()))  # <-- Debugging line
-
 
     def load_titles(self, filename):
         """Parse title history to find characters who held a title."""
@@ -80,9 +100,7 @@ class FamilyTree:
 
         # print("Title Holders Identified:", self.title_holders)  # <-- Final check
 
-
-
-    def extract_value(self, pattern, text, default="Unknown"):
+    def extract_value(self, pattern, text, default=""):
         """Helper function to extract values from a text block."""
         match = re.search(pattern, text)
         return match.group(1) if match else default
@@ -91,7 +109,7 @@ class FamilyTree:
         """Generate a family tree visualization for each dynasty."""
         for dynasty, members in self.dynasties.items():
             graph = graphviz.Digraph(comment=f"{dynasty} Family Tree", graph_attr={"rankdir": self.graphLook})
-            
+
             # Keep track of external parent nodes and marriages
             external_nodes = {}
             marriages = {}  # Dictionary to store marriage relationships (spouse1 -> spouse2)
@@ -106,7 +124,24 @@ class FamilyTree:
                 node_color = "pink" if char_id in self.title_holders else "white"
 
                 label = f'< <b>{char["name"]}</b><br/>{char["id"]}<br/>{char["birth_year"]} - {char["death_year"]} >'
-                graph.node(char["id"], label=label, style="filled", fillcolor=node_color)
+                border_color = "blue"  # Default for males
+                if char.get("female") == "yes":
+                    border_color = "red"  # Assign red for females
+
+                # Check if the character is a bastard and add a diagonal mark
+                node_style = "filled"
+                fillcolor = node_color
+                penwidth = "2"
+                diagonal_mark = ""
+
+                if char.get("is_bastard", False):  # Check if the character is a bastard
+                    diagonal_mark = 'diagonal line from top-left to bottom-right'
+                    # To represent the mark, we'll use a "diagonal line" as an additional part of the node
+                    node_style += ", diagonals"  # We use a custom style to simulate diagonal lines
+
+
+                # Create the node with a large enough diagonal mark for bastards
+                graph.node(char["id"], label=label, style=node_style, fillcolor=fillcolor, color=border_color, penwidth=penwidth)
 
                 # Check for a spouse (marriage detection)
                 spouse_id = self.characters.get(char_id, {}).get("spouse")  # Assuming 'spouse' field exists
@@ -119,24 +154,32 @@ class FamilyTree:
                     parent_id = char.get(parent_type)
                     if parent_id in self.characters:
                         parent_dynasty = self.characters[parent_id]["dynasty"]
+
+                        # If parent is in the same dynasty, link directly
                         if parent_dynasty == dynasty:
                             graph.edge(parent_id, char_id)
-                        else:
-                            # Handle external parents (married outside dynasty)
+
+                        # Else, check if we should show external parents
+                        elif self.config.get('initialization', {}).get('spouseVisible', []) == "yes":
                             external_node_id = f"external_{parent_id}"
                             if external_node_id not in external_nodes:
-                                external_label = f'< <b>{self.characters[parent_id]["name"]}</b><br/>{self.characters[parent_id]["birth_year"]} - {self.characters[parent_id]["death_year"]} >'
-                                graph.node(external_node_id, label=external_label, shape="ellipse", style="dashed")
-                                external_nodes[external_node_id] = external_label  # Mark as used
+                                external_label = (
+                                    f'< <b>{self.characters[parent_id]["name"]}</b><br/>'
+                                    f'{self.characters[parent_id]["birth_year"]} - '
+                                    f'{self.characters[parent_id]["death_year"]} >'
+                                )
+                                graph.node(external_node_id, label=external_label,
+                                        shape="ellipse", style="dashed")
+                                external_nodes[external_node_id] = external_label
 
+                            # Draw dashed edge from external parent to child
                             graph.edge(external_node_id, char_id, style="dashed")
 
-                            # Check for spouse and draw a thick line between the external parent and spouse
+                            # Check for spouse of external parent and draw a thick line if exists
                             spouse_id = self.characters.get(parent_id, {}).get("spouse")
                             if spouse_id and spouse_id in self.characters:
-                                # Draw a bold line between the external parent and their spouse
-                                graph.edge(external_node_id, spouse_id, style="bold", penwidth="3", color="black")
-
+                                graph.edge(external_node_id, spouse_id,
+                                        style="bold", penwidth="3", color="black")
 
             # Draw marriage lines with bold, thick edges
             for spouse1, spouse2 in marriages.items():
@@ -155,10 +198,16 @@ class FamilyTree:
 
 
 
-
     def render_trees(self):
         """Render the family trees to files."""
         for dynasty, graph in self.graphs.items():
             filename = f"family_tree_{dynasty}"
             graph.render(filename, format="png", cleanup=True)
             print(f"Family tree for {dynasty} saved as {filename}.png")
+
+
+if __name__ == "__main__":
+    config_loader = ConfigLoader('config')  # Ensure 'config' directory is correct
+    tree = FamilyTree("family_history.txt", "title_history.txt", config_loader.config)  # Ensure both files exist
+    tree.build_trees()
+    tree.render_trees()

@@ -135,5 +135,6 @@
   "minYear": 6400,
   "maxYear": 7033,
   "generationMax": 25,
-  "treeGeneration": "LR"
+  "treeGeneration": "LR",
+  "spouseVisible": "no"
 }
