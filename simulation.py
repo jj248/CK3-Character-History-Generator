@@ -150,7 +150,6 @@ class Simulation:
         # Enforce maximum number of children per woman
         maximum_children = self.config['life_stages']['maximumNumberOfChildren']
         if len(mother.children) >= maximum_children:
-            # logging.info(f"{mother.char_id} has reached the maximum number of children ({maximum_children}).")
             return None
 
         # Enforce minimum years between children
@@ -172,7 +171,6 @@ class Simulation:
         # Set a cap per dynasty per generation (adjust as needed)
         dynasty_child_cap = 15
         if dynasty_gen_count.get((father.dynasty, father.generation), 0) >= dynasty_child_cap:
-            # logging.info(f"Dynasty {father.dynasty} has reached max children per generation. No more children will be created.")
             return None  # Prevent excess children
         
         # Proceed with child creation
@@ -243,6 +241,9 @@ class Simulation:
         
         sexuality_distribution = self.config['skills_and_traits']['sexualityDistribution']
 
+        # Assign birth order before creating the child
+        birth_order = len(mother.children) + 1  # Calculate birth order based on mother's children
+
         child = Character(
             char_id=child_char_id,
             name=child_name,
@@ -254,7 +255,8 @@ class Simulation:
             religion=child_religion,
             gender_law=child_gender_law,
             sexuality_distribution=sexuality_distribution,
-            generation=child_generation
+            generation=child_generation,
+            birth_order=birth_order  # Pass birth order when creating the child
         )
 
         # Set parents
@@ -275,7 +277,6 @@ class Simulation:
 
         return child
 
-		
     def assign_child_name(self, child_sex, mother, father, child_dynasty):
         """Assigns a child's name based on dynasty inheritance chances."""
         
@@ -320,8 +321,7 @@ class Simulation:
         # Assign a random name from the name list
         assigned_name = self.name_loader.load_names(mother.culture, child_sex.lower())
         return self.ensure_unique_name(assigned_name, mother, father, child_sex.lower())
-
-			
+	
     def ensure_unique_name(self, proposed_name, mother, father, child_gender):
         """Ensures every child receives a name, even if it's a duplicate."""
         existing_names = {child.name for child in mother.children + father.children if child.alive}
@@ -353,7 +353,6 @@ class Simulation:
         logging.error(f"No available names for culture '{culture}' and sex '{child_sex}'. Assigning fallback.")
         return f"Default_{child_sex}"  # Fallback name if list is empty
 
-
     def match_marriages(self, males, females, year):
         # Track dynasty sizes
         dynasty_sizes = {dyn: 0 for dyn in set(c.dynasty for c in self.all_characters if c.dynasty)}
@@ -362,8 +361,8 @@ class Simulation:
                 dynasty_sizes[character.dynasty] += 1
 
         # Prioritize dynasties with fewer members for marriage
-        males.sort(key=lambda c: dynasty_sizes.get(c.dynasty, 0))
-        females.sort(key=lambda c: dynasty_sizes.get(c.dynasty, 0))
+        males.sort(key=lambda c: (dynasty_sizes.get(c.dynasty, 0), c.birth_order if c.birth_order is not None else float('inf')))
+        females.sort(key=lambda c: (dynasty_sizes.get(c.dynasty, 0), c.birth_order if c.birth_order is not None else float('inf')))
 
         # Ensure all progenitor children get married
         for character in self.all_characters:
@@ -374,12 +373,13 @@ class Simulation:
             if not male.alive or male.married or not male.can_marry:
                 continue
             
+            # Prioritize marriage for firstborn children
             available_females = [
                 f for f in females 
                 if f.alive and not f.married and f.can_marry and 
-                   (f.dynasty != male.dynasty or f.dynasty is None) and 
-                   not self.are_siblings(male, f) and
-                   abs(f.age - male.age) <= self.marriage_max_age_diff
+                (f.dynasty != male.dynasty or f.dynasty is None) and 
+                not self.are_siblings(male, f) and
+                abs(f.age - male.age) <= self.marriage_max_age_diff
             ]
             
             if available_females:
@@ -387,15 +387,17 @@ class Simulation:
                 self.marry_characters(male, female, year)
                 continue
             
+            # If no match, try desperation marriage
             if self.desperation_marriage_check(male, year):
                 continue
-            
+
+            # If still no match, prioritize same-dynasty marriage
             available_females = [
                 f for f in females 
                 if f.alive and not f.married and f.can_marry and 
-                   (f.dynasty == male.dynasty) and 
-                   not self.are_siblings(male, f) and
-                   abs(f.age - male.age) <= self.marriage_max_age_diff
+                (f.dynasty == male.dynasty) and 
+                not self.are_siblings(male, f) and
+                abs(f.age - male.age) <= self.marriage_max_age_diff
             ]
             
             if available_females:
@@ -449,7 +451,6 @@ class Simulation:
         maximum_children = self.config['life_stages']['maximumNumberOfChildren']
         # Check if parent has reached maximum number of children
         if len(parent.children) >= maximum_children:
-            # logging.info(f"{parent.char_id} has reached the maximum number of children ({maximum_children}). Cannot have more bastard children.")
             return None
 
         # For females, check fertility rate again
@@ -467,9 +468,30 @@ class Simulation:
         if child_generation > self.config['initialization']['generationMax']:
             return None  # Do not create child
 
-        child_sex = "Male" if is_male else "Female"
+        # Determine Gender Preference Based on Laws
+        gender_preference = None
+        if parent.gender_law == "male":
+            gender_preference = "Male"
+        elif parent.gender_law == "female":
+            gender_preference = "Female"
 
-        # Assign dynasty based on parent
+        # **Check existing siblings**
+        siblings = parent.children  # Parent's children
+        has_male_sibling = any(sibling.sex == "Male" for sibling in siblings)
+        has_female_sibling = any(sibling.sex == "Female" for sibling in siblings)
+
+        # Apply gender bias (+25%) only if no sibling of that gender exists
+        base_chance = 0.5
+        if gender_preference == "Male" and not has_male_sibling:
+            male_chance = min(0.75, base_chance + 0.25)
+        elif gender_preference == "Female" and not has_female_sibling:
+            male_chance = max(0.25, base_chance - 0.25)
+        else:
+            male_chance = base_chance  # No modification
+
+        child_sex = "Male" if random.random() < male_chance else "Female"
+
+        # Assign dynasty and culture based on parent
         child_dynasty = parent.dynasty
         child_is_house = parent.is_house       
         child_culture = parent.culture
@@ -482,29 +504,19 @@ class Simulation:
         child_char_id = generate_char_id(dynasty_prefix, self.dynasty_char_counters)
 
         # Assign name based on inheritance chances
-        if is_male:
-            # Bastard male child: no mother
-            child_name = self.assign_child_name(
-                child_sex=child_sex,
-                mother=parent,
-                father=parent,
-                child_dynasty=child_dynasty
-            )
-        else:
-            # Bastard female child: no father
-            child_name = self.assign_child_name(
-                child_sex=child_sex,
-                mother=parent,
-                father=parent,
-                child_dynasty=child_dynasty
-            )
+        child_name = self.assign_child_name(
+            child_sex=child_sex,
+            mother=parent,
+            father=parent,
+            child_dynasty=child_dynasty
+        )
 
         sexuality_distribution = self.config['skills_and_traits']['sexualityDistribution']
-        
-        # logging.info(f"Creating bastard child. Parent {parent.char_id} (Born: {parent.birth_year}, Age: {parent.age}). Given birth year: {birth_year}")
-        # logging.info(f"Current year: {birth_year}\n")
 
-        adjusted_birth_year = max(birth_year, parent.birth_year + 16)
+        # Assign birth order before creating the child
+        birth_order = len(parent.children) + 1  # Calculate birth order based on parent's children
+
+        adjusted_birth_year = max(birth_year, parent.birth_year + 16)  # Adjust birth year based on parent's age
         child = Character(
             char_id=child_char_id,
             name=child_name,
@@ -517,21 +529,20 @@ class Simulation:
             gender_law=child_gender_law,
             sexuality_distribution=sexuality_distribution,
             generation=child_generation,
-            is_bastard=True
+            is_bastard=True,
+            birth_order=birth_order  # Pass birth order when creating the child
         )
 
         # Set parent(s)
         if is_male:
-            # Bastard child: father exists, mother is None
             child.father = parent
             child.mother = None
             parent.children.append(child)
         else:
-            # Bastard child: mother exists, father is None
             child.mother = parent
             child.father = None
             parent.children.append(child)
-			
+
         # Assign the 'bastard' trait
         child.add_trait('bastard')
 
@@ -539,8 +550,6 @@ class Simulation:
         child.assign_skills(self.config['skills_and_traits']['skillProbabilities'])
         child.assign_education(self.config['skills_and_traits']['educationProbabilities'])
         child.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
-
-        # logging.info(f"Bastard child {child.char_id} ({child.name}, Age {child.age}) born to {'female' if is_male else 'male'} parent {parent.char_id}.")
 
         return child
 

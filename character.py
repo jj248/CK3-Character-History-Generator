@@ -17,9 +17,10 @@ class Character:
         is_house=False,
         generation=1, 
         is_progenitor=False,
-        is_bastard=False
+        is_bastard=False,
+        birth_order=None  # Add birth_order as an argument
     ):
-        self.is_bastard=False
+        self.is_bastard = is_bastard
         self.char_id = char_id
         self.name = name
         self.sex = sex
@@ -55,10 +56,14 @@ class Character:
         self.can_marry = True
         self.assign_sexuality(sexuality_distribution)
         
+        # Set the birth order if provided, otherwise default to None
+        self.birth_order = birth_order
+        
         # Record birth event
         birth_date_str = generate_random_date(self.birth_year)
         self.birth_year, self.birth_month, self.birth_day = map(int, birth_date_str.split('.'))
         self.add_event(birth_date_str, "birth = yes")
+
 
     def siblings(self):
         # Returns a list of siblings (children of the same parents, excluding the character itself)
