@@ -131,7 +131,7 @@
       }
     },
   {
-      "dynastyID": "dynasty_A",
+      "dynastyID": "dynasty_naymardan",
       "isHouse": false,
       "faithID": "faith_tilanik",
       "cultureID": "clyan",
@@ -144,7 +144,7 @@
       }
     },
   {
-      "dynastyID": "dynasty_B",
+      "dynastyID": "dynasty_shirzadeh",
       "isHouse": false,
       "faithID": "faith_tilanik",
       "cultureID": "clyan",
@@ -157,7 +157,7 @@
       }
     },
   {
-      "dynastyID": "dynasty_C",
+      "dynastyID": "dynasty_farshidzen",
       "isHouse": false,
       "faithID": "faith_tilanik",
       "cultureID": "clyan",
@@ -170,7 +170,7 @@
       }
     },
   {
-      "dynastyID": "dynasty_D",
+      "dynastyID": "dynasty_vahramzen",
       "isHouse": false,
       "faithID": "faith_tilanik",
       "cultureID": "clyan",
@@ -183,7 +183,7 @@
       }
     },
   {
-      "dynastyID": "dynasty_E",
+      "dynastyID": "dynasty_dahmard",
       "isHouse": false,
       "faithID": "faith_tilanik",
       "cultureID": "clyan",
@@ -196,7 +196,7 @@
       }
     },
   {
-      "dynastyID": "dynasty_F",
+      "dynastyID": "dynasty_bahraman",
       "isHouse": false,
       "faithID": "faith_tilanik",
       "cultureID": "clyan",
@@ -209,7 +209,7 @@
       }
     },
   {
-      "dynastyID": "dynasty_G",
+      "dynastyID": "dynasty_zaravan",
       "isHouse": false,
       "faithID": "faith_tilanik",
       "cultureID": "clyan",
@@ -222,7 +222,7 @@
       }
     },
   {
-      "dynastyID": "dynasty_H",
+      "dynastyID": "dynasty_adarsharzen",
       "isHouse": false,
       "faithID": "faith_tilanik",
       "cultureID": "clyan",
@@ -235,10 +235,26 @@
       }
     }
   ],
+  "events": [
+    {
+      "eventID": "event_plague",
+      "startYear": 5668,
+      "endYear": 5670,
+      "deathReason": "bubonic_plague",
+      "deathMultiplier": 1.5
+    },
+    {
+      "eventID": "event_war",
+      "startYear": 5983,
+      "endYear": 6083,
+      "deathReason": "death_battle",
+      "deathMultiplier": 1.3
+    }
+  ],
   "initialCharID": 1,
   "minYear": 6000,
   "maxYear": 7033,
-  "generationMax": 25,
+  "generationMax": 28,
   "treeGeneration": "LR",
   "spouseVisible": "no"
 }

@@ -1,5 +1,6 @@
 import random
 import logging
+import re
 from character import Character
 from utils import generate_random_date, generate_char_id
 from name_loader import NameLoader
@@ -83,20 +84,29 @@ class Simulation:
     def character_death_check(self, character):
         age = character.age
         sex = character.sex
+        birth_year = character.birth_year  # Assuming character has a birth year attribute
+        current_year = birth_year + age  # Determine the current year for the character
 
         if age < 0 or age > 120:
             age = max(0, min(age, 120))
 
         mortality_rates = self.config['life_stages']['mortalityRates'][sex]
 
-        if 1 > age:
-            mortality_rate = 0 # Always ensure they're at least 1 yr old to make sure we don't have deaths before births
-        elif 1 <= age < len(mortality_rates):
+        if age < 1:
+            mortality_rate = 0  # Ensure no deaths before age 1
+        elif age < len(mortality_rates):
             mortality_rate = mortality_rates[age]
         else:
             mortality_rate = 1.0  # 100% chance of death
 
+        # Check for any active event that affects death chances
+        for event in self.config.get("events", []):
+            if event["startYear"] <= current_year <= event["endYear"]:
+                mortality_rate *= event["deathMultiplier"]
+                break  # Apply only the first matching event multiplier
+
         return random.random() < mortality_rate
+
 
     def marry_characters(self, char1, char2, year, marriage_type=None, children_dynasty=None):
         if char1.char_id == char2.char_id:
@@ -160,7 +170,7 @@ class Simulation:
                 dynasty_gen_count[key] = dynasty_gen_count.get(key, 0) + 1
 
         # Set a cap per dynasty per generation (adjust as needed)
-        dynasty_child_cap = 12  
+        dynasty_child_cap = 15
         if dynasty_gen_count.get((father.dynasty, father.generation), 0) >= dynasty_child_cap:
             # logging.info(f"Dynasty {father.dynasty} has reached max children per generation. No more children will be created.")
             return None  # Prevent excess children
@@ -645,9 +655,15 @@ class Simulation:
 
         for character in self.all_characters:
             if character.dynasty:  # Only group characters with a valid dynasty
-                if character.dynasty not in dynasty_groups:
-                    dynasty_groups[character.dynasty] = []
-                dynasty_groups[character.dynasty].append(character)
+                # Use spouse's dynasty if character has one and doesn't belong to a noble dynasty
+                if character.spouse and character.dynasty == "Lowborn":
+                    dynasty = character.spouse.dynasty if character.spouse.dynasty != "Lowborn" else character.dynasty
+                else:
+                    dynasty = character.dynasty
+
+                if dynasty not in dynasty_groups:
+                    dynasty_groups[dynasty] = []
+                dynasty_groups[dynasty].append(character)
 
         with open(output_filename, 'w', encoding='utf-8') as file:
             for dynasty, characters in sorted(dynasty_groups.items(), key=lambda x: x[0]):
@@ -655,13 +671,17 @@ class Simulation:
                 file.write(f"### Dynasty {dynasty}\n")
                 file.write("################\n\n")
 
-                for character in sorted(characters, key=lambda c: c.birth_year):
+                # Sort characters by the digits in char_id (ignores non-numeric characters)
+                for character in sorted(characters, key=lambda c: int(re.sub(r'\D', '', c.char_id))):
                     file.write(character.format_for_export())
                     file.write("\n")  # Separate characters for readability
-                
+
                     # Increment the counter after each character is written
                     exported_character_count += 1
 
         logging.info(f"Character history exported to {output_filename}")
         logging.info(f"Total characters exported: {exported_character_count}")
+
+
+
 

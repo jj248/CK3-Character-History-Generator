@@ -58,51 +58,51 @@ dynasty_mentarez = {
 	motto = dynn_mentarez_motto
 }
 
-dynasty_A = {
-	name = "dynn_A"
+dynasty_naymardan = {
+	name = "dynn_naymardan"
 	culture = "clyan"
-	motto = dynn_A_motto
+	motto = dynn_naymardan_motto
 }
 
-dynasty_B = {
-	name = "dynn_B"
+dynasty_shirzadeh = {
+	name = "dynn_shirzadeh"
 	culture = "clyan"
-	motto = dynn_B_motto
+	motto = dynn_shirzadeh_motto
 }
 
-dynasty_C = {
-	name = "dynn_C"
+dynasty_farshidzen = {
+	name = "dynn_farshidzen"
 	culture = "clyan"
-	motto = dynn_C_motto
+	motto = dynn_farshidzen_motto
 }
 
-dynasty_D = {
-	name = "dynn_D"
+dynasty_vahramzen = {
+	name = "dynn_vahramzen"
 	culture = "clyan"
-	motto = dynn_D_motto
+	motto = dynn_vahramzen_motto
 }
 
-dynasty_E = {
-	name = "dynn_E"
+dynasty_dahmard = {
+	name = "dynn_dahmard"
 	culture = "clyan"
-	motto = dynn_E_motto
+	motto = dynn_dahmard_motto
 }
 
-dynasty_F = {
-	name = "dynn_F"
+dynasty_bahraman = {
+	name = "dynn_bahraman"
 	culture = "clyan"
-	motto = dynn_F_motto
+	motto = dynn_bahraman_motto
 }
 
-dynasty_G = {
-	name = "dynn_G"
+dynasty_zaravan = {
+	name = "dynn_zaravan"
 	culture = "clyan"
-	motto = dynn_G_motto
+	motto = dynn_zaravan_motto
 }
 
-dynasty_H = {
-	name = "dynn_H"
+dynasty_adarsharzen = {
+	name = "dynn_adarsharzen"
 	culture = "clyan"
-	motto = dynn_H_motto
+	motto = dynn_adarsharzen_motto
 }
 
