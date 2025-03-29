@@ -79,13 +79,15 @@ class Simulation:
             spouse_dynasty = character.dynasty  # Noble's dynasty does not transfer
             self.marry_characters(character, spouse, year, marriage_type="desperation", children_dynasty=spouse_dynasty)
 
-
-
     def character_death_check(self, character):
         age = character.age
         sex = character.sex
         birth_year = character.birth_year  # Assuming character has a birth year attribute
         current_year = birth_year + age  # Determine the current year for the character
+
+        # If the character is a progenitor, ensure they live until at least age 50
+        if character.is_progenitor and age < 50:
+            return 0  # Set age to 50 for progenitors, ensuring they live this long
 
         if age < 0 or age > 120:
             age = max(0, min(age, 120))

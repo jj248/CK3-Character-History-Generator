@@ -61,6 +61,7 @@ def main():
             generation=1,
             is_progenitor=True
         )
+        progenitor_male.age = 18
         simulation.add_character_to_pool(progenitor_male)
         simulation.all_characters.append(progenitor_male)
         simulation.title_history.assign_initial_holder(progenitor_male)

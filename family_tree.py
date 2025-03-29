@@ -24,6 +24,33 @@ class FamilyTree:
         self.config = config
         self.graphLook = self.config['initialization']['treeGeneration']
 
+    def find_heir_for_title(self, ruler):
+        """Find the heir for a given ruler by checking their family tree and dynasty."""
+        # Assuming ruler is an identifier (character ID)
+        ruler_data = self.characters.get(ruler)
+        
+        if not ruler_data:
+            return None
+        
+        # You could use dynastic rules to find the next heir
+        dynasty = ruler_data["dynasty"]
+        
+        # Get all the characters from the same dynasty
+        dynasty_members = self.dynasties.get(dynasty, [])
+        
+        # Find the children of the ruler (you may need to add logic for parent-child relationships)
+        children = []
+        for char_id in dynasty_members:
+            char_data = self.characters.get(char_id)
+            if char_data and (char_data["father"] == ruler or char_data["mother"] == ruler):
+                children.append(char_data)
+        
+        # Return the first child who is eligible as an heir
+        if children:
+            return children[0]  # You can add logic here to choose based on inheritance rules
+        
+        return None  # No heir found
+
     def load_characters(self, filename):
         """Parse the .txt file to extract character details."""
         with open(filename, "r", encoding="utf-8") as f:  # Ensure UTF-8 encoding
@@ -267,19 +294,12 @@ class FamilyTree:
 
             self.graphs[dynasty] = graph  # Store graph for later rendering
 
-
-
-
-
-
-
     def render_trees(self):
         """Render the family trees to files."""
         for dynasty, graph in self.graphs.items():
             filename = f"family_tree_{dynasty}"
             graph.render(filename, format="png", cleanup=True)
             print(f"Family tree for {dynasty} saved as {filename}.png")
-
 
 if __name__ == "__main__":
     config_loader = ConfigLoader('config')  # Ensure 'config' directory is correct

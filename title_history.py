@@ -29,13 +29,28 @@ class TitleHistory:
             logging.warning(f"Deceased character {deceased_character.char_id} does not have a complete death date. Skipping title transfer.")
             return
 
-        death_date = f"{deceased_character.death_year}.{deceased_character.death_month:02}.{deceased_character.death_day:02}"
-        last_holder = list(self.titles[dynasty].values())[-1]["holder"] if self.titles[dynasty] else None
+        # Find the previous holder in the dynasty (last one before the deceased)
+        last_entry = list(self.titles[dynasty].values())[-1] if self.titles[dynasty] else None
+        if not last_entry:
+            logging.warning(f"No previous holder found for dynasty {dynasty}. Skipping title transfer.")
+            return
 
+        last_holder_id = last_entry["holder"]
+        last_death_date = last_entry["date"]
+
+        # If the last holder is the same as the deceased, use the deceased's death date to transfer
+        if last_holder_id == deceased_character.char_id:
+            death_date = f"{deceased_character.death_year}.{deceased_character.death_month:02}.{deceased_character.death_day:02}"
+        else:
+            death_date = last_death_date  # Use the previous holder's death date
+
+        # Transfer the title to the new holder
         if new_holder:
-            self.titles[dynasty][death_date] = {"holder": new_holder.char_id, "date": death_date}  # Ensure "date" key
-        elif last_holder != 0:  # Only add `holder = 0` if it's not already 0
-            self.titles[dynasty][death_date] = {"holder": 0, "date": death_date}  # Ensure "date" key
+            self.titles[dynasty][death_date] = {"holder": new_holder.char_id, "date": death_date}
+        elif last_holder_id != 0:  # Only add `holder = 0` if it's not already 0
+            self.titles[dynasty][death_date] = {"holder": 0, "date": death_date}
+
+
 
     def find_new_heir(self, deceased_character):
         gender_law = deceased_character.gender_law
