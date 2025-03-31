@@ -55,6 +55,7 @@ class Character:
         self.sexuality = None
         self.can_marry = True
         self.assign_sexuality(sexuality_distribution)
+        self.mortality_risk = 0  # Initialize mortality risk
         
         # Set the birth order if provided, otherwise default to None
         self.birth_order = birth_order
@@ -64,6 +65,17 @@ class Character:
         self.birth_year, self.birth_month, self.birth_day = map(int, birth_date_str.split('.'))
         self.add_event(birth_date_str, "birth = yes")
 
+    def calculate_fertility_modifier(self):
+        """ Apply a fertility penalty based on birth order """
+        if self.birth_order >= 3:
+            return 1 - (0.1 * (self.birth_order - 2))  # Reduced fertility
+        return 1.0
+
+    def apply_dynasty_mortality_penalty(self):
+        """ Increase mortality risk for distant branches (4+ generations away) """
+        if self.generation >= 4:
+            return 0.2 * (self.generation - 3)  # Increasing penalty per generation
+        return 0.0
 
     def siblings(self):
         # Returns a list of siblings (children of the same parents, excluding the character itself)

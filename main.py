@@ -4,6 +4,7 @@ from family_tree import FamilyTree
 from name_loader import NameLoader
 from simulation import Simulation
 from character import Character
+from title_history import CharacterLoader
 from title_history import TitleHistory
 from dynasty_creation import generate_dynasty_definitions
 from utils import generate_char_id, generate_random_date
@@ -59,12 +60,12 @@ def main():
             gender_law=gender_law,
             sexuality_distribution=skills_and_traits_config['sexualityDistribution'],
             generation=1,
-            is_progenitor=True
+            is_progenitor=True,
+            birth_order=1
         )
         progenitor_male.age = 18
         simulation.add_character_to_pool(progenitor_male)
         simulation.all_characters.append(progenitor_male)
-        simulation.title_history.assign_initial_holder(progenitor_male)
 
         # Generate progenitor female spouse
         spouse_birth_year = progenitor_birth_year  # Same year as male
@@ -82,7 +83,8 @@ def main():
             gender_law=gender_law,
             sexuality_distribution=skills_and_traits_config['sexualityDistribution'],
             generation=1,
-            is_progenitor=True
+            is_progenitor=True,
+            birth_order=1
         )
         simulation.add_character_to_pool(progenitor_female)
         simulation.all_characters.append(progenitor_female)
@@ -104,11 +106,19 @@ def main():
     # Export characters
     simulation.export_characters("family_history.txt")
 
-    #Export Title History
-    simulation.title_history.export_title_history("title_history.txt")
+    # Load character data from family history
+    character_loader = CharacterLoader()
+    character_loader.load_characters("family_history.txt")  # Loads characters into memory
+    # character_loader.print_family_info()
 
-    # if initialization_config.get['initialization']['treeGeneration'] == "both":
-         
+    # # Load title history, passing the CharacterLoader instance
+    title_history = TitleHistory(character_loader, "config/initialization.json")
+    # title_history.simulate_dynastic_succession(title_history.dynasties, title_history.characters)
+    title_history.assign_titles()
+
+    # # Export title history
+    title_history.export_title_history("title_history.txt")
+
     tree = FamilyTree("family_history.txt", "title_history.txt", config_loader.config)  # Ensure both files exist
     tree.build_trees()
     tree.render_trees()

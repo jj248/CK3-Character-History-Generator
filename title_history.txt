@@ -1,273 +1,1134 @@
-dynasty_dadfiruzen = {
-    6540.10.10 = {
-        holder = lineofdadfiruzen1
+placeholder_title = {
+    6651.01.01 = {
+        holder = lineofadarfiruzen3 #Delsuz
+    }
+    6670.11.04 = {
+        holder = lineofadarfiruzen1 #Bahramdad
+    }
+    6700.01.18 = {
+        holder = lineofadarfiruzen4 #Makhmal
+    }
+    6704.02.09 = {
+        holder = lineofadarfiruzen5 #Ramgushnasp
     }
 }
-
-dynasty_adarfiruzen = {
-    6614.08.23 = {
-        holder = lineofadarfiruzen1
+placeholder_title = {
+    6148.01.01 = {
+        holder = lineofadarsharzen1 #Erezwand
     }
-    6698.09.01 = {
-        holder = lineofadarfiruzen7
+    6216.08.19 = {
+        holder = lineofadarsharzen3 #Khudaparasht
     }
-    6718.03.26 = {
-        holder = lineofadarfiruzen4
+    6230.08.01 = {
+        holder = lineofadarsharzen5 #Azadmard
     }
-    6722.05.03 = {
-        holder = lineofadarfiruzen7
-    }
-}
-
-dynasty_bahlikaran = {
-    6493.04.03 = {
-        holder = lineofbahlikaran1
-    }
-    6581.12.07 = {
-        holder = lineofbahlikaran3
-    }
-    6592.10.22 = {
-        holder = lineofbahlikaran6
-    }
-    6606.02.08 = {
-        holder = lineofbahlikaran3
+    6242.10.02 = {
+        holder = lineofadarsharzen4 #Meherzad
     }
 }
-
-dynasty_khudaradmen = {
-    6811.04.11 = {
-        holder = lineofkhudaradmen1
+placeholder_title = {
+    6511.01.01 = {
+        holder = lineofbahlikaran1 #Khursand
     }
-    6898.01.14 = {
-        holder = lineofkhudaradmen3
+    6572.07.22 = {
+        holder = lineofbahlikaran6 #Gulkhurshid
     }
-}
-
-dynasty_esrecarzen = {
-    6792.10.05 = {
-        holder = lineofesrecarzen1
+    6588.12.04 = {
+        holder = lineofbahlikaran9 #Burzasp
     }
-    6882.11.18 = {
-        holder = lineofesrecarzen3
+    6590.07.19 = {
+        holder = lineofbahlikaran8 #Khurdad
     }
-    6892.08.12 = {
-        holder = lineofesrecarzen17
+    6595.01.12 = {
+        holder = lineofbahlikaran13 #Mahrokh
     }
-    6952.02.21 = {
-        holder = lineofesrecarzen30
+    6597.11.03 = {
+        holder = lineofbahlikaran11 #Delbanu
     }
-    6973.04.04 = {
-        holder = lineofesrecarzen45
+    6598.12.28 = {
+        holder = lineofbahlikaran5 #Khushnawaz
     }
-    6990.01.16 = {
-        holder = lineofesrecarzen58
+    6600.03.20 = {
+        holder = lineofbahlikaran14 #Freny
     }
-    7014.07.24 = {
-        holder = lineofesrecarzen74
+    6604.04.04 = {
+        holder = lineofbahlikaran4 #Bakhtafrid
     }
-}
-
-dynasty_tarimez = {
-    6751.01.25 = {
-        holder = lineoftarimez1
+    6606.11.19 = {
+        holder = lineofbahlikaran3 #Khufiruz
     }
-    6838.09.11 = {
-        holder = lineoftarimez4
+    6608.01.01 = {
+        holder = lineofbahlikaran12 #Behbud
     }
-    6868.11.17 = {
-        holder = lineoftarimez10
+    6620.03.17 = {
+        holder = lineofbahlikaran7 #Pirangushnasp
+    }
+    6623.07.05 = {
+        holder = lineofbahlikaran10 #Gulshirin
     }
 }
-
-dynasty_visnarmaken = {
-    6718.08.28 = {
-        holder = lineofvisnarmaken1
+placeholder_title = {
+    6088.01.01 = {
+        holder = lineofbahraman5 #Mahbanu
     }
-    6812.07.08 = {
-        holder = lineofvisnarmaken81
+    6141.04.26 = {
+        holder = lineofbahraman6 #Khushmanish
     }
-}
-
-dynasty_kerhamez = {
-    6718.03.23 = {
-        holder = lineofkerhamez1
+    6148.02.09 = {
+        holder = lineofbahraman1 #Adarmard
     }
-    6810.04.06 = {
-        holder = lineofkerhamez3
+    6152.03.09 = {
+        holder = lineofbahraman3 #Khorushasp
     }
-    6812.11.18 = {
-        holder = lineofkerhamez8
+    6158.07.16 = {
+        holder = lineofbahraman4 #Huvaspa
     }
-    6834.02.10 = {
-        holder = lineofkerhamez33
+    6160.11.21 = {
+        holder = lineofbahraman8 #Sherfiruz
     }
-}
-
-dynasty_namdarez = {
-    6718.01.05 = {
-        holder = lineofnamdarez1
-    }
-    6794.03.21 = {
-        holder = lineofnamdarez9
+    6169.05.21 = {
+        holder = lineofbahraman7 #Tanaz
     }
 }
-
-dynasty_mentarez = {
-    6718.12.20 = {
-        holder = lineofmentarez1
+placeholder_title = {
+    6558.01.01 = {
+        holder = lineofdadfiruzen1 #Rayomand
     }
-    6800.01.15 = {
-        holder = lineofmentarez7
+    6619.09.12 = {
+        holder = lineofdadfiruzen10 #Manizeh
     }
-    6836.01.08 = {
-        holder = lineofmentarez9
+    6637.04.07 = {
+        holder = lineofdadfiruzen4 #Porgav
     }
-    6846.10.02 = {
-        holder = lineofmentarez10
+    6640.05.27 = {
+        holder = lineofdadfiruzen6 #Davrameshi
     }
-    6853.05.02 = {
-        holder = lineofmentarez13
+    6651.05.03 = {
+        holder = lineofdadfiruzen5 #Gulbaher
     }
-    6859.04.20 = {
-        holder = lineofmentarez18
+    6655.06.18 = {
+        holder = lineofdadfiruzen3 #Huzvak
     }
-    6872.01.01 = {
-        holder = lineofmentarez20
+    6662.08.15 = {
+        holder = lineofdadfiruzen9 #Parvana
     }
-}
-
-dynasty_naymardan = {
-    6000.01.06 = {
-        holder = lineofnaymardan1
+    6665.03.03 = {
+        holder = lineofdadfiruzen8 #Roshan
     }
-    6078.08.17 = {
-        holder = lineofnaymardan3
+    6668.06.19 = {
+        holder = lineofdadfiruzen7 #Naozad
     }
-}
-
-dynasty_shirzadeh = {
-    6030.01.09 = {
-        holder = lineofshirzadeh1
+    6670.07.07 = {
+        holder = lineofdadfiruzen11 #Tahmasp
     }
-    6120.07.22 = {
-        holder = lineofshirzadeh130
+    6681.08.24 = {
+        holder = lineofdadfiruzen12 #Khurshidbanu
+    }
+    6683.01.14 = {
+        holder = lineofdadfiruzen13 #Izadyar
     }
 }
-
-dynasty_farshidzen = {
-    6075.10.16 = {
-        holder = lineoffarshidzen1
+placeholder_title = {
+    6039.01.01 = {
+        holder = lineofdahmard1 #Farhad
     }
-    6172.04.27 = {
-        holder = lineoffarshidzen3
+    6112.03.06 = {
+        holder = lineofdahmard6 #Khorushasp
     }
-    6172.11.19 = {
-        holder = lineoffarshidzen5
+    6120.06.19 = {
+        holder = lineofdahmard3 #Shakerbanu
     }
-    6173.02.17 = {
-        holder = lineoffarshidzen8
+    6127.04.22 = {
+        holder = lineofdahmard5 #Gulrukh
     }
-    6198.10.19 = {
-        holder = lineoffarshidzen14
+    6132.01.02 = {
+        holder = lineofdahmard4 #Huafrid
     }
-    6237.04.20 = {
-        holder = lineoffarshidzen138
+    6133.11.15 = {
+        holder = lineofdahmard8 #Delshad
     }
-}
-
-dynasty_vahramzen = {
-    6120.09.06 = {
-        holder = lineofvahramzen1
+    6145.12.22 = {
+        holder = lineofdahmard7 #Mahburzin
     }
-    6216.03.16 = {
-        holder = lineofvahramzen3
-    }
-    6224.09.24 = {
-        holder = lineofvahramzen9
-    }
-    6258.03.23 = {
-        holder = lineofvahramzen19
-    }
-    6293.10.15 = {
-        holder = lineofvahramzen44
-    }
-    6311.07.21 = {
-        holder = lineofvahramzen44
+    6149.09.13 = {
+        holder = lineofdahmard9 #Mahbanu
     }
 }
-
-dynasty_dahmard = {
-    6021.02.21 = {
-        holder = lineofdahmard1
+placeholder_title = {
+    6830.01.01 = {
+        holder = lineofesrecarzen4 #Arshak
     }
-    6096.12.24 = {
-        holder = lineofdahmard4
+    6859.02.14 = {
+        holder = lineofesrecarzen1 #Vispanfria
     }
-    6130.10.19 = {
-        holder = lineofdahmard6
+    6883.09.06 = {
+        holder = lineofesrecarzen12 #Bakhtafrid
     }
-    6140.08.10 = {
-        holder = lineofdahmard8
+    6888.02.08 = {
+        holder = lineofesrecarzen5 #Khushchehr
     }
-    6157.05.20 = {
-        holder = lineofdahmard14
+    6890.08.01 = {
+        holder = lineofesrecarzen9 #Hukhshthra
     }
-    6187.12.28 = {
-        holder = lineofdahmard23
+    6892.01.20 = {
+        holder = lineofesrecarzen3 #Kamdele
     }
-    6193.03.04 = {
-        holder = lineofdahmard27
+    6900.07.24 = {
+        holder = lineofesrecarzen6 #Vourunemangha
     }
-    6214.11.01 = {
-        holder = lineofdahmard60
+    6911.06.27 = {
+        holder = lineofesrecarzen7 #Urvatatnara
+    }
+    6918.04.22 = {
+        holder = lineofesrecarzen8 #Shidasp
+    }
+    6921.06.05 = {
+        holder = lineofesrecarzen22 #Abadard
+    }
+    6927.08.10 = {
+        holder = lineofesrecarzen11 #Arenavachi
+    }
+    6928.02.22 = {
+        holder = lineofesrecarzen29 #Darazdast
+    }
+    6930.09.27 = {
+        holder = lineofesrecarzen13 #Nekchehr
+    }
+    6931.05.07 = {
+        holder = lineofesrecarzen10 #Airyaman
+    }
+    6935.08.10 = {
+        holder = lineofesrecarzen19 #Mahin
+    }
+    6943.10.27 = {
+        holder = lineofesrecarzen18 #Meheryar
+    }
+    6949.07.18 = {
+        holder = lineofesrecarzen16 #Huvaspa
+    }
+    6951.07.25 = {
+        holder = lineofesrecarzen15 #Farrokhbondad
+    }
+    6962.07.01 = {
+        holder = lineofesrecarzen14 #Mahaziver
+    }
+    6966.04.18 = {
+        holder = lineofesrecarzen21 #Zirak
+    }
+    6974.12.27 = {
+        holder = lineofesrecarzen17 #Adarburzin
+    }
+    6979.01.02 = {
+        holder = lineofesrecarzen20 #Nawazish
+    }
+    6984.02.21 = {
+        holder = lineofesrecarzen25 #Deldar
+    }
+    6995.02.22 = {
+        holder = lineofesrecarzen24 #Shirin
+    }
+    6999.06.08 = {
+        holder = lineofesrecarzen26 #Gushtas
+    }
+    7000.09.04 = {
+        holder = lineofesrecarzen23 #Khushmanish
+    }
+    7001.05.05 = {
+        holder = lineofesrecarzen28 #Azadmard
+    }
+    7005.10.08 = {
+        holder = lineofesrecarzen27 #Ashtad
+    }
+    7008.04.19 = {
+        holder = lineofesrecarzen30 #Arash
+    }
+    7013.11.19 = {
+        holder = lineofesrecarzen31 #Meherangiz
+    }
+    7017.07.12 = {
+        holder = lineofesrecarzen33 #Farzan
+    }
+    7024.07.11 = {
+        holder = lineofesrecarzen35 #Wehzan
+    }
+    7025.07.08 = {
+        holder = lineofesrecarzen37 #Meherokh
+    }
+    7026.01.15 = {
+        holder = lineofesrecarzen34 #Afiveh
+    }
+    7026.11.21 = {
+        holder = lineofesrecarzen32 #Mahburzin
+    }
+    7027.12.24 = {
+        holder = lineofesrecarzen36 #Nazbanu
+    }
+    7027.12.24 = {
+        holder = lineofesrecarzen38 #Tabendeh
+    }
+    7027.12.24 = {
+        holder = lineofesrecarzen39 #Shidasp
+    }
+    7027.12.24 = {
+        holder = lineofesrecarzen40 #Arshak
+    }
+    7027.12.24 = {
+        holder = lineofesrecarzen41 #Daneshvar
+    }
+    7027.12.24 = {
+        holder = lineofesrecarzen42 #Afiveh
+    }
+    7027.12.24 = {
+        holder = lineofesrecarzen43 #Burzincheher
     }
 }
-
-dynasty_bahraman = {
-    6049.09.28 = {
-        holder = lineofbahraman1
+placeholder_title = {
+    6093.01.01 = {
+        holder = lineoffarshidzen1 #Namdar
     }
-    6136.02.28 = {
-        holder = lineofbahraman3
+    6155.06.26 = {
+        holder = lineoffarshidzen5 #Sarosh
     }
-    6154.04.15 = {
-        holder = lineofbahraman14
+    6178.10.03 = {
+        holder = lineoffarshidzen3 #Aurashaspa
     }
-    6190.11.20 = {
-        holder = lineofbahraman56
+    6181.04.11 = {
+        holder = lineoffarshidzen4 #Arenavachi
     }
-}
-
-dynasty_zaravan = {
-    6078.04.23 = {
-        holder = lineofzaravan1
+    6183.12.04 = {
+        holder = lineoffarshidzen8 #Rakhshandeh
     }
-    6168.02.25 = {
-        holder = lineofzaravan3
+    6200.02.11 = {
+        holder = lineoffarshidzen7 #Banuhururish
     }
-    6178.04.21 = {
-        holder = lineofzaravan8
-    }
-    6210.12.07 = {
-        holder = lineofzaravan29
-    }
-    6238.02.24 = {
-        holder = lineofzaravan31
+    6206.07.15 = {
+        holder = lineoffarshidzen6 #Deldar
     }
 }
-
-dynasty_adarsharzen = {
-    6130.09.25 = {
-        holder = lineofadarsharzen1
+placeholder_title = {
+    6736.01.01 = {
+        holder = lineofkerhamez1 #Dadafarin
     }
-    6209.11.01 = {
-        holder = lineofadarsharzen3
+    6804.11.18 = {
+        holder = lineofkerhamez5 #Meherbanu
     }
-    6238.07.14 = {
-        holder = lineofadarsharzen10
+    6815.12.08 = {
+        holder = lineofkerhamez4 #Mahyar
     }
-    6251.08.12 = {
-        holder = lineofadarsharzen34
+    6820.06.22 = {
+        holder = lineofkerhamez3 #Dinyar
+    }
+    6823.07.14 = {
+        holder = lineofkerhamez9 #Hukhshthra
+    }
+    6830.11.22 = {
+        holder = lineofkerhamez6 #Khudayar
+    }
+    6835.10.23 = {
+        holder = lineofkerhamez7 #Sarafraz
+    }
+    6837.03.28 = {
+        holder = lineofkerhamez8 #Samanrukh
+    }
+    6838.02.09 = {
+        holder = lineofkerhamez18 #Deldar
+    }
+    6850.12.09 = {
+        holder = lineofkerhamez10 #Zarin
+    }
+    6851.10.12 = {
+        holder = lineofkerhamez13 #Khurdad
+    }
+    6860.05.09 = {
+        holder = lineofkerhamez11 #Huchithra
+    }
+    6864.03.10 = {
+        holder = lineofkerhamez12 #Burzafrah
+    }
+    6875.05.26 = {
+        holder = lineofkerhamez14 #Arvand
+    }
+    6876.04.08 = {
+        holder = lineofkerhamez20 #Khordad
+    }
+    6886.08.19 = {
+        holder = lineofkerhamez19 #Sarafraz
+    }
+    6887.12.03 = {
+        holder = lineofkerhamez22 #Mahyar
+    }
+    6887.12.24 = {
+        holder = lineofkerhamez16 #Khursand
+    }
+    6888.08.21 = {
+        holder = lineofkerhamez23 #Shirzad
+    }
+    6889.07.24 = {
+        holder = lineofkerhamez15 #Gushtas
+    }
+    6891.02.06 = {
+        holder = lineofkerhamez21 #Arta
+    }
+    6893.12.20 = {
+        holder = lineofkerhamez25 #Mahbanu
+    }
+    6901.02.07 = {
+        holder = lineofkerhamez17 #Mahtab
+    }
+    6902.12.28 = {
+        holder = lineofkerhamez24 #Stivant
+    }
+    6914.03.03 = {
+        holder = lineofkerhamez26 #Afiveh
+    }
+    6917.03.11 = {
+        holder = lineofkerhamez29 #Ishvat
+    }
+    6951.04.02 = {
+        holder = lineofkerhamez30 #Roshanak
+    }
+    6951.12.11 = {
+        holder = lineofkerhamez41 #Noved
+    }
+    6955.05.05 = {
+        holder = lineofkerhamez27 #Hutoxi
+    }
+    6962.04.20 = {
+        holder = lineofkerhamez40 #Delshad
+    }
+    6967.11.11 = {
+        holder = lineofkerhamez28 #Hoshyar
+    }
+    6971.08.19 = {
+        holder = lineofkerhamez33 #Azarmidokht
+    }
+    6972.04.24 = {
+        holder = lineofkerhamez37 #Banuhufriz
+    }
+    6974.06.03 = {
+        holder = lineofkerhamez31 #Roshanak
+    }
+    6975.02.27 = {
+        holder = lineofkerhamez32 #Meherab
+    }
+    6980.06.04 = {
+        holder = lineofkerhamez36 #Aspandad
+    }
+    6993.10.07 = {
+        holder = lineofkerhamez34 #Delaram
+    }
+    6997.12.10 = {
+        holder = lineofkerhamez35 #Khudadad
+    }
+    6998.01.27 = {
+        holder = lineofkerhamez38 #Ashtad
+    }
+    6999.09.17 = {
+        holder = lineofkerhamez39 #Bahmandokht
+    }
+    7003.10.10 = {
+        holder = lineofkerhamez46 #Wehafrid
+    }
+    7010.06.15 = {
+        holder = lineofkerhamez42 #Jahanabad
+    }
+    7011.08.23 = {
+        holder = lineofkerhamez43 #Dinyar
+    }
+    7012.05.13 = {
+        holder = lineofkerhamez45 #Arvand
+    }
+    7013.12.06 = {
+        holder = lineofkerhamez44 #Bardiya
+    }
+    7018.04.25 = {
+        holder = lineofkerhamez48 #Katin
+    }
+    7021.10.25 = {
+        holder = lineofkerhamez49 #Zaosh
+    }
+    7029.02.12 = {
+        holder = lineofkerhamez51 #Ashishvangh
+    }
+    7029.08.20 = {
+        holder = lineofkerhamez52 #Naoshad
+    }
+    7032.02.27 = {
+        holder = lineofkerhamez47 #Shidasp
+    }
+    7032.02.27 = {
+        holder = lineofkerhamez50 #Zaosh
+    }
+    7032.02.27 = {
+        holder = lineofkerhamez53 #Rayomand
+    }
+    7032.02.27 = {
+        holder = lineofkerhamez54 #Adarbad
+    }
+    7032.02.27 = {
+        holder = lineofkerhamez55 #Shiruy
+    }
+    7032.02.27 = {
+        holder = lineofkerhamez56 #Khushmand
+    }
+    7032.02.27 = {
+        holder = lineofkerhamez57 #Nekchehr
+    }
+    7032.02.27 = {
+        holder = lineofkerhamez58 #Khordad
+    }
+    7032.02.27 = {
+        holder = lineofkerhamez59 #Arshis
+    }
+    7032.02.27 = {
+        holder = lineofkerhamez60 #Nekmard
+    }
+    7032.02.27 = {
+        holder = lineofkerhamez61 #Aryenish
     }
 }
-
+placeholder_title = {
+    6829.01.01 = {
+        holder = lineofkhudaradmen1 #Pishkar
+    }
+    6904.08.18 = {
+        holder = lineofkhudaradmen5 #Khorehomand
+    }
+    6909.11.17 = {
+        holder = lineofkhudaradmen4 #Khushmasta
+    }
+    6918.04.14 = {
+        holder = lineofkhudaradmen3 #Bahmard
+    }
+    6920.05.12 = {
+        holder = lineofkhudaradmen10 #Urvakhsha
+    }
+    6921.07.11 = {
+        holder = lineofkhudaradmen6 #Frahisrva
+    }
+    6931.02.07 = {
+        holder = lineofkhudaradmen7 #Dadafarin
+    }
+    6931.06.12 = {
+        holder = lineofkhudaradmen9 #Dinpanah
+    }
+    6937.01.23 = {
+        holder = lineofkhudaradmen8 #Roshan
+    }
+    6939.12.24 = {
+        holder = lineofkhudaradmen11 #Ashishvangh
+    }
+    6946.10.16 = {
+        holder = lineofkhudaradmen12 #Khushchehr
+    }
+    6952.01.19 = {
+        holder = lineofkhudaradmen13 #Ramin
+    }
+    6974.03.23 = {
+        holder = lineofkhudaradmen14 #Huafrid
+    }
+    6978.03.01 = {
+        holder = lineofkhudaradmen15 #Bahram
+    }
+    6985.11.03 = {
+        holder = lineofkhudaradmen16 #Delbahar
+    }
+    6990.09.16 = {
+        holder = lineofkhudaradmen17 #Stivant
+    }
+    7002.05.01 = {
+        holder = lineofkhudaradmen18 #Gulpaekar
+    }
+}
+placeholder_title = {
+    6736.01.01 = {
+        holder = lineofmentarez1 #Kamran
+    }
+    6785.04.08 = {
+        holder = lineofmentarez4 #Armaiti
+    }
+    6807.10.08 = {
+        holder = lineofmentarez3 #Adarvan
+    }
+    6812.10.19 = {
+        holder = lineofmentarez9 #Banuhururish
+    }
+    6819.11.13 = {
+        holder = lineofmentarez6 #Shakernaz
+    }
+    6825.09.09 = {
+        holder = lineofmentarez5 #Arvand
+    }
+    6826.05.13 = {
+        holder = lineofmentarez14 #Meherafrid
+    }
+    6827.08.22 = {
+        holder = lineofmentarez13 #Bahramdad
+    }
+    6838.02.05 = {
+        holder = lineofmentarez15 #Khubyar
+    }
+    6839.08.17 = {
+        holder = lineofmentarez8 #Frahisrva
+    }
+    6842.03.25 = {
+        holder = lineofmentarez11 #Mahpaekar
+    }
+    6842.08.17 = {
+        holder = lineofmentarez7 #Aspandyar
+    }
+    6844.05.13 = {
+        holder = lineofmentarez12 #Mahaziver
+    }
+    6851.07.07 = {
+        holder = lineofmentarez25 #Adarmard
+    }
+    6855.03.21 = {
+        holder = lineofmentarez10 #Arasti
+    }
+    6860.01.18 = {
+        holder = lineofmentarez19 #Simin
+    }
+    6862.03.10 = {
+        holder = lineofmentarez17 #Homai
+    }
+    6863.11.04 = {
+        holder = lineofmentarez21 #Zarmeher
+    }
+    6864.01.25 = {
+        holder = lineofmentarez20 #Azadchehr
+    }
+    6873.02.13 = {
+        holder = lineofmentarez18 #Meherafruz
+    }
+    6875.01.05 = {
+        holder = lineofmentarez24 #Gulrukh
+    }
+    6879.12.10 = {
+        holder = lineofmentarez22 #Janafruz
+    }
+    6880.03.05 = {
+        holder = lineofmentarez16 #Arasti
+    }
+    6880.10.21 = {
+        holder = lineofmentarez23 #Adarfiroz
+    }
+    6888.09.02 = {
+        holder = lineofmentarez31 #Khorushasp
+    }
+    6889.03.17 = {
+        holder = lineofmentarez38 #Ashtad
+    }
+    6914.04.25 = {
+        holder = lineofmentarez27 #Dinbanu
+    }
+    6939.11.20 = {
+        holder = lineofmentarez44 #Gulbadan
+    }
+    6949.06.24 = {
+        holder = lineofmentarez28 #Delbahar
+    }
+    6953.09.05 = {
+        holder = lineofmentarez33 #Ram
+    }
+    6953.10.14 = {
+        holder = lineofmentarez26 #Dadafarin
+    }
+    6954.08.21 = {
+        holder = lineofmentarez29 #Izadyar
+    }
+    6959.11.12 = {
+        holder = lineofmentarez34 #Mahtab
+    }
+    6960.12.07 = {
+        holder = lineofmentarez40 #Nazneen
+    }
+    6962.09.19 = {
+        holder = lineofmentarez32 #Husrav
+    }
+    6964.10.14 = {
+        holder = lineofmentarez35 #Khushmand
+    }
+    6967.01.12 = {
+        holder = lineofmentarez30 #Adarcher
+    }
+    6973.11.17 = {
+        holder = lineofmentarez46 #Dadhushfarrokh
+    }
+    6974.08.07 = {
+        holder = lineofmentarez36 #Delaram
+    }
+    6977.11.25 = {
+        holder = lineofmentarez43 #Urvatatnara
+    }
+    6982.03.26 = {
+        holder = lineofmentarez37 #Sherfiruz
+    }
+    6982.05.10 = {
+        holder = lineofmentarez39 #Aspandad
+    }
+    6994.02.17 = {
+        holder = lineofmentarez41 #Khushchehr
+    }
+    6995.02.01 = {
+        holder = lineofmentarez42 #Simindokht
+    }
+    6996.06.28 = {
+        holder = lineofmentarez48 #Keherafrid
+    }
+    7006.04.23 = {
+        holder = lineofmentarez47 #Gulroxar
+    }
+    7020.04.11 = {
+        holder = lineofmentarez50 #Ashishvangh
+    }
+    7020.09.14 = {
+        holder = lineofmentarez51 #Porgav
+    }
+    7031.01.20 = {
+        holder = lineofmentarez49 #Manizeh
+    }
+    7032.08.26 = {
+        holder = lineofmentarez45 #Arshis
+    }
+    7032.08.26 = {
+        holder = lineofmentarez52 #Meheryar
+    }
+    7032.08.26 = {
+        holder = lineofmentarez53 #Meheryar
+    }
+    7032.08.26 = {
+        holder = lineofmentarez54 #Nashak
+    }
+    7032.08.26 = {
+        holder = lineofmentarez55 #Aurashaspa
+    }
+    7032.08.26 = {
+        holder = lineofmentarez56 #Arash
+    }
+    7032.08.26 = {
+        holder = lineofmentarez57 #Huchithra
+    }
+    7032.08.26 = {
+        holder = lineofmentarez58 #Meherab
+    }
+    7032.08.26 = {
+        holder = lineofmentarez59 #Gulestan
+    }
+    7032.08.26 = {
+        holder = lineofmentarez60 #Aurvatasp
+    }
+    7032.08.26 = {
+        holder = lineofmentarez61 #Behzad
+    }
+    7032.08.26 = {
+        holder = lineofmentarez62 #Dinyar
+    }
+    7032.08.26 = {
+        holder = lineofmentarez63 #Azarmidokht
+    }
+    7032.08.26 = {
+        holder = lineofmentarez64 #Homai
+    }
+    7032.08.26 = {
+        holder = lineofmentarez65 #Khudaparasht
+    }
+    7032.08.26 = {
+        holder = lineofmentarez66 #Noved
+    }
+    7032.08.26 = {
+        holder = lineofmentarez67 #Mahchehr
+    }
+    7032.08.26 = {
+        holder = lineofmentarez68 #Urvatatnara
+    }
+}
+placeholder_title = {
+    6736.01.01 = {
+        holder = lineofnamdarez1 #Bahramdad
+    }
+    6801.12.23 = {
+        holder = lineofnamdarez5 #Aryenish
+    }
+    6805.03.10 = {
+        holder = lineofnamdarez4 #Kamran
+    }
+    6825.04.25 = {
+        holder = lineofnamdarez3 #Khubruy
+    }
+    6828.12.11 = {
+        holder = lineofnamdarez13 #Rokhsar
+    }
+    6830.07.19 = {
+        holder = lineofnamdarez10 #Khubchehr
+    }
+    6832.12.19 = {
+        holder = lineofnamdarez12 #Azarmidokht
+    }
+    6836.05.03 = {
+        holder = lineofnamdarez8 #Meherpaekar
+    }
+    6837.01.10 = {
+        holder = lineofnamdarez9 #Dadfaruk
+    }
+    6840.05.20 = {
+        holder = lineofnamdarez7 #Vispanfriva
+    }
+    6841.02.11 = {
+        holder = lineofnamdarez17 #Banuhuram
+    }
+    6846.10.23 = {
+        holder = lineofnamdarez6 #Aspandyar
+    }
+    6849.01.21 = {
+        holder = lineofnamdarez21 #Mahtab
+    }
+    6850.02.03 = {
+        holder = lineofnamdarez20 #Farrokhbondad
+    }
+    6851.09.14 = {
+        holder = lineofnamdarez15 #Farrokhbondad
+    }
+    6852.07.13 = {
+        holder = lineofnamdarez19 #Purgav
+    }
+    6852.09.13 = {
+        holder = lineofnamdarez11 #Darazdast
+    }
+    6853.10.07 = {
+        holder = lineofnamdarez18 #Mahrokh
+    }
+    6864.07.02 = {
+        holder = lineofnamdarez16 #Burzafrah
+    }
+    6865.02.20 = {
+        holder = lineofnamdarez14 #Frahimrawa
+    }
+    6867.06.01 = {
+        holder = lineofnamdarez34 #Banuhufriz
+    }
+    6898.09.15 = {
+        holder = lineofnamdarez33 #Farnaza
+    }
+    6903.09.07 = {
+        holder = lineofnamdarez29 #Habub
+    }
+    6915.04.13 = {
+        holder = lineofnamdarez22 #Delbar
+    }
+    6924.02.24 = {
+        holder = lineofnamdarez26 #Daneshvar
+    }
+    6927.12.28 = {
+        holder = lineofnamdarez32 #Freny
+    }
+    6929.09.09 = {
+        holder = lineofnamdarez23 #Shergir
+    }
+    6931.01.19 = {
+        holder = lineofnamdarez31 #Khudamorad
+    }
+    6933.02.14 = {
+        holder = lineofnamdarez27 #Armaiti
+    }
+    6936.04.28 = {
+        holder = lineofnamdarez25 #Ramin
+    }
+    6937.10.27 = {
+        holder = lineofnamdarez30 #Spityur
+    }
+    6938.04.05 = {
+        holder = lineofnamdarez24 #Huafrid
+    }
+    6938.04.25 = {
+        holder = lineofnamdarez28 #Sarafraz
+    }
+    6942.10.27 = {
+        holder = lineofnamdarez36 #Manizeh
+    }
+    7007.06.23 = {
+        holder = lineofnamdarez35 #Arasti
+    }
+    7012.05.07 = {
+        holder = lineofnamdarez37 #Zirakzadeh
+    }
+}
+placeholder_title = {
+    6038.01.01 = {
+        holder = lineofnaymardan4 #Adarvan
+    }
+    6084.03.18 = {
+        holder = lineofnaymardan3 #Tahmasp
+    }
+    6095.01.27 = {
+        holder = lineofnaymardan1 #Aurashaspa
+    }
+    6100.07.16 = {
+        holder = lineofnaymardan5 #Adarfra
+    }
+}
+placeholder_title = {
+    6048.01.01 = {
+        holder = lineofshirzadeh1 #Afiveh
+    }
+    6116.05.20 = {
+        holder = lineofshirzadeh5 #Delbanu
+    }
+    6126.01.10 = {
+        holder = lineofshirzadeh3 #Delsuz
+    }
+    6132.10.06 = {
+        holder = lineofshirzadeh4 #Delnavaz
+    }
+    6148.09.02 = {
+        holder = lineofshirzadeh6 #Adarburzin
+    }
+}
+placeholder_title = {
+    6769.01.01 = {
+        holder = lineoftarimez1 #Ramburzin
+    }
+    6821.05.15 = {
+        holder = lineoftarimez6 #Afiveh
+    }
+    6825.05.26 = {
+        holder = lineoftarimez7 #Meherchehr
+    }
+    6852.03.16 = {
+        holder = lineoftarimez4 #Mahdat
+    }
+    6858.10.02 = {
+        holder = lineoftarimez3 #Rakhshandeh
+    }
+    6861.10.18 = {
+        holder = lineoftarimez5 #Artdokht
+    }
+    6862.12.02 = {
+        holder = lineoftarimez8 #Mahburzin
+    }
+    6863.09.13 = {
+        holder = lineoftarimez10 #Delsuz
+    }
+    6880.03.07 = {
+        holder = lineoftarimez12 #Meherafraz
+    }
+    6885.06.18 = {
+        holder = lineoftarimez9 #Keherafrid
+    }
+    6890.06.05 = {
+        holder = lineoftarimez11 #Bahman
+    }
+    6893.10.16 = {
+        holder = lineoftarimez13 #Darazdast
+    }
+    6900.08.09 = {
+        holder = lineoftarimez15 #Nashak
+    }
+    6917.05.11 = {
+        holder = lineoftarimez14 #Rambanu
+    }
+    6918.06.22 = {
+        holder = lineoftarimez16 #Deldar
+    }
+}
+placeholder_title = {
+    6180.01.01 = {
+        holder = lineofvahramzen8 #Bahram
+    }
+    6187.04.06 = {
+        holder = lineofvahramzen1 #Zirak
+    }
+    6202.09.18 = {
+        holder = lineofvahramzen4 #Delshad
+    }
+    6212.10.24 = {
+        holder = lineofvahramzen3 #Meherbanu
+    }
+    6219.04.25 = {
+        holder = lineofvahramzen5 #Stivant
+    }
+    6230.09.28 = {
+        holder = lineofvahramzen6 #Hoshedarmah
+    }
+    6234.11.06 = {
+        holder = lineofvahramzen7 #Banuhufriya
+    }
+}
+placeholder_title = {
+    6794.01.01 = {
+        holder = lineofvisnarmaken17 #Mahafrin
+    }
+    6778.11.18 = {
+        holder = lineofvisnarmaken3 #Farida
+    }
+    6800.07.20 = {
+        holder = lineofvisnarmaken13 #Banuhururish
+    }
+    6802.07.22 = {
+        holder = lineofvisnarmaken8 #Khushnawaz
+    }
+    6809.02.21 = {
+        holder = lineofvisnarmaken1 #Tahmasp
+    }
+    6813.02.06 = {
+        holder = lineofvisnarmaken9 #Shirin
+    }
+    6819.02.27 = {
+        holder = lineofvisnarmaken4 #Sarosh
+    }
+    6821.11.18 = {
+        holder = lineofvisnarmaken5 #Sarafraz
+    }
+    6824.02.07 = {
+        holder = lineofvisnarmaken7 #Gulroxar
+    }
+    6831.04.05 = {
+        holder = lineofvisnarmaken10 #Noved
+    }
+    6839.06.20 = {
+        holder = lineofvisnarmaken6 #Khufiruz
+    }
+    6840.10.02 = {
+        holder = lineofvisnarmaken11 #Mahdat
+    }
+    6844.04.16 = {
+        holder = lineofvisnarmaken21 #Nekbakht
+    }
+    6847.08.13 = {
+        holder = lineofvisnarmaken12 #Meherafrin
+    }
+    6849.06.14 = {
+        holder = lineofvisnarmaken14 #Gulrukh
+    }
+    6851.09.19 = {
+        holder = lineofvisnarmaken18 #Khushmand
+    }
+    6852.07.28 = {
+        holder = lineofvisnarmaken22 #Gulafruz
+    }
+    6864.09.04 = {
+        holder = lineofvisnarmaken23 #Roshanaf
+    }
+    6866.05.24 = {
+        holder = lineofvisnarmaken16 #Roshanak
+    }
+    6869.03.05 = {
+        holder = lineofvisnarmaken19 #Fardad
+    }
+    6870.01.09 = {
+        holder = lineofvisnarmaken20 #Roshan
+    }
+    6871.01.02 = {
+        holder = lineofvisnarmaken15 #Hoshedar
+    }
+    6876.02.15 = {
+        holder = lineofvisnarmaken26 #Gushtahm
+    }
+    6889.05.14 = {
+        holder = lineofvisnarmaken24 #Kersasp
+    }
+    6941.06.05 = {
+        holder = lineofvisnarmaken25 #Vispanfria
+    }
+    6957.02.02 = {
+        holder = lineofvisnarmaken27 #Naztab
+    }
+    6957.07.13 = {
+        holder = lineofvisnarmaken29 #Roxenda
+    }
+    6974.05.07 = {
+        holder = lineofvisnarmaken30 #Khorehomand
+    }
+    6990.08.08 = {
+        holder = lineofvisnarmaken28 #Dadmeher
+    }
+}
+placeholder_title = {
+    6096.01.01 = {
+        holder = lineofzaravan1 #Kaykhusru
+    }
+    6167.04.11 = {
+        holder = lineofzaravan3 #Farhad
+    }
+    6169.01.18 = {
+        holder = lineofzaravan4 #Dinbanu
+    }
+    6176.05.06 = {
+        holder = lineofzaravan10 #Nezhat
+    }
+    6189.07.20 = {
+        holder = lineofzaravan5 #Khudaparasht
+    }
+    6191.08.15 = {
+        holder = lineofzaravan6 #Dadafarin
+    }
+    6194.07.26 = {
+        holder = lineofzaravan9 #Adarburzin
+    }
+    6195.08.11 = {
+        holder = lineofzaravan8 #Zirak
+    }
+    6197.06.10 = {
+        holder = lineofzaravan7 #Katin
+    }
+    6201.11.13 = {
+        holder = lineofzaravan16 #Dinpanah
+    }
+    6211.08.12 = {
+        holder = lineofzaravan11 #Banuhururish
+    }
+    6213.10.26 = {
+        holder = lineofzaravan15 #Azadmard
+    }
+    6216.02.07 = {
+        holder = lineofzaravan20 #Nekchehr
+    }
+    6217.09.07 = {
+        holder = lineofzaravan19 #Delsuz
+    }
+    6218.12.03 = {
+        holder = lineofzaravan12 #Delawar
+    }
+    6220.12.12 = {
+        holder = lineofzaravan17 #Sahi
+    }
+    6221.05.25 = {
+        holder = lineofzaravan18 #Upamana
+    }
+    6225.04.22 = {
+        holder = lineofzaravan14 #Azadafroz
+    }
+    6226.08.08 = {
+        holder = lineofzaravan13 #Gulbadan
+    }
+    6227.04.17 = {
+        holder = lineofzaravan25 #Gulroxar
+    }
+    6257.11.06 = {
+        holder = lineofzaravan21 #Ram
+    }
+    6266.05.27 = {
+        holder = lineofzaravan22 #Mahzarin
+    }
+    6282.02.01 = {
+        holder = lineofzaravan26 #Mahtab
+    }
+    6283.12.21 = {
+        holder = lineofzaravan24 #Bakhtavar
+    }
+    6295.11.16 = {
+        holder = lineofzaravan27 #Mahin
+    }
+    6301.07.23 = {
+        holder = lineofzaravan23 #Arshak
+    }
+    6313.02.15 = {
+        holder = lineofzaravan29 #Khurdad
+    }
+    6317.09.24 = {
+        holder = lineofzaravan28 #Chubin
+    }
+    6322.10.04 = {
+        holder = lineofzaravan30 #Nazbanu
+    }
+}

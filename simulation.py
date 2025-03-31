@@ -14,7 +14,6 @@ class Simulation:
         self.character_count = 0
         self.dynasty_char_counters = {}
         self.all_characters = []
-        self.title_history = TitleHistory(self.all_characters)
         self.character_pool = {}
         self.unmarried_males = {}
         self.unmarried_females = {}
@@ -23,9 +22,26 @@ class Simulation:
         self.desperation_rates = self.config['life_stages'].get('desperationMarriageRates', {})
 
     def add_character_to_pool(self, character):
-        if character.birth_year not in self.character_pool:
-            self.character_pool[character.birth_year] = []
-        self.character_pool[character.birth_year].append(character)
+        """ Adjust fertility and mortality based on dynasty rules """
+        fertility_modifier = character.calculate_fertility_modifier()
+        mortality_penalty = character.apply_dynasty_mortality_penalty()
+
+        # Modify fertility rates dynamically
+        base_fertility = self.config['life_stages']['fertilityRates']['Female']
+        adjusted_fertility = {age: rate * fertility_modifier for age, rate in enumerate(base_fertility)}
+        self.config['life_stages']['fertilityRates']['Female'] = adjusted_fertility
+
+        # Apply mortality penalty (pseudo-code, assuming there's a mortality function)
+        character.mortality_risk += mortality_penalty  
+
+        # Adjust max children for main line
+        if character.birth_order == 1:
+            self.config['life_stages']['maximumNumberOfChildren'] = 6  # Increase main line limit
+        else:
+            self.config['life_stages']['maximumNumberOfChildren'] = 3  # Limit lesser branches
+
+        # Add to character pool
+        self.character_pool.setdefault(character.birth_year, []).append(character)
 
     def remove_from_unmarried_pools(self, character):
         age = character.age
@@ -171,7 +187,7 @@ class Simulation:
                 dynasty_gen_count[key] = dynasty_gen_count.get(key, 0) + 1
 
         # Set a cap per dynasty per generation (adjust as needed)
-        dynasty_child_cap = 15
+        dynasty_child_cap = 8
         if dynasty_gen_count.get((father.dynasty, father.generation), 0) >= dynasty_child_cap:
             return None  # Prevent excess children
         
@@ -626,7 +642,6 @@ class Simulation:
                         death_date = generate_random_date(year)
                         character.death_year, character.death_month, character.death_day = map(int, death_date.split('.'))
                         self.remove_from_unmarried_pools(character)
-                        self.title_history.process_death(character)
                         if character.age > 65:
                             death_cause = "death_natural_causes"
                         elif character.age < 18:

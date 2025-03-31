@@ -1,163 +1,333 @@
+import json
+import re
 import logging
-import random  # Import random module for selecting a random character
-from collections import OrderedDict
+from collections import defaultdict
+
+# Set up logging to display info and errors
+logging.basicConfig(level=logging.INFO)
+
+class Character:
+    def __init__(self, identifier, name, father, mother, dynasty, female, is_bastard, birth_year, birth_month=None, birth_day=None, death_year=None, death_month=None, death_day=None):
+        self.id = identifier
+        self.name = name
+        self.father = father
+        self.mother = mother
+        self.dynasty = dynasty
+        self.female = female
+        self.is_bastard = is_bastard
+        self.birth_year = birth_year
+        self.birth_month = birth_month if birth_month is not None else 1  # Default to January
+        self.birth_day = birth_day if birth_day is not None else 1  # Default to the 1st
+        self.death_year = death_year
+        self.death_month = death_month
+        self.death_day = death_day
+
+    def __repr__(self):
+        return f"<Character {self.name} ({self.id})>"
+
+class CharacterLoader:
+    def __init__(self):
+        self.characters = {}
+        self.dynasties = defaultdict(list)
+
+    def load_characters(self, filename):
+        """Parse the .txt file to extract character details and store them in memory."""
+        with open(filename, "r", encoding="utf-8") as f:
+            data = f.read()
+
+        character_blocks = re.findall(r"(\w+) = \{\s*((?:[^{}]*|\{(?:[^{}]*|\{[^}]*\})*\})*)\s*\}", data, re.DOTALL)
+
+        for identifier, content in character_blocks:
+            name = self.extract_value(r"name\s*=\s*(\w+)", content)
+            father = self.extract_value(r"father\s*=\s*(\w+)", content, default=None)
+            mother = self.extract_value(r"mother\s*=\s*(\w+)", content, default=None)
+            dynasty = self.extract_value(r"dynasty\s*=\s*(\w+)", content, default="Lowborn")
+            female = bool(re.search(r"female\s*=\s*yes", content))
+            is_bastard = bool(re.search(r"trait\s*=\s*bastard", content))
+
+            birth_match = re.search(r"(\d{4})\.(\d{2})\.(\d{2})\s*=\s*\{\s*birth\s*=\s*yes", content)
+            death_match = re.search(r"(\d{4})\.(\d{2})\.(\d{2})\s*=\s*\{\s*death", content)
+
+            # Ensure that death_year, death_month, and death_day are properly set
+            death_year = int(death_match.group(1)) if death_match else None
+            death_month = int(death_match.group(2)) if death_match else None
+            death_day = int(death_match.group(3)) if death_match else None
+
+            birth_year = int(birth_match.group(1)) if birth_match else None
+            birth_month = int(birth_match.group(2)) if birth_match else None
+            birth_day = int(birth_match.group(3)) if birth_match else None
+
+            # Create a Character object and add it to the list
+            character = Character(
+                identifier, name, father, mother, dynasty, female, is_bastard, birth_year, birth_month, birth_day, death_year, death_month, death_day
+            )
+            self.characters[identifier] = character
+            self.dynasties[dynasty].append(character)
+
+    def extract_value(self, pattern, content, default=""):
+        match = re.search(pattern, content)
+        return match.group(1) if match else default
+    
+    def is_alive(self, character):
+        """Return True if the character is alive, False if dead."""
+        if character.death_year is None:
+            return True  # Character is alive if no death year is set
+        current_year = 2025  # Adjust based on the current year in your simulation
+        return character.death_year > current_year or (character.death_year == current_year and character.death_month >= 1)
+    
+    def print_family_info(self):
+        """Print the family details (ID, father, mother, dynasty, and title inheritance order) of each character, including the progenitor per dynasty."""
+        # Find the progenitor for each dynasty
+        dynasties_seen = set()
+
+        print("\n")
+        # for dynasty, characters in self.dynasties.items():
+        #     if dynasty not in dynasties_seen and dynasty != "Lowborn":  # Check if dynasty hasn't been processed yet
+        #         dynasties_seen.add(dynasty)
+
+        #         # Sort the characters within the dynasty based on birth date (oldest first)
+        #         sorted_chars = sorted(characters, key=lambda x: (x.birth_year, x.birth_month or 1, x.birth_day or 1))
+
+        #         previous_ruler_death_year = None  # Track previous ruler's death year
+
+        #         # Assign titles in inheritance order (Ruler 1, Ruler 2, ...)
+        #         for idx, character in enumerate(sorted_chars):
+        #             # Check if the character is alive and old enough
+        #             eligible_age = 18  # Primogeniture often requires a minimum age of 18
+        #             alive = self.is_alive(character)  # Checks if the character is alive
+
+        #             # Use the current ruler's death year to determine the "current year" for the eligibility check
+        #             if previous_ruler_death_year:
+        #                 current_year = previous_ruler_death_year  # Set the current year based on the previous ruler's death year
+        #             else:
+        #                 current_year = 2025  # Use 2025 as the default start year if there's no previous ruler
+
+        #             # Calculate age eligibility
+        #             age_eligible = (current_year - character.birth_year) >= eligible_age  # Ensure eligible age is checked based on the "current_year"
+                    
+        #             title_order = idx + 1  # Start with 1 for the progenitor
+        #             eligibility_status = "Eligible" if alive and age_eligible else "Not Eligible"
+        #             print(f"Progenitor for Dynasty {dynasty} ({'Ruler: ' + str(title_order)}): {character.name} (ID: {character.id}) - {eligibility_status}")
+
+        #             # Update previous ruler's death year after processing the character
+        #             if character.death_year is not None:
+        #                 previous_ruler_death_year = character.death_year
+        #         print("\n")
+        
+        # Print family info for each character, excluding those without a dynasty
+        for character in self.characters.values():
+            if character.dynasty and character.dynasty != "Lowborn":  # Only print characters with a valid dynasty
+                dynasty_info = character.dynasty
+                # Find the character's title order within their dynasty
+                title_order = None
+                sorted_chars = sorted(self.dynasties[character.dynasty], key=lambda x: (x.birth_year, x.birth_month or 1, x.birth_day or 1))
+                for idx, char in enumerate(sorted_chars):
+                    if char.id == character.id:
+                        title_order = idx + 1  # Title order is the index + 1
+                        break
+
+                father_info = character.father if character.father else "No father"
+                mother_info = character.mother if character.mother else "No mother"
+                print(f"Character ID: {character.id}, Father ID: {father_info}, Mother ID: {mother_info}, Dynasty: {dynasty_info}, Ruler: {title_order}, Alive: {self.is_alive(character)}")
+
+        
+        # Print family info for each character, excluding those without a dynasty
+        for character in self.characters.values():
+            if character.dynasty and character.dynasty != "Lowborn":  # Only print characters with a valid dynasty
+                dynasty_info = character.dynasty
+                # Find the character's title order within their dynasty
+                title_order = None
+                sorted_chars = sorted(self.dynasties[character.dynasty], key=lambda x: (x.birth_year, x.birth_month or 1, x.birth_day or 1))
+                for idx, char in enumerate(sorted_chars):
+                    if char.id == character.id:
+                        title_order = idx + 1  # Title order is the index + 1
+                        break
+
+                father_info = character.father if character.father else "No father"
+                mother_info = character.mother if character.mother else "No mother"
+                print(f"Character ID: {character.id}, Father ID: {father_info}, Mother ID: {mother_info}, Dynasty: {dynasty_info}, Ruler: {title_order}, Alive: {self.is_alive(character)}")
+
+
 
 class TitleHistory:
-    def __init__(self, characters):
-        self.titles = {}  # Dictionary to store title histories per dynasty
-        self.characters = characters
+    def __init__(self, character_loader, config_file):
+        self.titles = {}  # This will store dynasty and ruler info
+        self.death_dates = {}  # This will track the death dates of rulers
+        self.characters = character_loader.characters  # Use characters loaded in memory
+        self.dynasties = character_loader.dynasties  # Access the dynasties dictionary
+        self.config = self.load_json_file(config_file)
 
-    def assign_initial_holder(self, character):
-        dynasty = character.dynasty
-        if not dynasty:
-            logging.warning(f"Character {character.char_id} has no dynasty. Skipping title assignment.")
-            return
+    def load_json_file(self, filename):
+        try:
+            with open(filename, "r", encoding="utf-8") as file:
+                data = json.load(file)
+                return data.get("dynasties", [])  # Extracts the list under "dynasties"
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            logging.error(f"Error loading file '{filename}': {e}")
+            return []
 
-        if dynasty not in self.titles:
-            self.titles[dynasty] = OrderedDict()
-
-        birth_date = f"{character.birth_year}.{character.birth_month:02}.{character.birth_day:02}"
-        self.titles[dynasty][birth_date] = {"holder": character.char_id, "date": birth_date}  # Add "date" key
-
-    def update_holder(self, deceased_character, new_holder):
-        dynasty = deceased_character.dynasty
-        if not dynasty or dynasty not in self.titles:
-            return
-
-        # Ensure the deceased character has a death date
-        if not deceased_character.death_year or not deceased_character.death_month or not deceased_character.death_day:
-            logging.warning(f"Deceased character {deceased_character.char_id} does not have a complete death date. Skipping title transfer.")
-            return
-
-        # Find the previous holder in the dynasty (last one before the deceased)
-        last_entry = list(self.titles[dynasty].values())[-1] if self.titles[dynasty] else None
-        if not last_entry:
-            logging.warning(f"No previous holder found for dynasty {dynasty}. Skipping title transfer.")
-            return
-
-        last_holder_id = last_entry["holder"]
-        last_death_date = last_entry["date"]
-
-        # If the last holder is the same as the deceased, use the deceased's death date to transfer
-        if last_holder_id == deceased_character.char_id:
-            death_date = f"{deceased_character.death_year}.{deceased_character.death_month:02}.{deceased_character.death_day:02}"
+    def primogeniture_inheritance(self, characters, gender_law="male", current_date=None):
+        if current_date is None:
+            current_date = (9999, 12, 31)  # Default to a far future date if no date is provided
         else:
-            death_date = last_death_date  # Use the previous holder's death date
+            current_date = (current_date, 12, 31)  # Ensure current_date is in tuple format (year, month, day)
 
-        # Transfer the title to the new holder
-        if new_holder:
-            self.titles[dynasty][death_date] = {"holder": new_holder.char_id, "date": death_date}
-        elif last_holder_id != 0:  # Only add `holder = 0` if it's not already 0
-            self.titles[dynasty][death_date] = {"holder": 0, "date": death_date}
+        # Filter based on gender law
+        if gender_law == "male":
+            eligible = [c for c in characters if not c.female]  # Only male characters
+        elif gender_law == "female":
+            eligible = [c for c in characters if c.female]  # Only female characters
+        elif gender_law == "equal":
+            eligible = characters  # All characters are eligible, regardless of gender
+        else:
+            logging.error(f"Invalid gender law: {gender_law}. Valid options are 'male', 'female', or 'equal'.")
+            return []
 
+        # Helper function to get the full death date as a tuple (year, month, day)
+        def get_death_date(character):
+            if character.death_year is None:
+                return None  # Alive characters
+            # If no month or day, use the latest possible day for that year
+            month = character.death_month if character.death_month is not None else 12
+            day = character.death_day if character.death_day is not None else 31
+            return (character.death_year, month, day)
 
+        # Filter out dead characters (those whose death date is before the current date)
+        alive_eligible = [
+            c for c in eligible
+            if (get_death_date(c) is None or get_death_date(c) >= current_date)  # Still alive
+            and (c.birth_year, c.birth_month or 1, c.birth_day or 1) <= current_date  # Already born
+        ]
 
-    def find_new_heir(self, deceased_character):
-        gender_law = deceased_character.gender_law
+        # Sort characters first by birth date (year, month, day)
+        sorted_alive_eligible = sorted(alive_eligible, key=lambda c: (c.birth_year, c.birth_month or 1, c.birth_day or 1))
         
-        male_heirs = [c for c in deceased_character.children if c.alive and c.sex == "Male" and c.dynasty == deceased_character.dynasty and not c.is_bastard]
-        female_heirs = [c for c in deceased_character.children if c.alive and c.sex == "Female" and c.dynasty == deceased_character.dynasty and not c.is_bastard]
+        # Now pick the first eligible character (the one with the earliest birth date)
+        for character in sorted_alive_eligible:
+            # Check if the character is alive during the current_date
+            if (character.birth_year, character.birth_month or 1, character.birth_day or 1) <= current_date:
+                # logging.info(f"Selected ruler: {character.name} (ID: {character.id}) for year {current_date[0]}")
+                return character  # Return the first character who is eligible and alive during the transition
 
-        # Check spouses as potential heirs
-        spouse = deceased_character.spouse
-        if spouse and spouse.alive and spouse.dynasty == deceased_character.dynasty and not spouse.is_bastard:
-            male_heirs.append(spouse) if spouse.sex == "Male" else female_heirs.append(spouse)
-        
-        if not male_heirs and not female_heirs:
-            closely_related_members = [
-                c for c in self.characters
-                if c.dynasty == deceased_character.dynasty and c.alive and not c.is_bastard and
-                (c in deceased_character.children or c in [deceased_character.father, deceased_character.mother] or c in deceased_character.siblings())
-            ]
-            male_heirs.extend([c for c in closely_related_members if c.sex == "Male"])
-            female_heirs.extend([c for c in closely_related_members if c.sex == "Female"])
+        return None  # No eligible characters
 
-        if not male_heirs and not female_heirs:
-            # Find extended family: cousins, second cousins, etc.
-            extended_family = self.find_extended_family(deceased_character)
-            male_heirs.extend([c for c in extended_family if c.sex == "Male"])
-            female_heirs.extend([c for c in extended_family if c.sex == "Female"])
+    def assign_titles(self):
+        dynasty_map = defaultdict(list)
 
-        if not male_heirs and not female_heirs:
-            # Check for bastards if no other heirs are found
-            all_bastards = [
-                c for c in self.characters if c.dynasty == deceased_character.dynasty and c.alive and c.is_bastard
-            ]
-            if all_bastards:
-                selected_bastard = random.choice(all_bastards)
-                if selected_bastard.sex == "Male":
-                    male_heirs.append(selected_bastard)
+        # Organize characters by dynasty
+        for char_id, char_data in self.characters.items():
+            dynasty_map[char_data.dynasty].append(char_data)
+
+        for dynasty_id, characters in dynasty_map.items():
+            dynasty_config = next((d for d in self.config if d["dynastyID"] == dynasty_id), None)
+            if not dynasty_config:
+                continue
+
+            inheritance_law = dynasty_config.get("inheritanceLaw", "primogeniture")
+            gender_law = dynasty_config.get("genderLaw", "male")
+
+            # logging.info(f"Processing dynasty {dynasty_id} with inheritance law: {inheritance_law} and gender law: {gender_law}")
+
+            # Sort characters by birth year
+            sorted_chars = sorted(characters, key=lambda x: x.birth_year or 9999)
+
+            # Determine the starting year: the birth year of the first character in the dynasty
+            start_year = sorted_chars[0].birth_year
+
+            # Initialize the current year to the starting year of the dynasty
+            current_year = start_year
+
+            previous_ruler_id = None  # Track the previous ruler
+            previous_ruler_death_date = None  # Track the previous ruler's death date
+
+            while current_year <= 9999:  # Adjust this as needed for the duration you want to track
+                # Get the eligible ruler for the current year based on primogeniture and gender laws
+                ruler = self.primogeniture_inheritance(sorted_chars, gender_law, current_year)
+                if ruler:
+                    # For the first ruler, assign reign starting at birth year + 18
+                    if previous_ruler_id is None:
+                        current_year = ruler.birth_year + 18  # Use birth year + 18 for the first ruler
+                    else:
+                        # Use previous ruler's death date for the transition
+                        previous_ruler = self.characters.get(previous_ruler_id)
+                        if previous_ruler and previous_ruler.death_year is not None:
+                            current_year = previous_ruler.death_year
+
+                    # Apply inheritance and set the title
+                    self.titles[dynasty_id] = ruler.id
+                    self.death_dates[dynasty_id] = previous_ruler_death_date  # Track the previous ruler's death date
+                    # logging.info(f"Assigned title for dynasty {dynasty_id} to {ruler.name} in year {current_year}")
+                    previous_ruler_id = ruler.id  # Set this ruler as the previous ruler
+
+                    # Track the ruler's death date and update the current year for the next ruler
+                    if ruler.death_year is not None:
+                        previous_ruler_death_date = f"{ruler.death_year}.{ruler.death_month:02d}.{ruler.death_day:02d}"
+                        current_year = ruler.death_year + 1  # Move to the year after the ruler dies
+                    else:
+                        # If the ruler has no death year, break the loop
+                        break  # Exit the loop as the ruler is still alive
+
                 else:
-                    female_heirs.append(selected_bastard)
+                    break  # Exit if no ruler was found
 
-        if not male_heirs and not female_heirs:
-            # Find a female member of the dynasty married into another dynasty
-            married_dynasty_members = [
-                c for c in self.characters if c.dynasty == deceased_character.dynasty and c.alive and
-                c.sex == "Female" and c.spouse and c.spouse.dynasty != deceased_character.dynasty and c.age > 18 and c.children
-            ]
-            if married_dynasty_members:
-                selected_married_female = random.choice(married_dynasty_members)
-                female_heirs.append(selected_married_female)
-
-        if not male_heirs and not female_heirs:
-            all_living_members = [
-                c for c in self.characters if c.dynasty == deceased_character.dynasty and c.alive and not c.is_bastard
-            ]
-            if all_living_members:
-                selected_member = random.choice(all_living_members)
-                if selected_member.sex == "Male":
-                    male_heirs.append(selected_member)
-                else:
-                    female_heirs.append(selected_member)
-
-        if gender_law == "male" and male_heirs:
-            return sorted(male_heirs, key=lambda c: c.birth_year)[0]
-        if gender_law == "female" and female_heirs:
-            return sorted(female_heirs, key=lambda c: c.birth_year)[0]
-        if gender_law == "equal":
-            all_heirs = male_heirs + female_heirs
-            if all_heirs:
-                return sorted(all_heirs, key=lambda c: c.birth_year)[0]
-
-        return None  # No heirs found within the dynasty
-
-    def process_death(self, deceased_character):
-        if not deceased_character.death_year:
-            logging.warning(f"Death year missing for {deceased_character.char_id}. Using current simulation year.")
-            deceased_character.death_year = self.get_current_simulation_year()
-
-        dynasty = deceased_character.dynasty
-        if dynasty and dynasty in self.titles:
-            current_holder_entry = max(self.titles[dynasty].values(), key=lambda x: x.get("date", ""))
-            current_holder_id = current_holder_entry["holder"] if current_holder_entry else None
-
-            new_heir = self.find_new_heir(deceased_character)
-            if current_holder_id == deceased_character.char_id or (new_heir and new_heir.char_id == deceased_character.char_id):
-                if new_heir:
-                    self.update_holder(deceased_character, new_heir)
-                else:
-                    logging.warning(f"No heir found for {deceased_character.char_id}. Title might be contested.")
 
     def export_title_history(self, filename="title_history.txt"):
         with open(filename, "w", encoding="utf-8") as file:
-            for dynasty, history in self.titles.items():
-                file.write(f"{dynasty} = {{\n")
-                for date, data in history.items():
-                    file.write(f"    {date} = {{\n        holder = {data['holder']}\n    }}\n")
-                file.write("}\n\n")
-        logging.info(f"Title history exported to {filename}.")
+            for dynasty, holder in self.titles.items():
+                # Start by writing the placeholder title for the dynasty
+                file.write(f"placeholder_title = {{\n")
 
-    def find_extended_family(self, character, max_generations=5):
-        # A more complex function to go several generations back and check each level of family for heirs.
-        family_members = []
-        generation = 0
-        current_generation = [character]
-        while generation < max_generations:
-            next_generation = []
-            for member in current_generation:
-                next_generation.extend(member.siblings())  # Add siblings of the current generation
-            family_members.extend(next_generation)
-            current_generation = next_generation
-            generation += 1
-        return family_members
+                previous_ruler_death_year = None  # Start with no previous ruler
+                previous_ruler_death_month = None  # Start with no previous ruler
+                previous_ruler_death_day = None  # Start with no previous ruler
+                current_year = None  # This will track the current year for assigning rulers
+
+                # First, we need to sort characters by birth year so we can process them in the right order
+                sorted_chars = sorted(
+                    self.dynasties[dynasty], 
+                    key=lambda x: (x.death_year or 9999, x.death_month or 12, x.death_day or 31)
+                )
+
+                # Find the character with the "dynasty_id1" id
+                dynasty_id1_character = None
+                for char in sorted_chars:
+                    # print(char)
+                    if char.id == f"{dynasty}_1":  # assuming `dynasty_id1` refers to something like 'dynasty_1'
+                        dynasty_id1_character = char
+                        break
+
+                if dynasty_id1_character:
+                    # Filter out any character before the "dynasty_id1" character
+                    start_index = sorted_chars.index(dynasty_id1_character)
+                    sorted_chars = sorted_chars[start_index:]
+
+                for char in sorted_chars:
+                    # For the first ruler, assign them at age 18 (birth year + 18)
+                    if current_year is None:
+                        current_year = char.birth_year + 18  # The first ruler comes into power at age 18
+                        file.write(f"    {current_year}.01.01 = {{\n")
+                        file.write(f"        holder = {char.id} #{char.name}\n")
+                        file.write(f"    }}\n")
+                    else:
+                        # For subsequent rulers, use the previous ruler's death year
+                        death = f"{char.death_year}.{char.death_month:02d}.{char.death_day:02d}" if char.death_year else None
+
+                        if previous_ruler_death_year:
+                            # The next ruler starts the year after the previous ruler dies
+                            current_year = previous_ruler_death_year
+                            death = f"{previous_ruler_death_year}.{previous_ruler_death_month:02d}.{previous_ruler_death_day:02d}"
+
+                        if death:
+                            file.write(f"    {death} = {{\n")
+                            file.write(f"        holder = {char.id} #{char.name}\n")
+                            file.write(f"    }}\n")
+
+                    # Update the previous ruler's death date to be the current ruler's death date
+                    if char.death_year is not None:
+                        previous_ruler_death_year = char.death_year
+                        previous_ruler_death_month = char.death_month
+                        previous_ruler_death_day = char.death_day
+
+                file.write(f"}}\n")
+
+        logging.info(f"Title history exported to {filename}.")

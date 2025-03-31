@@ -1,6 +1,7 @@
 {
   "dynasties": [
 	{
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_dadfiruzen",
       "isHouse": false,
       "faithID": "faith_tilanik",
@@ -14,6 +15,7 @@
       }
     },
 	{
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_adarfiruzen",
       "isHouse": false,
       "faithID": "faith_tilanik",
@@ -27,6 +29,7 @@
       }
     },
 	{
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_bahlikaran",
       "isHouse": false,
       "faithID": "faith_tilanik",
@@ -40,6 +43,7 @@
       }
     },
 	{
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_khudaradmen",
       "isHouse": false,
       "faithID": "faith_tilanik",
@@ -53,6 +57,7 @@
       }
     },
 	{
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_esrecarzen",
       "isHouse": false,
       "faithID": "faith_tilanik",
@@ -66,6 +71,7 @@
       }
     },
 	{
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_tarimez",
       "isHouse": false,
       "faithID": "faith_tilanik",
@@ -79,6 +85,7 @@
       }
     },
 	{
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_visnarmaken",
       "isHouse": false,
       "faithID": "faith_tilanik",
@@ -92,6 +99,7 @@
       }
     },
   {
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_kerhamez",
       "isHouse": false,
       "faithID": "faith_tilanik",
@@ -105,6 +113,7 @@
       }
     },
   {
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_namdarez",
       "isHouse": false,
       "faithID": "faith_tilanik",
@@ -118,6 +127,7 @@
       }
     },
   {
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_mentarez",
       "isHouse": false,
       "faithID": "faith_tilanik",
@@ -131,6 +141,7 @@
       }
     },
   {
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_naymardan",
       "isHouse": false,
       "faithID": "faith_tilanik",
@@ -144,6 +155,7 @@
       }
     },
   {
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_shirzadeh",
       "isHouse": false,
       "faithID": "faith_tilanik",
@@ -157,6 +169,7 @@
       }
     },
   {
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_farshidzen",
       "isHouse": false,
       "faithID": "faith_tilanik",
@@ -170,6 +183,7 @@
       }
     },
   {
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_vahramzen",
       "isHouse": false,
       "faithID": "faith_tilanik",
@@ -183,6 +197,7 @@
       }
     },
   {
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_dahmard",
       "isHouse": false,
       "faithID": "faith_tilanik",
@@ -196,6 +211,7 @@
       }
     },
   {
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_bahraman",
       "isHouse": false,
       "faithID": "faith_tilanik",
@@ -209,6 +225,7 @@
       }
     },
   {
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_zaravan",
       "isHouse": false,
       "faithID": "faith_tilanik",
@@ -222,6 +239,7 @@
       }
     },
   {
+      "inheritanceLaw": "primogeniture",
       "dynastyID": "dynasty_adarsharzen",
       "isHouse": false,
       "faithID": "faith_tilanik",
