@@ -21,6 +21,11 @@ class Character:
         self.death_year = death_year
         self.death_month = death_month
         self.death_day = death_day
+        self.is_progenitor = self.check_if_progenitor(identifier)
+
+    def check_if_progenitor(self, identifier):
+        """Determine if the character is the progenitor based on their ID pattern."""
+        return bool(re.search(r"(?<!\d)1$", identifier))  # Ensures '1' is the only trailing digit
 
     def __repr__(self):
         return f"<Character {self.name} ({self.id})>"
@@ -29,6 +34,121 @@ class CharacterLoader:
     def __init__(self):
         self.characters = {}
         self.dynasties = defaultdict(list)
+
+    def get_firstborn_son(self, father_id):
+        """Find and return the firstborn son of a given character."""
+        sons = [
+            character for character in self.characters.values()
+            if character.father == father_id and not character.female
+        ]
+
+        # Sort by birth date (earliest first)
+        sorted_sons = sorted(sons, key=lambda c: (c.birth_year, c.birth_month or 1, c.birth_day or 1))
+
+        return sorted_sons[0] if sorted_sons else None  # Return the firstborn son if available
+
+    def print_firstborn_sons_of_progenitors(self):
+        """Find and print the firstborn son for each dynasty’s progenitor."""
+        print("\nFirstborn Sons of Progenitors:\n")
+        
+        for dynasty, members in self.dynasties.items():
+            # Find the progenitor of the dynasty
+            progenitor = next((char for char in members if char.is_progenitor), None)
+
+            if progenitor:
+                firstborn_son = self.get_firstborn_son(progenitor.id)
+                if firstborn_son:
+                    print(f"Progenitor: {progenitor.name} ({progenitor.id}) -> Firstborn Son: {firstborn_son.name} ({firstborn_son.id})")
+                else:
+                    print(f"Progenitor: {progenitor.name} ({progenitor.id}) -> No firstborn son found.")
+            else:
+                print(f"No progenitor found for dynasty {dynasty}.")
+
+    def print_firstborn_sons_recursive(self, current_character, generation=1):
+        """Recursively print the firstborn son of each firstborn son."""
+        if current_character:
+            print(f"{' ' * generation * 2}Generation {generation}: {current_character.name} ({current_character.id})")
+
+            # Find the firstborn son of the current character
+            firstborn_son = self.get_firstborn_son(current_character.id)
+            
+            # If there is a firstborn son, recursively print his firstborn son
+            if firstborn_son:
+                self.print_firstborn_sons_recursive(firstborn_son, generation + 1)
+            else:
+                print(f"{' ' * (generation + 1) * 2}No more firstborn sons in this line.")
+
+    def print_firstborn_sons_of_progenitors_recursive(self):
+        """Find and recursively print the firstborn sons for each dynasty's progenitor."""
+        print("\nRecursive Firstborn Sons of Progenitors:\n")
+        
+        for dynasty, members in self.dynasties.items():
+            # Find the progenitor of the dynasty
+            progenitor = next((char for char in members if char.is_progenitor), None)
+
+            if progenitor:
+                print(f"Starting at Progenitor: {progenitor.name} ({progenitor.id})")
+                self.print_firstborn_sons_recursive(progenitor, generation=1)
+            else:
+                print(f"No progenitor found for dynasty {dynasty}.")
+
+    def get_secondborn_son(self, father_id):
+        """Find and return the secondborn son of a given character."""
+        sons = [
+            character for character in self.characters.values()
+            if character.father == father_id and not character.female
+        ]
+
+        # Sort by birth date (earliest first)
+        sorted_sons = sorted(sons, key=lambda c: (c.birth_year, c.birth_month or 1, c.birth_day or 1))
+
+        # Return the secondborn son if available
+        return sorted_sons[1] if len(sorted_sons) > 1 else None
+
+    def print_secondborn_sons_of_progenitors(self):
+        """Find and print the secondborn son for each dynasty’s progenitor."""
+        print("\nSecondborn Sons of Progenitors:\n")
+        
+        for dynasty, members in self.dynasties.items():
+            # Find the progenitor of the dynasty
+            progenitor = next((char for char in members if char.is_progenitor), None)
+
+            if progenitor:
+                secondborn_son = self.get_secondborn_son(progenitor.id)
+                if secondborn_son:
+                    print(f"Progenitor: {progenitor.name} ({progenitor.id}) -> Secondborn Son: {secondborn_son.name} ({secondborn_son.id})")
+                else:
+                    print(f"Progenitor: {progenitor.name} ({progenitor.id}) -> No secondborn son found.")
+            else:
+                print(f"No progenitor found for dynasty {dynasty}.")
+
+    def print_secondborn_sons_recursive(self, current_character, generation=1):
+        """Recursively print the secondborn son of each secondborn son."""
+        if current_character:
+            print(f"{' ' * generation * 2}Generation {generation}: {current_character.name} ({current_character.id})")
+
+            # Find the secondborn son of the current character
+            secondborn_son = self.get_secondborn_son(current_character.id)
+            
+            # If there is a secondborn son, recursively print his secondborn son
+            if secondborn_son:
+                self.print_secondborn_sons_recursive(secondborn_son, generation + 1)
+            else:
+                print(f"{' ' * (generation + 1) * 2}No more secondborn sons in this line.")
+
+    def print_secondborn_sons_of_progenitors_recursive(self):
+        """Find and recursively print the secondborn sons for each dynasty's progenitor."""
+        print("\nRecursive Secondborn Sons of Progenitors:\n")
+        
+        for dynasty, members in self.dynasties.items():
+            # Find the progenitor of the dynasty
+            progenitor = next((char for char in members if char.is_progenitor), None)
+
+            if progenitor:
+                print(f"Starting at Progenitor: {progenitor.name} ({progenitor.id})")
+                self.print_secondborn_sons_recursive(progenitor, generation=1)
+            else:
+                print(f"No progenitor found for dynasty {dynasty}.")
 
     def load_characters(self, filename):
         """Parse the .txt file to extract character details and store them in memory."""
@@ -57,6 +177,8 @@ class CharacterLoader:
             birth_month = int(birth_match.group(2)) if birth_match else None
             birth_day = int(birth_match.group(3)) if birth_match else None
 
+
+
             # Create a Character object and add it to the list
             character = Character(
                 identifier, name, father, mother, dynasty, female, is_bastard, birth_year, birth_month, birth_day, death_year, death_month, death_day
@@ -81,39 +203,6 @@ class CharacterLoader:
         dynasties_seen = set()
 
         print("\n")
-        # for dynasty, characters in self.dynasties.items():
-        #     if dynasty not in dynasties_seen and dynasty != "Lowborn":  # Check if dynasty hasn't been processed yet
-        #         dynasties_seen.add(dynasty)
-
-        #         # Sort the characters within the dynasty based on birth date (oldest first)
-        #         sorted_chars = sorted(characters, key=lambda x: (x.birth_year, x.birth_month or 1, x.birth_day or 1))
-
-        #         previous_ruler_death_year = None  # Track previous ruler's death year
-
-        #         # Assign titles in inheritance order (Ruler 1, Ruler 2, ...)
-        #         for idx, character in enumerate(sorted_chars):
-        #             # Check if the character is alive and old enough
-        #             eligible_age = 18  # Primogeniture often requires a minimum age of 18
-        #             alive = self.is_alive(character)  # Checks if the character is alive
-
-        #             # Use the current ruler's death year to determine the "current year" for the eligibility check
-        #             if previous_ruler_death_year:
-        #                 current_year = previous_ruler_death_year  # Set the current year based on the previous ruler's death year
-        #             else:
-        #                 current_year = 2025  # Use 2025 as the default start year if there's no previous ruler
-
-        #             # Calculate age eligibility
-        #             age_eligible = (current_year - character.birth_year) >= eligible_age  # Ensure eligible age is checked based on the "current_year"
-                    
-        #             title_order = idx + 1  # Start with 1 for the progenitor
-        #             eligibility_status = "Eligible" if alive and age_eligible else "Not Eligible"
-        #             print(f"Progenitor for Dynasty {dynasty} ({'Ruler: ' + str(title_order)}): {character.name} (ID: {character.id}) - {eligibility_status}")
-
-        #             # Update previous ruler's death year after processing the character
-        #             if character.death_year is not None:
-        #                 previous_ruler_death_year = character.death_year
-        #         print("\n")
-        
         # Print family info for each character, excluding those without a dynasty
         for character in self.characters.values():
             if character.dynasty and character.dynasty != "Lowborn":  # Only print characters with a valid dynasty
@@ -128,7 +217,7 @@ class CharacterLoader:
 
                 father_info = character.father if character.father else "No father"
                 mother_info = character.mother if character.mother else "No mother"
-                print(f"Character ID: {character.id}, Father ID: {father_info}, Mother ID: {mother_info}, Dynasty: {dynasty_info}, Ruler: {title_order}, Alive: {self.is_alive(character)}")
+                print(f"Character ID: {character.id}, Father ID: {father_info}, Mother ID: {mother_info}, Dynasty: {dynasty_info}, Ruler: {title_order}, Alive: {self.is_alive(character)}, Progenitor: {character.is_progenitor}")
 
         
         # Print family info for each character, excluding those without a dynasty

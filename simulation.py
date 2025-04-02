@@ -187,7 +187,7 @@ class Simulation:
                 dynasty_gen_count[key] = dynasty_gen_count.get(key, 0) + 1
 
         # Set a cap per dynasty per generation (adjust as needed)
-        dynasty_child_cap = 8
+        dynasty_child_cap = 18
         if dynasty_gen_count.get((father.dynasty, father.generation), 0) >= dynasty_child_cap:
             return None  # Prevent excess children
         
