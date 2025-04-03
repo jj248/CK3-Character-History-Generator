@@ -109,8 +109,7 @@ def main():
     # Load character data from family history
     character_loader = CharacterLoader()
     character_loader.load_characters("family_history.txt")  # Loads characters into memory
-    character_loader.print_secondborn_sons_of_progenitors_recursive()
-    # character_loader.print_family_info()
+    character_loader.print_family_info()
 
     # # Load title history, passing the CharacterLoader instance
     title_history = TitleHistory(character_loader, "config/initialization.json")
