@@ -108,7 +108,7 @@ def main():
 
     # Load character data from family history
     character_loader = CharacterLoader()
-    character_loader.load_characters("family_history.txt")  # Loads characters into memory
+    character_loader.load_characters("Character and Title files/family_history.txt")  # Loads characters into memory
     # character_loader.print_family_info()
 
     # # Load title history, passing the CharacterLoader instance
@@ -117,7 +117,7 @@ def main():
     titles.print_title_histories()
     titles.write_title_histories_to_file()
 
-    tree = FamilyTree("family_history.txt", "title_history.txt", config_loader.config)  # Ensure both files exist
+    tree = FamilyTree("Character and Title files/family_history.txt", "Character and Title files/title_history.txt", config_loader.config)  # Ensure both files exist
     tree.build_trees()
     tree.render_trees()
 

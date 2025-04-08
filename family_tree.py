@@ -1,3 +1,4 @@
+import os
 import re
 import graphviz
 from collections import defaultdict
@@ -268,9 +269,12 @@ class FamilyTree:
             self.graphs[dynasty] = graph  # Store graph for later rendering
 
     def render_trees(self):
-        """Render the family trees to files."""
+        """Render the family trees to files in 'Dynasty Preview' folder."""
+        output_folder = "Dynasty Preview"
+        os.makedirs(output_folder, exist_ok=True)  # Create the folder if it doesn't exist
+
         for dynasty, graph in self.graphs.items():
-            filename = f"family_tree_{dynasty}"
+            filename = os.path.join(output_folder, f"family_tree_{dynasty}")
             graph.render(filename, format="png", cleanup=True)
             print(f"Family tree for {dynasty} saved as {filename}.png")
 

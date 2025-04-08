@@ -1,3 +1,4 @@
+import os
 import random
 import logging
 import re
@@ -675,13 +676,18 @@ class Simulation:
             self.update_unmarried_pools(year)
 
     def export_characters(self, output_filename="family_history.txt"):
-        # Initialize the counter
+        # Set output folder and ensure it exists
+        output_folder = "Character and Title files"
+        os.makedirs(output_folder, exist_ok=True)
+
+        # Full path to the output file
+        output_path = os.path.join(output_folder, output_filename)
+
         dynasty_groups = {}
         exported_character_count = 0
 
         for character in self.all_characters:
             if character.dynasty:  # Only group characters with a valid dynasty
-                # Use spouse's dynasty if character has one and doesn't belong to a noble dynasty
                 if character.spouse and character.dynasty == "Lowborn":
                     dynasty = character.spouse.dynasty if character.spouse.dynasty != "Lowborn" else character.dynasty
                 else:
@@ -691,23 +697,19 @@ class Simulation:
                     dynasty_groups[dynasty] = []
                 dynasty_groups[dynasty].append(character)
 
-        with open(output_filename, 'w', encoding='utf-8') as file:
+        with open(output_path, 'w', encoding='utf-8') as file:
             for dynasty, characters in sorted(dynasty_groups.items(), key=lambda x: x[0]):
                 file.write("################\n")
                 file.write(f"### Dynasty {dynasty}\n")
                 file.write("################\n\n")
 
-                # Sort characters by the digits in char_id (ignores non-numeric characters)
                 for character in sorted(characters, key=lambda c: int(re.sub(r'\D', '', c.char_id))):
                     file.write(character.format_for_export())
-                    file.write("\n")  # Separate characters for readability
-
-                    # Increment the counter after each character is written
+                    file.write("\n")
                     exported_character_count += 1
 
-        logging.info(f"Character history exported to {output_filename}")
+        logging.info(f"Character history exported to {output_path}")
         logging.info(f"Total characters exported: {exported_character_count}")
-
 
 
 

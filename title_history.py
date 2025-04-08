@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import logging
 from collections import defaultdict
@@ -303,8 +304,12 @@ class TitleHistory:
         print("\n")
 
     def write_title_histories_to_file(self):
-        """Write the title history to 'title_history.txt'."""
-        with open('title_history.txt', 'w', encoding='utf-8') as file:
+        output_folder = "Character and Title files"
+        os.makedirs(output_folder, exist_ok=True)  # Create the folder if it doesn't exist
+
+        output_path = os.path.join(output_folder, 'title_history.txt')  # Full path to the file
+
+        with open(output_path, 'w', encoding='utf-8') as file:
             for dynasty, rulers in self.titles.items():
                 # Write the placeholder_title header
                 file.write("placeholder_title = {\n")
