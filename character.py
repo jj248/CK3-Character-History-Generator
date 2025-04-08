@@ -16,8 +16,11 @@ class Character:
         sexuality_distribution, 
         is_house=False,
         generation=1, 
-        is_progenitor=False
+        is_progenitor=False,
+        is_bastard=False,
+        birth_order=None  # Add birth_order as an argument
     ):
+        self.is_bastard = is_bastard
         self.char_id = char_id
         self.name = name
         self.sex = sex
@@ -26,11 +29,14 @@ class Character:
         self.birth_day = 1    # Default day
         self.age = 0  # Will be updated annually
         self.death_year = None
+        self.death_month = None
+        self.death_day = None
         self.alive = True
         self.married = False
         self.spouse = None
         self.children = []
-        self.dynasty = dynasty  # Can be None for lowborn
+        self.dynasty = dynasty if dynasty else "Lowborn"
+        self.gender_law = gender_law if gender_law in ["male", "female", "equal"] else "equal"
         self.culture = culture
         self.religion = religion
         self.gender_law = gender_law
@@ -49,12 +55,37 @@ class Character:
         self.sexuality = None
         self.can_marry = True
         self.assign_sexuality(sexuality_distribution)
+        self.mortality_risk = 0  # Initialize mortality risk
+        
+        # Set the birth order if provided, otherwise default to None
+        self.birth_order = birth_order
         
         # Record birth event
         birth_date_str = generate_random_date(self.birth_year)
         self.birth_year, self.birth_month, self.birth_day = map(int, birth_date_str.split('.'))
         self.add_event(birth_date_str, "birth = yes")
 
+    def calculate_fertility_modifier(self):
+        """ Apply a fertility penalty based on birth order """
+        if self.birth_order >= 3:
+            return 1 - (0.1 * (self.birth_order - 2))  # Reduced fertility
+        return 1.0
+
+    def apply_dynasty_mortality_penalty(self):
+        """ Increase mortality risk for distant branches (4+ generations away) """
+        if self.generation >= 4:
+            return 0.2 * (self.generation - 3)  # Increasing penalty per generation
+        return 0.0
+
+    def siblings(self):
+        # Returns a list of siblings (children of the same parents, excluding the character itself)
+        siblings = []
+        if self.father:
+            siblings.extend([child for child in self.father.children if child != self])
+        if self.mother:
+            siblings.extend([child for child in self.mother.children if child != self])
+        return siblings
+    
     def assign_sexuality(self, sexuality_distribution):
         """Assign sexuality to the character based on distribution."""
         sexualities = list(sexuality_distribution.keys())
@@ -152,16 +183,16 @@ class Character:
 
         # Collect dynasty and parents information
         sections = []
-        if self.dynasty:
+        if self.dynasty and self.dynasty != "Lowborn":  # Avoid printing "dynasty = Lowborn"
             if self.is_house:
                 sections.append(f"\tdynasty_house = {self.dynasty}")
             else:
                 sections.append(f"\tdynasty = {self.dynasty}")
-        if self.father or self.mother:
-            if self.father:
-                sections.append(f"\tfather = {self.father.char_id}")
-            if self.mother:
-                sections.append(f"\tmother = {self.mother.char_id}")
+        
+        if self.father:
+            sections.append(f"\tfather = {self.father.char_id}")
+        if self.mother:
+            sections.append(f"\tmother = {self.mother.char_id}")
 
         # Add dynasty and parents sections if they exist
         if sections:
@@ -183,8 +214,7 @@ class Character:
             lines.append("")
             for trait in self.traits:
                 lines.append(f"\ttrait = {trait}")
-		
-
+        
         # Include personality traits and education
         if self.personality_traits or self.education_tier is not None or self.congenital_traits:
             lines.append("")
@@ -223,18 +253,20 @@ class Character:
 
                     # Determine event description
                     if event_detail.startswith("add_spouse"):
-                        event_desc = f"Married at age {age}"
+                        event_desc = f"# Married at age {age}"
                     elif event_detail.startswith("add_matrilineal_spouse"):
-                        event_desc = f"Married at age {age}"
+                        event_desc = f"# Married at age {age}"
                     elif event_detail.startswith("death"):
-                        event_desc = f"Died at age {age}"
+                        event_desc = f""
                     else:
-                        event_desc = f"Event at age {age}"
+                        event_desc = f"# Event at age {age}"
 
-                    # Add comment
-                    lines.append(f"\t{event_date} = {{  # {event_desc}")
+                    # Add event with description
+                    lines.append(f"\t{event_date} = {{  {event_desc}")
                     lines.append(f"\t    {event_detail}")
                     lines.append(f"\t}}")
 
         lines.append(f"}}\n")
         return "\n".join(lines)
+    
+    

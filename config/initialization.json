@@ -1,12 +1,13 @@
 {
   "dynasties": [
 	{
-      "dynastyID": "dynasty_aragorn",
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_dadfiruzen",
       "isHouse": false,
-      "faithID": "faith_jelut",
-      "cultureID": "jelut",
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
       "genderLaw": "male",
-      "progenitorMaleBirthYear": 6790,
+      "progenitorMaleBirthYear": 6540,
       "nameInheritance": {
         "grandparentNameInheritanceChance": 0.05,
         "parentNameInheritanceChance": 0.05,
@@ -14,12 +15,13 @@
       }
     },
 	{
-      "dynastyID": "dynasty_bilbo",
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_adarfiruzen",
       "isHouse": false,
-      "faithID": "faith_jelut",
-      "cultureID": "jelut",
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
       "genderLaw": "male",
-      "progenitorMaleBirthYear": 6785,
+      "progenitorMaleBirthYear": 6614,
       "nameInheritance": {
         "grandparentNameInheritanceChance": 0.05,
         "parentNameInheritanceChance": 0.05,
@@ -27,12 +29,13 @@
       }
     },
 	{
-      "dynastyID": "dynasty_celeborn",
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_bahlikaran",
       "isHouse": false,
-      "faithID": "faith_jelut",
-      "cultureID": "jelut",
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
       "genderLaw": "male",
-      "progenitorMaleBirthYear": 6797,
+      "progenitorMaleBirthYear": 6493,
       "nameInheritance": {
         "grandparentNameInheritanceChance": 0.05,
         "parentNameInheritanceChance": 0.05,
@@ -40,12 +43,13 @@
       }
     },
 	{
-      "dynastyID": "dynasty_balin",
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_khudaradmen",
       "isHouse": false,
-      "faithID": "faith_jelut",
-      "cultureID": "jelut",
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
       "genderLaw": "male",
-      "progenitorMaleBirthYear": 6793,
+      "progenitorMaleBirthYear": 6811,
       "nameInheritance": {
         "grandparentNameInheritanceChance": 0.05,
         "parentNameInheritanceChance": 0.05,
@@ -53,10 +57,11 @@
       }
     },
 	{
-      "dynastyID": "dynasty_eomer",
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_esrecarzen",
       "isHouse": false,
-      "faithID": "faith_jelut",
-      "cultureID": "jelut",
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
       "genderLaw": "male",
       "progenitorMaleBirthYear": 6792,
       "nameInheritance": {
@@ -66,12 +71,13 @@
       }
     },
 	{
-      "dynastyID": "dynasty_frodo",
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_tarimez",
       "isHouse": false,
-      "faithID": "faith_jelut",
-      "cultureID": "jelut",
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
       "genderLaw": "male",
-      "progenitorMaleBirthYear": 6791,
+      "progenitorMaleBirthYear": 6751,
       "nameInheritance": {
         "grandparentNameInheritanceChance": 0.05,
         "parentNameInheritanceChance": 0.05,
@@ -79,12 +85,167 @@
       }
     },
 	{
-      "dynastyID": "dynasty_glorfindel",
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_visnarmaken",
       "isHouse": false,
-      "faithID": "faith_jelut",
-      "cultureID": "jelut",
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
       "genderLaw": "male",
-      "progenitorMaleBirthYear": 6788,
+      "progenitorMaleBirthYear": 6718,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+  {
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_kerhamez",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6718,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+  {
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_namdarez",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6718,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+  {
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_mentarez",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6718,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+  {
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_naymardan",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6000,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+  {
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_shirzadeh",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6030,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+  {
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_farshidzen",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6075,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+  {
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_vahramzen",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6120,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+  {
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_dahmard",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6021,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+  {
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_bahraman",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6049,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+  {
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_zaravan",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6078,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+  {
+      "inheritanceLaw": "primogeniture",
+      "dynastyID": "dynasty_adarsharzen",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "genderLaw": "male",
+      "progenitorMaleBirthYear": 6130,
       "nameInheritance": {
         "grandparentNameInheritanceChance": 0.05,
         "parentNameInheritanceChance": 0.05,
@@ -92,8 +253,26 @@
       }
     }
   ],
+  "events": [
+    {
+      "eventID": "event_plague",
+      "startYear": 5668,
+      "endYear": 5670,
+      "deathReason": "bubonic_plague",
+      "deathMultiplier": 1.5
+    },
+    {
+      "eventID": "event_war",
+      "startYear": 5983,
+      "endYear": 6083,
+      "deathReason": "death_battle",
+      "deathMultiplier": 1.3
+    }
+  ],
   "initialCharID": 1,
-  "minYear": 6500,
+  "minYear": 6000,
   "maxYear": 7033,
-  "generationMax": 10
+  "generationMax": 28,
+  "treeGeneration": "TB",
+  "spouseVisible": "no"
 }
