@@ -191,6 +191,43 @@ class TitleHistory:
                     result = self.dfs_search(sibling, from_date, visited)
                     if result:
                         return result
+        
+
+            grandfather = self.characters.get(father.father) if father else None
+            if grandfather:
+                grand_siblings = self.get_children_in_birth_order(grandfather.id)
+                for grand_sibling in grand_siblings:
+                    if grand_sibling.id != father.id:
+                        result = self.dfs_search(grand_sibling, from_date, visited)
+                        if result:
+                            return result
+                    
+                great_grandfather  = self.characters.get(grandfather.father) if father and grandfather.father else None
+                if great_grandfather:
+                    great_grand_siblings  = self.get_children_in_birth_order(great_grandfather .id)
+                    for great_grand_sibling  in great_grand_siblings :
+                        if great_grand_sibling .id != grandfather.id:
+                            result = self.dfs_search(great_grand_sibling , from_date, visited)
+                            if result:
+                                return result
+                    
+                    great_great_grandfather  = self.characters.get(great_grandfather.father) if father and grandfather.father and great_grandfather.father else None
+                    if great_great_grandfather:
+                        great_great_grand_siblings  = self.get_children_in_birth_order(great_grandfather .id)
+                        for great_great_grand_sibling  in great_great_grand_siblings :
+                            if great_great_grand_sibling .id != great_grandfather.id:
+                                result = self.dfs_search(great_great_grand_sibling , from_date, visited)
+                                if result:
+                                    return result
+                    
+                        great_great_great_grandfather  = self.characters.get(great_great_grandfather.father) if father and grandfather.father and great_grandfather.father and great_great_grandfather.father else None
+                        if great_great_great_grandfather:
+                            great_great_great_grand_siblings  = self.get_children_in_birth_order(great_great_great_grandfather .id)
+                            for great_great_great_grand_sibling  in great_great_great_grand_siblings :
+                                if great_great_great_grand_sibling .id != great_great_grandfather.id:
+                                    result = self.dfs_search(great_great_great_grand_sibling , from_date, visited)
+                                    if result:
+                                        return result
 
         # 4. Absolute fallback — check all bastards in dynasty
         if person.dynasty in self.dynasties:
@@ -259,9 +296,11 @@ class TitleHistory:
         for dynasty, rulers in self.titles.items():
             print(f"\n--- Dynasty: {dynasty} ---")
             for ruler_id, by, bm, bd, dy, dm, dd in rulers:
-                inherited = f"{self.convert_to_ingame_date(by)} {bm:02}.{bd:02}"
+                inherited = f"{self.convert_to_ingame_date(by)}.{bm:02}.{bd:02}"
                 died = f"{self.convert_to_ingame_date(dy)} {dm:02}.{dd:02}"
                 print(f"Ruler: {ruler_id} | Inherited: {inherited} | Died: {died}")
+        
+        print("\n")
 
     def write_title_histories_to_file(self):
         """Write the title history to 'title_history.txt'."""
