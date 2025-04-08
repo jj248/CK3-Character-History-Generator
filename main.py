@@ -115,6 +115,7 @@ def main():
     titles = TitleHistory(character_loader, "config/initialization.json")
     titles.build_title_histories()
     titles.print_title_histories()
+    titles.write_title_histories_to_file()
 
     tree = FamilyTree("family_history.txt", "title_history.txt", config_loader.config)  # Ensure both files exist
     tree.build_trees()

@@ -107,7 +107,6 @@ class CharacterLoader:
                 mother_info = character.mother if character.mother else "No mother"
                 print(f"Character ID: {character.id}, Father ID: {father_info}, Mother ID: {mother_info}, Dynasty: {dynasty_info}, Progenitor: {character.is_progenitor}")
 
-
 class TitleHistory:
     def __init__(self, character_loader, config_file):
         self.titles = {}  # dynasty_name: list of (ruler_id, start_year, end_year)
@@ -265,5 +264,37 @@ class TitleHistory:
                 print(f"Ruler: {ruler_id} | Inherited: {inherited} | Died: {died}")
 
     def write_title_histories_to_file(self):
-        """Write the title history to 'title_history.txt' (to be implemented later)."""
-        pass  # Placeholder for future implementation
+        """Write the title history to 'title_history.txt'."""
+        with open('title_history.txt', 'w', encoding='utf-8') as file:
+            for dynasty, rulers in self.titles.items():
+                # Write the placeholder_title header
+                file.write("placeholder_title = {\n")
+                
+                placeholder_title = {}
+                
+                for ruler_id, by, bm, bd, dy, dm, dd in rulers:
+                    # Find the ruler’s name
+                    ruler_name = self.characters[ruler_id].name if ruler_id in self.characters else "Unknown"
+                    dynasty_name = self.characters[ruler_id].dynasty
+                    
+                    # Add ruler to the dynasty's placeholder_title
+                    placeholder_title[f"{by:04}.{bm:02}.{bd:02}"] = {
+                        "holder": f"{ruler_id}"
+                    }
+                    
+                    # If there's a next ruler, we need to mark the previous ruler's end date
+                    if rulers.index((ruler_id, by, bm, bd, dy, dm, dd)) + 1 < len(rulers):
+                        next_ruler = rulers[rulers.index((ruler_id, by, bm, bd, dy, dm, dd)) + 1]
+                        next_start_year, next_start_month, next_start_day = next_ruler[1], next_ruler[2], next_ruler[3]
+                        placeholder_title[f"{next_start_year:04}.{next_start_month:02}.{next_start_day:02}"] = {
+                            "holder": f"{next_ruler[0]} #{self.characters[next_ruler[0]].name}"
+                        }
+
+                # Write placeholder_title entries to the file
+                for date, entry in placeholder_title.items():
+                    file.write(f"    {date} = {{\n")
+                    file.write(f"        holder = {entry['holder']}\n")
+                    file.write("    }\n")
+                
+                file.write("}\n")  # Close the placeholder_title block
+                file.write("\n")  # Add a blank line between dynasties
