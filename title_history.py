@@ -168,6 +168,8 @@ class TitleHistory:
 
         # 1. Male children and descendants
         for child in children:
+            if child.is_bastard:
+                continue
             if not child.female and self.valid_successor(child, from_date):
                 return child
             result = self.dfs_search(child, from_date, visited) if not child.female else None
@@ -176,6 +178,8 @@ class TitleHistory:
 
         # 2. Female children and their descendants
         for child in children:
+            if child.is_bastard:
+                continue
             if child.female:
                 if self.valid_successor(child, from_date):
                     return child
@@ -188,7 +192,7 @@ class TitleHistory:
         if father:
             siblings = self.get_children_in_birth_order(father.id)
             for sibling in siblings:
-                if sibling.id != person.id:
+                if sibling.id != person.id and not sibling.is_bastard:
                     result = self.dfs_search(sibling, from_date, visited)
                     if result:
                         return result
@@ -198,7 +202,7 @@ class TitleHistory:
             if grandfather:
                 grand_siblings = self.get_children_in_birth_order(grandfather.id)
                 for grand_sibling in grand_siblings:
-                    if grand_sibling.id != father.id:
+                    if grand_sibling.id != father.id and not grand_sibling.is_bastard:
                         result = self.dfs_search(grand_sibling, from_date, visited)
                         if result:
                             return result
@@ -207,7 +211,7 @@ class TitleHistory:
                 if great_grandfather:
                     great_grand_siblings  = self.get_children_in_birth_order(great_grandfather .id)
                     for great_grand_sibling  in great_grand_siblings :
-                        if great_grand_sibling .id != grandfather.id:
+                        if great_grand_sibling .id != grandfather.id and not great_grand_sibling.is_bastard:
                             result = self.dfs_search(great_grand_sibling , from_date, visited)
                             if result:
                                 return result
@@ -216,7 +220,7 @@ class TitleHistory:
                     if great_great_grandfather:
                         great_great_grand_siblings  = self.get_children_in_birth_order(great_grandfather .id)
                         for great_great_grand_sibling  in great_great_grand_siblings :
-                            if great_great_grand_sibling .id != great_grandfather.id:
+                            if great_great_grand_sibling .id != great_grandfather.id and not great_great_grand_sibling.is_bastard:
                                 result = self.dfs_search(great_great_grand_sibling , from_date, visited)
                                 if result:
                                     return result
@@ -225,7 +229,7 @@ class TitleHistory:
                         if great_great_great_grandfather:
                             great_great_great_grand_siblings  = self.get_children_in_birth_order(great_great_great_grandfather .id)
                             for great_great_great_grand_sibling  in great_great_great_grand_siblings :
-                                if great_great_great_grand_sibling .id != great_great_grandfather.id:
+                                if great_great_great_grand_sibling .id != great_great_grandfather.id and not great_great_great_grand_sibling.is_bastard:
                                     result = self.dfs_search(great_great_great_grand_sibling , from_date, visited)
                                     if result:
                                         return result
