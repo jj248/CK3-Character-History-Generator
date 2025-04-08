@@ -112,11 +112,9 @@ def main():
     character_loader.print_family_info()
 
     # # Load title history, passing the CharacterLoader instance
-    title_history = TitleHistory(character_loader, "config/initialization.json")
-    title_history.assign_titles()
-
-    # # Export title history
-    title_history.export_title_history("title_history.txt")
+    titles = TitleHistory(character_loader, "config/initialization.json")
+    titles.build_title_histories()
+    titles.print_title_histories()
 
     tree = FamilyTree("family_history.txt", "title_history.txt", config_loader.config)  # Ensure both files exist
     tree.build_trees()
