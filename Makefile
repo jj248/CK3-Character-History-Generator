@@ -1,4 +1,6 @@
-.PHONY: install
+.PHONY: run
+
+default: run
 
 install:
 	pip install graphviz
