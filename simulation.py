@@ -621,7 +621,9 @@ class Simulation:
                     # Use fertilityRates to determine if a child is produced
                     female_age = character.age
                     fertility_rate = fertility_rates['Female'][female_age]
-                    if random.random() < fertility_rate/100:
+                    male_age = character.spouse.age
+                    fertility_rate_m = fertility_rates['Male'][male_age]
+                    if random.random() < (fertility_rate/100*fertility_rate_m):
                         child = self.create_child(character, character.spouse, year)
                         if child:
                             self.add_character_to_pool(child)
