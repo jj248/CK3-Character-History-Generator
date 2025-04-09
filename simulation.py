@@ -36,10 +36,10 @@ class Simulation:
         character.mortality_risk += mortality_penalty  
 
         # Adjust max children for main line
-        if character.birth_order == 1:
-            self.config['life_stages']['maximumNumberOfChildren'] = 6  # Increase main line limit
-        else:
-            self.config['life_stages']['maximumNumberOfChildren'] = 3  # Limit lesser branches
+        #if character.birth_order == 1:
+        #    self.config['life_stages']['maximumNumberOfChildren'] = 6  # Increase main line limit
+        #else:
+        #    self.config['life_stages']['maximumNumberOfChildren'] = 3  # Limit lesser branches
 
         # Add to character pool
         self.character_pool.setdefault(character.birth_year, []).append(character)
@@ -175,6 +175,9 @@ class Simulation:
         couple_key = (father.char_id, mother.char_id)
         last_birth_year = self.couple_last_child_year.get(couple_key, None)
         min_years = self.config['life_stages']['minimumYearsBetweenChildren']
+
+        if last_birth_year is not None and birth_year < (last_birth_year + min_years):
+            return None
 
         # Use fertilityRates to determine if a child is produced
         female_age = mother.age
@@ -618,7 +621,7 @@ class Simulation:
                     # Use fertilityRates to determine if a child is produced
                     female_age = character.age
                     fertility_rate = fertility_rates['Female'][female_age]
-                    if random.random() < fertility_rate:
+                    if random.random() < fertility_rate/100:
                         child = self.create_child(character, character.spouse, year)
                         if child:
                             self.add_character_to_pool(child)
