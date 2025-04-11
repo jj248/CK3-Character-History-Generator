@@ -36,7 +36,7 @@ class Character:
         self.spouse = None
         self.children = []
         self.dynasty = dynasty if dynasty else "Lowborn"
-        self.gender_law = gender_law if gender_law in ["male", "female", "equal"] else "equal"
+        self.gender_law = gender_law if gender_law in ["AGNATIC", "AGNATIC_COGNATIC", "ABSOLUTE_COGNATIC", "ENATIC_COGNATIC", "ENATIC"] else "AGNATIC_COGNATIC"
         self.culture = culture
         self.religion = religion
         self.gender_law = gender_law

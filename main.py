@@ -40,7 +40,7 @@ def main():
         dynasty_id = dynasty_config['dynastyID']
         culture_id = dynasty_config['cultureID']
         religion_id = dynasty_config['faithID']
-        gender_law = dynasty_config['genderLaw']
+        gender_law = dynasty_config['gender_law']
         is_house = dynasty_config['isHouse']
         progenitor_birth_year = dynasty_config['progenitorMaleBirthYear']
         dynasty_prefix = dynasty_id.split('_')[1] if '_' in dynasty_id else dynasty_id

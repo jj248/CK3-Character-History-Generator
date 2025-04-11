@@ -41,7 +41,7 @@ class ConfigLoader:
             raise ValueError("No dynasties defined in initialization configuration.")
 
         for dynasty in dynasties:
-            required_dynasty_fields = ['dynastyID', 'faithID', 'cultureID', 'genderLaw', 'progenitorMaleBirthYear', 'nameInheritance']
+            required_dynasty_fields = ['dynastyID', 'faithID', 'cultureID', 'gender_law', 'succession', 'progenitorMaleBirthYear', 'nameInheritance']
             for field in required_dynasty_fields:
                 if field not in dynasty:
                     raise ValueError(f"Missing '{field}' in dynasty configuration.")

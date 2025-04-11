@@ -141,10 +141,10 @@ class Simulation:
 
         # Assign default marriage type if not already set
         if not marriage_type:
-            if char1.gender_law == "male" and char1.sex == "Male":
+            if (char1.gender_law == "AGNATIC" or char1.gender_law == "AGNATIC_COGNATIC") and char1.sex == "Male":
                 marriage_type = "add_spouse"
                 children_dynasty = char1.dynasty
-            elif char1.gender_law == "female" and char1.sex == "Female":
+            elif (char1.gender_law == "ENATIC" or char1.gender_law == "ENATIC_COGNATIC") and char1.sex == "Female":
                 marriage_type = "add_matrilineal_spouse"
                 children_dynasty = char1.dynasty
             else:
@@ -205,9 +205,9 @@ class Simulation:
 
         # **Determine Gender Preference Based on Laws**
         gender_preference = None
-        if father.gender_law == "male":
+        if father.gender_law == "AGNATIC" or father.gender_law == "AGNATIC_COGNATIC":
             gender_preference = "Male"
-        elif mother.gender_law == "female":
+        elif mother.gender_law == "ENATIC" or mother.gender_law == "ENATIC_COGNATIC":
             gender_preference = "Female"
 
         # **Check existing siblings**
@@ -227,13 +227,13 @@ class Simulation:
         child_sex = "Male" if random.random() < male_chance else "Female"
 
         # Determine dynasty and culture based on marriage laws and parents
-        if mother.gender_law == 'male' and father.gender_law == 'male':
+        if (mother.gender_law == "AGNATIC" or mother.gender_law == "AGNATIC_COGNATIC") and (father.gender_law == "AGNATIC" or father.gender_law == "AGNATIC_COGNATIC"):
             child_dynasty = father.dynasty
             child_is_house = father.is_house
             child_culture = father.culture
             child_religion = father.religion
             child_gender_law = father.gender_law
-        elif mother.gender_law == 'female' and mother.sex == "Female":
+        elif (mother.gender_law == "ENATIC" or mother.gender_law == "ENATIC_COGNATIC") and mother.sex == "Female":
             child_dynasty = mother.dynasty
             child_is_house = mother.is_house
             child_culture = mother.culture
@@ -492,9 +492,9 @@ class Simulation:
 
         # Determine Gender Preference Based on Laws
         gender_preference = None
-        if parent.gender_law == "male":
+        if parent.gender_law == "AGNATIC" or parent.gender_law == "AGNATIC_COGNATIC":
             gender_preference = "Male"
-        elif parent.gender_law == "female":
+        elif parent.gender_law == "ENATIC" or parent.gender_law == "ENATIC_COGNATIC":
             gender_preference = "Female"
 
         # **Check existing siblings**
