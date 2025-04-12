@@ -24,13 +24,14 @@ class Simulation:
 
     def add_character_to_pool(self, character):
         """ Adjust fertility and mortality based on dynasty rules """
-        fertility_modifier = character.calculate_fertility_modifier()
+        # fertility_modifier = character.calculate_fertility_modifier()
         mortality_penalty = character.apply_dynasty_mortality_penalty()
 
         # Modify fertility rates dynamically
         base_fertility = self.config['life_stages']['fertilityRates']['Female']
-        adjusted_fertility = {age: rate * fertility_modifier for age, rate in enumerate(base_fertility)}
-        self.config['life_stages']['fertilityRates']['Female'] = adjusted_fertility
+        # adjusted_fertility = {age: rate * fertility_modifier for age, rate in enumerate(base_fertility)}
+        # self.config['life_stages']['fertilityRates']['Female'] = adjusted_fertility
+        self.config['life_stages']['fertilityRates']['Female'] = base_fertility
 
         # Apply mortality penalty (pseudo-code, assuming there's a mortality function)
         character.mortality_risk += mortality_penalty  
@@ -166,6 +167,9 @@ class Simulation:
         char1.add_event(marriage_date, f"{marriage_type} = {char2.char_id}")
 
     def create_child(self, mother, father, birth_year):
+
+        #print(f"Father Age:",{father.age},"Father Fertility:",{self.config['life_stages']['fertilityRates']['Female'][father.age]},"Mother Age:",{mother.age},"Mother Fertility:",{self.config['life_stages']['fertilityRates']['Female'][mother.age]})
+
         # Enforce maximum number of children per woman
         maximum_children = self.config['life_stages']['maximumNumberOfChildren']
         if len(mother.children) >= maximum_children:
@@ -627,10 +631,15 @@ class Simulation:
 
                     # Use fertilityRates to determine if a child is produced
                     female_age = character.age
-                    fertility_rate = fertility_rates['Female'][female_age]
                     male_age = character.spouse.age
+                    fertility_rate = fertility_rates['Female'][female_age]
                     fertility_rate_m = fertility_rates['Male'][male_age]
-                    if random.random() < (fertility_rate/100*fertility_rate_m):
+                    
+                    if random.random() < (fertility_rate*fertility_rate_m):
+                        # print(f"Father Age: {male_age} "
+                        # f"Father Fertility: {fertility_rate_m} "
+                        # f"Mother Age: {female_age} "
+                        # f"Mother Fertility: {fertility_rate}")
                         child = self.create_child(character, character.spouse, year)
                         if child:
                             self.add_character_to_pool(child)
