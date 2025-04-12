@@ -45,60 +45,117 @@ def main():
         progenitor_birth_year = dynasty_config['progenitorMaleBirthYear']
         dynasty_prefix = dynasty_id.split('_')[1] if '_' in dynasty_id else dynasty_id
 
-        # Create progenitor male
-        progenitor_male_char_id = generate_char_id(dynasty_prefix, simulation.dynasty_char_counters)
-        progenitor_male_name = name_loader.load_names(culture_id, "male")
-        progenitor_male = Character(
-            char_id=progenitor_male_char_id,
-            name=progenitor_male_name,
-            sex="Male",
-            birth_year=progenitor_birth_year,
-            dynasty=dynasty_id,
-            is_house=is_house,
-            culture=culture_id,
-            religion=religion_id,
-            gender_law=gender_law,
-            sexuality_distribution=skills_and_traits_config['sexualityDistribution'],
-            generation=1,
-            is_progenitor=True,
-            birth_order=1
-        )
-        progenitor_male.age = 18
-        simulation.add_character_to_pool(progenitor_male)
-        simulation.all_characters.append(progenitor_male)
+        if gender_law == "ENATIC" or gender_law == "ENATIC_COGNATIC":
+            # Create progenitor female
+            progenitor_male_char_id = generate_char_id(dynasty_prefix, simulation.dynasty_char_counters)
+            progenitor_male_name = name_loader.load_names(culture_id, "female")
+            progenitor_male = Character(
+                char_id=progenitor_male_char_id,
+                name=progenitor_male_name,
+                sex="Female",
+                birth_year=progenitor_birth_year,
+                dynasty=dynasty_id,
+                is_house=is_house,
+                culture=culture_id,
+                religion=religion_id,
+                gender_law=gender_law,
+                sexuality_distribution=skills_and_traits_config['sexualityDistribution'],
+                generation=1,
+                is_progenitor=True,
+                birth_order=1
+            )
+            progenitor_male.age = 18
+            simulation.add_character_to_pool(progenitor_male)
+            simulation.all_characters.append(progenitor_male)
 
-        # Generate progenitor female spouse
-        spouse_birth_year = progenitor_birth_year  # Same year as male
-        progenitor_female_char_id = generate_char_id(dynasty_prefix, simulation.dynasty_char_counters)
-        progenitor_female_name = name_loader.load_names(culture_id, "female")
-        progenitor_female = Character(
-            char_id=progenitor_female_char_id,
-            name=progenitor_female_name,
-            sex="Female",
-            birth_year=spouse_birth_year,  # Same year
-            dynasty=None,  # Lowborn, no dynasty
-            is_house=is_house,
-            culture=culture_id,
-            religion=religion_id,
-            gender_law=gender_law,
-            sexuality_distribution=skills_and_traits_config['sexualityDistribution'],
-            generation=1,
-            is_progenitor=True,
-            birth_order=1
-        )
-        simulation.add_character_to_pool(progenitor_female)
-        simulation.all_characters.append(progenitor_female)
+            # Generate progenitor male spouse
+            spouse_birth_year = progenitor_birth_year  # Same year as female
+            progenitor_female_char_id = generate_char_id(dynasty_prefix, simulation.dynasty_char_counters)
+            progenitor_female_name = name_loader.load_names(culture_id, "male")
+            progenitor_female = Character(
+                char_id=progenitor_female_char_id,
+                name=progenitor_female_name,
+                sex="Male",
+                birth_year=spouse_birth_year,  # Same year
+                dynasty=None,  # Lowborn, no dynasty
+                is_house=is_house,
+                culture=culture_id,
+                religion=religion_id,
+                gender_law=gender_law,
+                sexuality_distribution=skills_and_traits_config['sexualityDistribution'],
+                generation=1,
+                is_progenitor=True,
+                birth_order=1
+            )
+            simulation.add_character_to_pool(progenitor_female)
+            simulation.all_characters.append(progenitor_female)
 
-        # Marry them
-        marriage_year = progenitor_male.birth_year + life_stages_config.get('marriageMinAge', 18)
-        simulation.marry_characters(progenitor_male, progenitor_female, marriage_year)
-        # Ensure at least 3 children per dynasty
-        for i in range(3):
-            child_birth_year = marriage_year + i + 1  # Stagger births
-            child = simulation.create_child(progenitor_female, progenitor_male, child_birth_year)
-            if child:
-                simulation.add_character_to_pool(child)
-                simulation.all_characters.append(child)
+            # Marry them
+            marriage_year = progenitor_male.birth_year + life_stages_config.get('marriageMinAge', 18)
+            simulation.marry_characters(progenitor_male, progenitor_female, marriage_year)
+            # Ensure at least 3 children per dynasty
+            for i in range(3):
+                child_birth_year = marriage_year + i + 1  # Stagger births
+                child = simulation.create_child(progenitor_male, progenitor_female, child_birth_year)
+                if child:
+                    simulation.add_character_to_pool(child)
+                    simulation.all_characters.append(child)
+        
+        else:
+            # Create progenitor male
+            progenitor_male_char_id = generate_char_id(dynasty_prefix, simulation.dynasty_char_counters)
+            progenitor_male_name = name_loader.load_names(culture_id, "male")
+            progenitor_male = Character(
+                char_id=progenitor_male_char_id,
+                name=progenitor_male_name,
+                sex="Male",
+                birth_year=progenitor_birth_year,
+                dynasty=dynasty_id,
+                is_house=is_house,
+                culture=culture_id,
+                religion=religion_id,
+                gender_law=gender_law,
+                sexuality_distribution=skills_and_traits_config['sexualityDistribution'],
+                generation=1,
+                is_progenitor=True,
+                birth_order=1
+            )
+            progenitor_male.age = 18
+            simulation.add_character_to_pool(progenitor_male)
+            simulation.all_characters.append(progenitor_male)
+
+            # Generate progenitor female spouse
+            spouse_birth_year = progenitor_birth_year  # Same year as male
+            progenitor_female_char_id = generate_char_id(dynasty_prefix, simulation.dynasty_char_counters)
+            progenitor_female_name = name_loader.load_names(culture_id, "female")
+            progenitor_female = Character(
+                char_id=progenitor_female_char_id,
+                name=progenitor_female_name,
+                sex="Female",
+                birth_year=spouse_birth_year,  # Same year
+                dynasty=None,  # Lowborn, no dynasty
+                is_house=is_house,
+                culture=culture_id,
+                religion=religion_id,
+                gender_law=gender_law,
+                sexuality_distribution=skills_and_traits_config['sexualityDistribution'],
+                generation=1,
+                is_progenitor=True,
+                birth_order=1
+            )
+            simulation.add_character_to_pool(progenitor_female)
+            simulation.all_characters.append(progenitor_female)
+
+            # Marry them
+            marriage_year = progenitor_male.birth_year + life_stages_config.get('marriageMinAge', 18)
+            simulation.marry_characters(progenitor_male, progenitor_female, marriage_year)
+            # Ensure at least 3 children per dynasty
+            for i in range(3):
+                child_birth_year = marriage_year + i + 1  # Stagger births
+                child = simulation.create_child(progenitor_female, progenitor_male, child_birth_year)
+                if child:
+                    simulation.add_character_to_pool(child)
+                    simulation.all_characters.append(child)
 
     # Run the simulation
     simulation.run_simulation()
