@@ -432,6 +432,8 @@ class Simulation:
                (char1.mother is not None and char1.mother == char2.mother)
 			   
     def handle_bastardy(self, year, bastardy_chance_male, bastardy_chance_female, fertility_rates):
+        father_bastard_done = set() # track father IDs who have fathered a bastard this year
+        
         for character in self.all_characters:
             if not character.alive:
                 continue
@@ -461,6 +463,10 @@ class Simulation:
                         self.all_characters.append(child)
 
             elif character.sex == "Male":
+                # If father already fathered a bastard this year, skip
+                if character.char_id in father_bastard_done:
+                    continue
+
                 # Apply bastardy chance
                 if random.random() < bastardy_chance_male:
                     # Male has a bastard child
@@ -468,6 +474,7 @@ class Simulation:
                     if child:
                         self.add_character_to_pool(child)
                         self.all_characters.append(child)
+                        father_bastard_done.add(character.char_id)
 
     def create_bastard_child(self, parent, birth_year, is_male):
         maximum_children = self.config['life_stages']['maximumNumberOfChildren']
