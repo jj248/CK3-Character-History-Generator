@@ -240,12 +240,152 @@
     },
   {
       "succession": "PRIMOGENITURE",
-      "dynastyID": "dynasty_adarsharzen",
+      "dynastyID": "dynasty_caramadran",
       "isHouse": false,
       "faithID": "faith_tilanik",
       "cultureID": "clyan",
       "gender_law": "AGNATIC",
       "progenitorMaleBirthYear": 6054,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+    {
+      "succession": "PRIMOGENITURE",
+      "dynastyID": "dynasty_garozen",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "gender_law": "AGNATIC",
+      "progenitorMaleBirthYear": 6056,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+    {
+      "succession": "PRIMOGENITURE",
+      "dynastyID": "dynasty_homazen",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "gender_law": "AGNATIC",
+      "progenitorMaleBirthYear": 6058,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+    {
+      "succession": "PRIMOGENITURE",
+      "dynastyID": "dynasty_imez",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "gender_law": "AGNATIC",
+      "progenitorMaleBirthYear": 6060,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+    {
+      "succession": "PRIMOGENITURE",
+      "dynastyID": "dynasty_jamo",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "gender_law": "AGNATIC",
+      "progenitorMaleBirthYear": 6062,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+    {
+      "succession": "PRIMOGENITURE",
+      "dynastyID": "dynasty_lamarzen",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "gender_law": "AGNATIC",
+      "progenitorMaleBirthYear": 6064,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+    {
+      "succession": "PRIMOGENITURE",
+      "dynastyID": "dynasty_osard",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "gender_law": "AGNATIC",
+      "progenitorMaleBirthYear": 6066,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+    {
+      "succession": "PRIMOGENITURE",
+      "dynastyID": "dynasty_pamaran",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "gender_law": "AGNATIC",
+      "progenitorMaleBirthYear": 6068,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+    {
+      "succession": "PRIMOGENITURE",
+      "dynastyID": "dynasty_qudoz",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "gender_law": "AGNATIC",
+      "progenitorMaleBirthYear": 6070,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+    {
+      "succession": "PRIMOGENITURE",
+      "dynastyID": "dynasty_ramazen",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "gender_law": "AGNATIC",
+      "progenitorMaleBirthYear": 6072,
+      "nameInheritance": {
+        "grandparentNameInheritanceChance": 0.05,
+        "parentNameInheritanceChance": 0.05,
+        "noNameInheritanceChance": 0.9
+      }
+    },
+    {
+      "succession": "PRIMOGENITURE",
+      "dynastyID": "dynasty_umoza",
+      "isHouse": false,
+      "faithID": "faith_tilanik",
+      "cultureID": "clyan",
+      "gender_law": "AGNATIC",
+      "progenitorMaleBirthYear": 6074,
       "nameInheritance": {
         "grandparentNameInheritanceChance": 0.05,
         "parentNameInheritanceChance": 0.05,
@@ -272,7 +412,7 @@
   "initialCharID": 1,
   "minYear": 6000,
   "maxYear": 7033,
-  "generationMax": 128,
+  "generationMax": 100,
   "treeGeneration": "TB",
   "spouseVisible": "no"
 }

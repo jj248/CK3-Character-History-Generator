@@ -68,7 +68,10 @@ class Simulation:
 
     def desperation_marriage_check(self, character, year):
         """Check if an unmarried character is willing to marry a lowborn due to desperation."""
-        desperation_chance = self.desperation_rates.get(character.age, 0)
+        if character.age < len(self.desperation_rates):
+            desperation_chance = self.desperation_rates[character.age]
+        else:
+            desperation_chance = 0.0
         if random.random() < desperation_chance:
             # Generate a lowborn spouse
             spouse_char_id = generate_char_id("lowborn", self.dynasty_char_counters)
@@ -77,25 +80,26 @@ class Simulation:
             # Ensure lowborn is human and fertile
             spouse = Character(
                 char_id=spouse_char_id,
+                name=spouse_name,
+                sex="Male" if character.sex == "Female" else "Female",
+                birth_year=character.birth_year+random.randint(-3, 3),
                 dynasty=None,  # Lowborns do not have a dynasty
-                species="human",  # Ensure lowborns are human
-                fertile=True,  # Ensure lowborns are fertile
+                is_house=False,
                 culture=character.culture,
                 religion=character.religion,
                 gender_law=character.gender_law,
-                generation=character.generation,
-                name=spouse_name,
-                sex="Male" if character.sex == "Female" else "Female",
                 sexuality_distribution=self.config['skills_and_traits']['sexualityDistribution'],
-                is_house=False,
+                generation=character.generation,
+                is_progenitor=False,
+                birth_order=1
             )
-
-            # Check fertility + existing children
-            if not spouse.fertile or self.lowborn_has_many_children(spouse):
-                return  # Do not proceed with marriage
+            if spouse:
+                self.add_character_to_pool(spouse)
+                self.all_characters.append(spouse)
 
             spouse_dynasty = character.dynasty  # Noble's dynasty does not transfer
-            self.marry_characters(character, spouse, year, marriage_type="desperation", children_dynasty=spouse_dynasty)
+            self.marry_characters(character, spouse, year, children_dynasty=spouse_dynasty)
+            print(f'{character.char_id} ({character.age}) and {spouse.char_id} ({spouse.age}) married in {year} desperately with desperation of {desperation_chance}')
 
     def character_death_check(self, character):
         age = character.age
@@ -391,9 +395,9 @@ class Simulation:
         females.sort(key=lambda c: (dynasty_sizes.get(c.dynasty, 0), c.birth_order if c.birth_order is not None else float('inf')))
 
         # Ensure all progenitor children get married
-        for character in self.all_characters:
-            if character.alive and not character.married and character.age >= 18:
-                self.desperation_marriage_check(character, self.config['initialization']['minYear'] + 20)
+        # for character in self.all_characters:
+        #     if character.alive and not character.married and character.age >= 18:
+        #         self.desperation_marriage_check(character, self.config['initialization']['minYear'] + 20)
 
         for male in males:
             if not male.alive or male.married or not male.can_marry:
@@ -588,6 +592,7 @@ class Simulation:
 
     def run_simulation(self):
         life_stages = self.config['life_stages']
+        self.desperation_rates = life_stages.get('desperationMarriageRates', [0.0]*121)
         marriage_rates = life_stages['marriageRates']
         fertility_rates = life_stages['fertilityRates']
         bastardy_chance_male = life_stages['bastardyChanceMale']
