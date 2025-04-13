@@ -523,8 +523,8 @@ class TitleHistory:
             for ruler_id, by, bm, bd, dy, dm, dd in rulers:
                 inherited = f"{self.convert_to_ingame_date(by)}.{bm:02}.{bd:02}"
                 died = f"{self.convert_to_ingame_date(dy)}.{dm:02}.{dd:02}"
-                # print(f"Ruler: {ruler_id} | Inherited: {inherited} | Died: {died}")
-        # print("\n")
+                print(f"Ruler: {ruler_id} | Inherited: {inherited} | Died: {died}")
+        print("\n")
 
     def write_title_histories_to_file(self):
         """
