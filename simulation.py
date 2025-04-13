@@ -106,7 +106,7 @@ class Simulation:
         age = character.age
         sex = character.sex
         birth_year = character.birth_year  # Assuming character has a birth year attribute
-        current_year = birth_year + age  # Determine the current year for the character
+        mortality_event_multipler = 1
 
         # If the character is a progenitor, ensure they live until at least age 50
         if character.is_progenitor and age < 50:
@@ -124,13 +124,16 @@ class Simulation:
         else:
             mortality_rate = 1.0  # 100% chance of death
 
-        # Check for any active event that affects death chances
-        for event in self.config.get("events", []):
-            if event["startYear"] <= current_year <= event["endYear"]:
-                mortality_rate *= event["deathMultiplier"]
-                break  # Apply only the first matching event multiplier
-
-        return random.random() < mortality_rate
+        for event in self.config.get('initialization', {}).get('events', []):
+            if birth_year > event.get("startYear") and birth_year < event.get("endYear") and age >= event.get("characterAgeStart") and age <= event.get("characterAgeEnd"):
+                mortality_event_multipler = event.get("deathMultiplier")
+                character.negativeEventDeathReason = event.get("deathReason")
+                # print(f"Negative Char Event: {character.negativeEventDeathReason} | Current Age: {age}")
+                # print(type(mortality_event_multipler))
+                # print(f"Mortality Multipler: {mortality_event_multipler} | Current Birth Year: {birth_year} | Event Start Year: {event.get("startYear")} | Event End Year: {event.get("endYear")}")
+        random_var = random.random()
+                
+        return (random_var * mortality_event_multipler) < mortality_rate
 
 
     def marry_characters(self, char1, char2, year, marriage_type=None, children_dynasty=None):
@@ -670,7 +673,9 @@ class Simulation:
                         death_date = generate_random_date(year)
                         character.death_year, character.death_month, character.death_day = map(int, death_date.split('.'))
                         self.remove_from_unmarried_pools(character)
-                        if character.age > 65:
+                        if character.negativeEventDeathReason != None:
+                            death_cause = character.negativeEventDeathReason
+                        elif character.age > 65:
                             death_cause = "death_natural_causes"
                         elif character.age < 18:
                             death_cause = "death_ill"

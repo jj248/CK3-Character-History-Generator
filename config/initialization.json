@@ -399,14 +399,18 @@
       "startYear": 5668,
       "endYear": 5670,
       "deathReason": "bubonic_plague",
-      "deathMultiplier": 1.5
+      "deathMultiplier": 0.6,
+      "characterAgeStart": 0,
+      "characterAgeEnd": 120
     },
     {
       "eventID": "event_war",
       "startYear": 5983,
-      "endYear": 6083,
+      "endYear": 6200,
       "deathReason": "death_battle",
-      "deathMultiplier": 1.3
+      "deathMultiplier":0.9,
+      "characterAgeStart": 16,
+      "characterAgeEnd": 50
     }
   ],
   "initialCharID": 1,

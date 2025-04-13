@@ -18,7 +18,8 @@ class Character:
         generation=1, 
         is_progenitor=False,
         is_bastard=False,
-        birth_order=None  # Add birth_order as an argument
+        birth_order=None,  # Add birth_order as an argument
+        negativeEventDeathReason=None
     ):
         self.is_bastard = is_bastard
         self.char_id = char_id
@@ -56,6 +57,7 @@ class Character:
         self.can_marry = True
         self.assign_sexuality(sexuality_distribution)
         self.mortality_risk = 0  # Initialize mortality risk
+        self.negativeEventDeathReason=None
         
         # Set the birth order if provided, otherwise default to None
         self.birth_order = birth_order
