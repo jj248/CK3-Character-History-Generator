@@ -74,7 +74,8 @@ class Simulation:
             desperation_chance = 0.0
         if random.random() < desperation_chance:
             # Generate a lowborn spouse
-            spouse_char_id = generate_char_id("lowborn", self.dynasty_char_counters)
+            dynasty_prefix = character.dynasty.split('_')[1] if character.dynasty and '_' in character.dynasty else "lowborn"
+            spouse_char_id = generate_char_id(dynasty_prefix, self.dynasty_char_counters)
             spouse_name = self.name_loader.load_names(character.culture, "male" if character.sex == "Female" else "female")
             
             # Ensure lowborn is human and fertile
@@ -99,7 +100,7 @@ class Simulation:
 
             spouse_dynasty = character.dynasty  # Noble's dynasty does not transfer
             self.marry_characters(character, spouse, year, children_dynasty=spouse_dynasty)
-            print(f'{character.char_id} ({character.age}) and {spouse.char_id} ({spouse.age}) married in {year} desperately with desperation of {desperation_chance}')
+            # print(f'{character.char_id} ({character.birth_year}) and {spouse.char_id} ({spouse.birth_year}) married in {year} desperately with desperation of {desperation_chance}')
 
     def character_death_check(self, character):
         age = character.age
@@ -443,7 +444,7 @@ class Simulation:
         father_bastard_done = set() # track father IDs who have fathered a bastard this year
         
         for character in self.all_characters:
-            if not character.alive:
+            if not character.alive or not character.dynasty or character.dynasty == "Lowborn":
                 continue
 
             if character.sex == "Female":
