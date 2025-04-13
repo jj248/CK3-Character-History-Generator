@@ -83,7 +83,7 @@ class Simulation:
                 char_id=spouse_char_id,
                 name=spouse_name,
                 sex="Male" if character.sex == "Female" else "Female",
-                birth_year=character.birth_year+random.randint(-3, 3),
+                birth_year=year-random.randint(18, 26),
                 dynasty=None,  # Lowborns do not have a dynasty
                 is_house=False,
                 culture=character.culture,
@@ -230,9 +230,9 @@ class Simulation:
         # **Apply gender bias (+25%) only if no sibling of that gender exists**
         base_chance = 0.5
         if gender_preference == "Male" and not has_male_sibling:
-            male_chance = min(0.75, base_chance + 0.25)
+            male_chance = 0.65
         elif gender_preference == "Female" and not has_female_sibling:
-            male_chance = max(0.25, base_chance - 0.25)
+            male_chance = 0.35
         else:
             male_chance = base_chance  # No modification
 
@@ -524,9 +524,9 @@ class Simulation:
         # Apply gender bias (+25%) only if no sibling of that gender exists
         base_chance = 0.5
         if gender_preference == "Male" and not has_male_sibling:
-            male_chance = min(0.75, base_chance + 0.25)
+            male_chance = 0.65
         elif gender_preference == "Female" and not has_female_sibling:
-            male_chance = max(0.25, base_chance - 0.25)
+            male_chance = 0.35
         else:
             male_chance = base_chance  # No modification
 
