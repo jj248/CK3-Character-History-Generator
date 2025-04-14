@@ -94,11 +94,11 @@ def generate_dynasty_motto_localization(config_file, output_file="lotr_mottos_l_
             dynasty_id = dynasty.get("dynastyID", "").replace("dynasty_", "")
             dynastyMotto = dynasty.get("dynastyMotto", "")
             
-            if dynastyMotto is not None and dynastyMotto != "":
+            if dynastyMotto is not None and dynastyMotto == "":
                 print(f"Dynasty Motto: {dynastyMotto}")
                 logging.warning("Skipping dynasty with missing dynastyMotto.")
                 continue
         
-            file.write(f"dynn_{dynasty_id}: \"{dynastyMotto}\"""\n")
+            file.write(f"dynn_{dynasty_id}_motto: \"{dynastyMotto}\"""\n")
     
     logging.info(f"Dynasty Mottos exported to {output_path}.")
