@@ -50,7 +50,20 @@ def reset_to_default():
 
 def display_dynasty_config():
     st.title("CK3 Character History Generator")
-    if st.button("🔄 Reset to Default"):
+    if "config_loaded" not in st.session_state:
+        st.session_state["config_loaded"] = False
+
+    # Load config only if not already loaded
+    if not st.session_state["config_loaded"]:
+        config = load_config()
+        st.session_state["config_loaded"] = True  # Mark the config as loaded
+    else:
+        config = load_config()
+
+    # Disabling condition: Until the config is loaded, set the 'disabled' flag
+    disabled = not st.session_state["config_loaded"]
+
+    if st.button("🔄 Reset to Default", disabled=disabled):
         reset_to_default()
         
     # If reset was triggered, reload config and clear flag
@@ -60,7 +73,7 @@ def display_dynasty_config():
         st.session_state["reset_triggered"] = False
     else:
         config = load_config()
-    
+
     # Split the layout into 3 horizontal columns
     col1, col2 = st.columns(2)
 
@@ -72,7 +85,7 @@ def display_dynasty_config():
     max_generations = st.slider("Maximum Number of Generations", min_value=1, max_value=200, value=config.get('generationMax'), step=1, key="max_gen_characters")
 
     # Save button
-    if st.button("💾 Save Global Settings"):
+    if st.button("💾 Save Global Settings", disabled=disabled):
         try:
             config["minYear"] = int(min_year)
             config["maxYear"] = int(max_year)
@@ -91,16 +104,16 @@ def display_dynasty_config():
     
     with st.expander("➕ Add New Dynasty"):
         with st.form(key="add_dynasty_form"):
-            new_id = st.text_input("Dynasty ID")
-            new_name = st.text_input("Dynasty Name")
-            new_motto = st.text_input("Motto")
-            new_culture = st.text_input("Culture ID")
-            new_faith = st.text_input("Faith ID")
-            new_gender_law = st.selectbox("Gender Law", ["AGNATIC", "AGNATIC_COGNATIC", "ABSOLUTE_COGNATIC", "ENATIC", "ENATIC_COGNATIC"])
-            new_succession = st.selectbox("Succession", ["PRIMOGENITURE", "ULTIMOGENITURE", "SENIORITY"])
-            new_house = st.checkbox("Is House?", value=False)
-            new_year = st.number_input("Progenitor Birth Year", value=6000, step=1)
-            submit = st.form_submit_button("Add Dynasty")
+            new_id = st.text_input("Dynasty ID", disabled=disabled)
+            new_name = st.text_input("Dynasty Name", disabled=disabled)
+            new_motto = st.text_input("Motto", disabled=disabled)
+            new_culture = st.text_input("Culture ID", disabled=disabled)
+            new_faith = st.text_input("Faith ID", disabled=disabled)
+            new_gender_law = st.selectbox("Gender Law", ["AGNATIC", "AGNATIC_COGNATIC", "ABSOLUTE_COGNATIC", "ENATIC", "ENATIC_COGNATIC"], disabled=disabled)
+            new_succession = st.selectbox("Succession", ["PRIMOGENITURE", "ULTIMOGENITURE", "SENIORITY"], disabled=disabled)
+            new_house = st.checkbox("Is House?", value=False, disabled=disabled)
+            new_year = st.number_input("Progenitor Birth Year", value=6000, step=1, disabled=disabled)
+            submit = st.form_submit_button("Add Dynasty", disabled=disabled)
 
         if submit:
             new_dynasty = {
@@ -127,29 +140,36 @@ def display_dynasty_config():
     config['dynasties'].sort(key=lambda d: d['dynastyID'].lower())
     for i, dynasty in enumerate(config['dynasties']):
         current_value = dynasty.get('gender_law', gender_options[0])
-        with st.expander(f"Dynasty: {dynasty['dynastyID']}", expanded=False):
-            dynasty['dynastyName'] = st.text_input("Dynasty Name", dynasty["dynastyName"], key=f"name_{i}")
-            dynasty['dynastyMotto'] = st.text_input("Dynasty Motto", dynasty["dynastyMotto"], key=f"motto_{i}")
-            dynasty['dynastyID'] = st.text_input("Dynasty ID", dynasty["dynastyID"], key=f"id_{i}")
-            dynasty['cultureID'] = st.text_input("Culture ID", dynasty["cultureID"], key=f"culture_{i}")
-            dynasty['faithID'] = st.text_input("Religion ID", dynasty["faithID"], key=f"faith_{i}")
-            dynasty['progenitorMaleBirthYear'] = st.number_input("Progenitor Birth Year", value=dynasty["progenitorMaleBirthYear"], step=1, key=f"birth_year_{i}")
-            dynasty["gender_law"] = st.selectbox("Gender Law", gender_options, index=gender_options.index(current_value), key=f"gender_{i}")
-            dynasty['isHouse'] = st.checkbox("Is House?", dynasty["isHouse"], key=f"house_{i}")
-            
-            if st.button(f"❌ Delete Dynasty {dynasty['dynastyID']}", key=f"delete_{i}"):
+        
+        # Create two columns for header: Dynasty title and Delete button
+        col1, col2 = st.columns([11, 1])  # Adjust widths as needed
+
+        with col1:
+            st.markdown(f"#### Dynasty: {dynasty['dynastyID']}")
+        with col2:
+            if st.button("❌", key=f"delete_{i}", disabled=disabled):
                 config['dynasties'].remove(dynasty)
                 save_config(config)
                 st.rerun()
+
+        with st.expander("Edit Dynasty Details", expanded=False):
+            dynasty['dynastyName'] = st.text_input("Dynasty Name", dynasty["dynastyName"], key=f"name_{i}", disabled=disabled)
+            dynasty['dynastyMotto'] = st.text_input("Dynasty Motto", dynasty["dynastyMotto"], key=f"motto_{i}", disabled=disabled)
+            dynasty['dynastyID'] = st.text_input("Dynasty ID", dynasty["dynastyID"], key=f"id_{i}", disabled=disabled)
+            dynasty['cultureID'] = st.text_input("Culture ID", dynasty["cultureID"], key=f"culture_{i}", disabled=disabled)
+            dynasty['faithID'] = st.text_input("Religion ID", dynasty["faithID"], key=f"faith_{i}", disabled=disabled)
+            dynasty['progenitorMaleBirthYear'] = st.number_input("Progenitor Birth Year", value=dynasty["progenitorMaleBirthYear"], step=1, key=f"birth_year_{i}", disabled=disabled)
+            dynasty["gender_law"] = st.selectbox("Gender Law", gender_options, index=gender_options.index(current_value), key=f"gender_{i}", disabled=disabled)
+            dynasty['isHouse'] = st.checkbox("Is House?", dynasty["isHouse"], key=f"house_{i}", disabled=disabled)
             
             updated = True
 
     # Save updated values
-    if updated and st.button("💾 Save Changes"):
+    if updated and st.button("💾 Save Changes", disabled=disabled):
         save_config(config)
         st.success("Configuration saved.")
         
-    if st.button("Run Simulation"):
+    if st.button("Run Simulation", disabled=disabled):
         run_main()
         
 def display_generated_images(image_folder: str):
