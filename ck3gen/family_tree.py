@@ -2,7 +2,7 @@ import os
 import re
 import graphviz
 from collections import defaultdict
-from config_loader import ConfigLoader
+from ck3gen.config_loader import ConfigLoader
 
 #########################################################
 #   For the graph direction, valid arguments are:       #

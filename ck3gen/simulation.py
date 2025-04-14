@@ -2,10 +2,10 @@ import os
 import random
 import logging
 import re
-from character import Character
-from utils import generate_random_date, generate_char_id
-from name_loader import NameLoader
-from title_history import TitleHistory
+from ck3gen.character import Character
+from utils.utils import generate_random_date, generate_char_id
+from ck3gen.name_loader import NameLoader
+from ck3gen.title_history import TitleHistory
 
 class Simulation:
     def __init__(self, config, name_loader):

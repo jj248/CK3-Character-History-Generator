@@ -1,6 +1,6 @@
 import random
 import logging
-from utils import generate_random_date
+from utils.utils import generate_random_date
 
 class Character:
     def __init__(

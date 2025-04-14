@@ -1,13 +1,13 @@
 import logging
-from config_loader import ConfigLoader
-from family_tree import FamilyTree
-from name_loader import NameLoader
-from simulation import Simulation
-from character import Character
-from title_history import CharacterLoader
-from title_history import TitleHistory
-from dynasty_creation import generate_dynasty_definitions
-from utils import generate_char_id, generate_random_date
+from ck3gen.config_loader import ConfigLoader
+from ck3gen.family_tree import FamilyTree
+from ck3gen.name_loader import NameLoader
+from ck3gen.simulation import Simulation
+from ck3gen.character import Character
+from ck3gen.title_history import CharacterLoader
+from ck3gen.title_history import TitleHistory
+from ck3gen.dynasty_creation import generate_dynasty_definitions
+from utils.utils import generate_char_id, generate_random_date
 import random
 
 def setup_logging():
