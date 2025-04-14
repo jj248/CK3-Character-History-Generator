@@ -1,0 +1,273 @@
+{
+  "educationWeightExponent": 4,
+  "sexualityDistribution": {
+        "heterosexual": 0.96,
+        "homosexual": 0.02,
+        "asexual": 0.02
+    },
+  "skillProbabilities": {
+        "diplomacy": {
+            "1": 0.06,
+            "2": 0.12,
+            "3": 0.18,
+            "4": 0.20,
+            "5": 0.18,
+            "6": 0.12,
+            "7": 0.06,
+			"8": 0.03,
+			"9": 0.01,
+			"10": 0.01
+        },
+        "martial": {
+            "1": 0.06,
+            "2": 0.12,
+            "3": 0.18,
+            "4": 0.20,
+            "5": 0.18,
+            "6": 0.12,
+            "7": 0.06,
+			"8": 0.03,
+			"9": 0.01,
+			"10": 0.01
+        },
+        "stewardship": {
+            "1": 0.06,
+            "2": 0.12,
+            "3": 0.18,
+            "4": 0.20,
+            "5": 0.18,
+            "6": 0.12,
+            "7": 0.06,
+			"8": 0.03,
+			"9": 0.01,
+			"10": 0.01
+        },
+        "intrigue": {
+            "1": 0.06,
+            "2": 0.12,
+            "3": 0.18,
+            "4": 0.20,
+            "5": 0.18,
+            "6": 0.12,
+            "7": 0.06,
+			"8": 0.03,
+			"9": 0.01,
+			"10": 0.01
+        },
+        "learning": {
+            "1": 0.06,
+            "2": 0.12,
+            "3": 0.18,
+            "4": 0.20,
+            "5": 0.18,
+            "6": 0.12,
+            "7": 0.06,
+			"8": 0.03,
+			"9": 0.01,
+			"10": 0.01
+        },
+        "prowess": {
+            "1": 0.06,
+            "2": 0.12,
+            "3": 0.18,
+            "4": 0.20,
+            "5": 0.18,
+            "6": 0.12,
+            "7": 0.06,
+			"8": 0.03,
+			"9": 0.01,
+			"10": 0.01
+        }
+    },
+  "educationProbabilities": {
+        "diplomacy": {
+            "1": 0.15,
+            "2": 0.35,
+            "3": 0.3,
+            "4": 0.2,
+            "5": 0.0
+        },
+        "martial": {
+            "1": 0.15,
+            "2": 0.35,
+            "3": 0.3,
+            "4": 0.2,
+            "5": 0.0
+        },
+        "stewardship": {
+            "1": 0.15,
+            "2": 0.35,
+            "3": 0.3,
+            "4": 0.2,
+            "5": 0.0
+        },
+        "intrigue": {
+            "1": 0.15,
+            "2": 0.35,
+            "3": 0.3,
+            "4": 0.2,
+            "5": 0.0
+        },
+        "learning": {
+            "1": 0.15,
+            "2": 0.35,
+            "3": 0.3,
+            "4": 0.2,
+            "5": 0.0
+        },
+        "prowess": {
+            "1": 0.15,
+            "2": 0.35,
+            "3": 0.3,
+            "4": 0.2,
+            "5": 0.0
+        }
+    },
+  "personalityTraits": {
+        "brave": {
+            "weight": 1,
+            "excludes": ["craven"]
+        },
+        "craven": {
+            "weight": 1,
+            "excludes": ["brave"]
+        },
+		"calm": {
+            "weight": 1,
+            "excludes": ["wrathful"]
+        },
+        "wrathful": {
+            "weight": 1,
+            "excludes": ["calm"]
+        },
+		"chaste": {
+            "weight": 1,
+            "excludes": ["lustful"]
+        },
+        "lustful": {
+            "weight": 1,
+            "excludes": ["chaste"]
+        },
+		"content": {
+            "weight": 1,
+            "excludes": ["ambitious"]
+        },
+        "ambitious": {
+            "weight": 1,
+            "excludes": ["content"]
+        },
+		"diligent": {
+            "weight": 1,
+            "excludes": ["lazy"]
+        },
+        "lazy": {
+            "weight": 1,
+            "excludes": ["diligent"]
+        },
+		"forgiving": {
+            "weight": 1,
+            "excludes": ["vengeful"]
+        },
+        "vengeful": {
+            "weight": 1,
+            "excludes": ["forgiving"]
+        },
+		"generous": {
+            "weight": 1,
+            "excludes": ["greedy"]
+        },
+        "greedy": {
+            "weight": 1,
+            "excludes": ["generous"]
+        },
+		"gregarious": {
+            "weight": 1,
+            "excludes": ["shy"]
+        },
+        "shy": {
+            "weight": 1,
+            "excludes": ["gregarious"]
+        },
+		"honest": {
+            "weight": 1,
+            "excludes": ["deceitful"]
+        },
+        "deceitful": {
+            "weight": 1,
+            "excludes": ["honest"]
+        },
+		"humble": {
+            "weight": 1,
+            "excludes": ["arrogant"]
+        },
+        "arrogant": {
+            "weight": 1,
+            "excludes": ["humble"]
+        },
+        "just": {
+            "weight": 1,
+            "excludes": ["arbitrary"]
+        },
+        "arbitrary": {
+            "weight": 1,
+            "excludes": ["just"]
+        },
+		"patient": {
+            "weight": 1,
+            "excludes": ["impatient"]
+        },
+        "impatient": {
+            "weight": 1,
+            "excludes": ["patient"]
+        },
+		"temperate": {
+            "weight": 1,
+            "excludes": ["gluttonous"]
+        },
+        "gluttonous": {
+            "weight": 1,
+            "excludes": ["temperate"]
+        },
+		"trusting": {
+            "weight": 1,
+            "excludes": ["paranoid"]
+        },
+        "paranoid": {
+            "weight": 1,
+            "excludes": ["trusting"]
+        },
+		"zealous": {
+            "weight": 1,
+            "excludes": ["cynical"]
+        },
+        "cynical": {
+            "weight": 1,
+            "excludes": ["zealous"]
+        },
+        "compassionate": {
+            "weight": 1,
+            "excludes": ["callous", "sadistic"]
+        },
+        "callous": {
+            "weight": 1,
+            "excludes": ["compassionate", "sadistic"]
+        },
+        "sadistic": {
+            "weight": 1,
+            "excludes": ["compassionate", "callous"]
+        },
+		"fickle": {
+            "weight": 1,
+            "excludes": ["stubborn"]
+        },
+        "stubborn": {
+            "weight": 1,
+            "excludes": ["fickle"]
+        },
+        "eccentric": {
+            "weight": 1,
+            "excludes": []
+        },
+        "totalTraitsPerCharacter": 3
+	}
+}

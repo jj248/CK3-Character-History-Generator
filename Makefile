@@ -7,3 +7,6 @@ install:
 
 run:
 	python3 ./main.py
+	
+ui:
+	streamlit run interface/ui_app.py
