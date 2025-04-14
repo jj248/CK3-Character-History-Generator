@@ -6,7 +6,7 @@ from ck3gen.simulation import Simulation
 from ck3gen.character import Character
 from ck3gen.title_history import CharacterLoader
 from ck3gen.title_history import TitleHistory
-from ck3gen.dynasty_creation import generate_dynasty_definitions
+from ck3gen.dynasty_creation import generate_dynasty_definitions, generate_dynasty_name_localization, generate_dynasty_motto_localization
 from utils.utils import generate_char_id, generate_random_date
 import random
 
@@ -24,6 +24,8 @@ def main():
     try:
         config_loader = ConfigLoader('config')  # Ensure 'config' directory is correct
         generate_dynasty_definitions("config/initialization.json", "dynasty_definitions.txt")
+        generate_dynasty_name_localization("config/initialization.json", "lotr_dynasty_names_l_english.yml")
+        generate_dynasty_motto_localization("config/initialization.json", "lotr_mottos_l_english.yml")
     except Exception as e:
         logging.error(f"Failed to load configuration: {e}")
         return
