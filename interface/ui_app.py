@@ -1,4 +1,6 @@
+import base64
 import logging
+from pathlib import Path
 import streamlit as st
 import sys
 import os
@@ -6,6 +8,7 @@ import os
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+from main import run_main
 import json
 from enum import Enum
 
@@ -29,7 +32,6 @@ class GenderLaw(Enum):
     ENATIC_COGNATIC = "ENATIC_COGNATIC"
 
 # Load config
-@st.cache_data(show_spinner=False)
 def load_config():
     with open(CONFIG_PATH, "r") as f:
         return json.load(f)
@@ -46,7 +48,7 @@ def reset_to_default():
     save_config(default_data)
     st.session_state["reset_triggered"] = True
 
-def main():
+def display_dynasty_config():
     st.title("CK3 Character History Generator")
     if st.button("🔄 Reset to Default"):
         reset_to_default()
@@ -86,9 +88,44 @@ def main():
     # Dynamically render dynasty accordions
     updated = False
     i = 0
-    sorted_dynasties = sorted(config.get('dynasties', []), key=lambda d: d['dynastyID'].lower())
     
-    for dynasty in sorted_dynasties:
+    with st.expander("➕ Add New Dynasty"):
+        with st.form(key="add_dynasty_form"):
+            new_id = st.text_input("Dynasty ID")
+            new_name = st.text_input("Dynasty Name")
+            new_motto = st.text_input("Motto")
+            new_culture = st.text_input("Culture ID")
+            new_faith = st.text_input("Faith ID")
+            new_gender_law = st.selectbox("Gender Law", ["AGNATIC", "AGNATIC_COGNATIC", "ABSOLUTE_COGNATIC", "ENATIC", "ENATIC_COGNATIC"])
+            new_succession = st.selectbox("Succession", ["PRIMOGENITURE", "ULTIMOGENITURE", "SENIORITY"])
+            new_house = st.checkbox("Is House?", value=False)
+            new_year = st.number_input("Progenitor Birth Year", value=6000, step=1)
+            submit = st.form_submit_button("Add Dynasty")
+
+        if submit:
+            new_dynasty = {
+                "dynastyName": new_name,
+                "dynastyMotto": new_motto,
+                "succession": new_succession,
+                "dynastyID": new_id,
+                "isHouse": new_house,
+                "faithID": new_faith,
+                "cultureID": new_culture,
+                "gender_law": new_gender_law,
+                "progenitorMaleBirthYear": int(new_year),
+                "nameInheritance": {
+                    "grandparentNameInheritanceChance": 0.05,
+                    "parentNameInheritanceChance": 0.05,
+                    "noNameInheritanceChance": 0.9
+                }
+            }
+            config['dynasties'].append(new_dynasty)
+            save_config(config)  # Your save function
+            st.rerun()
+
+    
+    config['dynasties'].sort(key=lambda d: d['dynastyID'].lower())
+    for i, dynasty in enumerate(config['dynasties']):
         current_value = dynasty.get('gender_law', gender_options[0])
         with st.expander(f"Dynasty: {dynasty['dynastyID']}", expanded=False):
             dynasty['dynastyName'] = st.text_input("Dynasty Name", dynasty["dynastyName"], key=f"name_{i}")
@@ -96,16 +133,58 @@ def main():
             dynasty['dynastyID'] = st.text_input("Dynasty ID", dynasty["dynastyID"], key=f"id_{i}")
             dynasty['cultureID'] = st.text_input("Culture ID", dynasty["cultureID"], key=f"culture_{i}")
             dynasty['faithID'] = st.text_input("Religion ID", dynasty["faithID"], key=f"faith_{i}")
-            dynasty['faithID'] = st.text_input("Progenitor Birth Year", dynasty["progenitorMaleBirthYear"], key=f"birth_year_{i}")
+            dynasty['progenitorMaleBirthYear'] = st.number_input("Progenitor Birth Year", value=dynasty["progenitorMaleBirthYear"], step=1, key=f"birth_year_{i}")
             dynasty["gender_law"] = st.selectbox("Gender Law", gender_options, index=gender_options.index(current_value), key=f"gender_{i}")
             dynasty['isHouse'] = st.checkbox("Is House?", dynasty["isHouse"], key=f"house_{i}")
-            i += 1
-            updated = True  # Flag for saving after form
+            
+            if st.button(f"❌ Delete Dynasty {dynasty['dynastyID']}", key=f"delete_{i}"):
+                config['dynasties'].remove(dynasty)
+                save_config(config)
+                st.rerun()
+            
+            updated = True
 
     # Save updated values
     if updated and st.button("💾 Save Changes"):
         save_config(config)
         st.success("Configuration saved.")
+        
+    if st.button("Run Simulation"):
+        run_main()
+        
+def display_generated_images(image_folder: str):
+    st.subheader("🧬 Generated Dynastic Trees")
+
+    # Get all image files
+    image_paths = sorted(Path(image_folder).glob("family_tree_*.png"))
+
+    if not image_paths:
+        st.info("No dynasty tree images found. Run the simulation first.")
+        return
+
+    for image_path in image_paths:
+        dynasty_id = image_path.stem.replace("family_tree_", "")
+        with st.expander(f"Tree for Dynasty: {dynasty_id}", expanded=False):
+            image_base64 = base64.b64encode(open(image_path, "rb").read()).decode()
+            image_html = f"""
+                <div style="overflow-x:auto;">
+                    <img src="data:image/png;base64,{image_base64}" style="max-width: 100%; height: auto; transition: transform 0.2s;" 
+                         onmouseover="this.style.transform='scale(1.5)'" 
+                         onmouseout="this.style.transform='scale(1)'"/>
+                </div>
+                <p style='text-align:center;'><em>Dynasty Tree: {dynasty_id}</em></p>
+            """
+            st.markdown(image_html, unsafe_allow_html=True)
+
+            
+def main():
+    tab1, tab2 = st.tabs(["🏛️ Dynasty Settings", "🌳 Dynasty Trees"])
+
+    with tab1:
+        display_dynasty_config()
+
+    with tab2:
+        display_generated_images("Dynasty Preview/")
 
 if __name__ == "__main__":
     main()

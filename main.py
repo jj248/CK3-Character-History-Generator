@@ -19,7 +19,7 @@ def setup_logging():
         ]
     )
 
-def main():
+def run_main():
     setup_logging()
     try:
         config_loader = ConfigLoader('config')  # Ensure 'config' directory is correct
@@ -181,4 +181,4 @@ def main():
     tree.render_trees()
 
 if __name__ == "__main__":
-    main()
+    run_main()
