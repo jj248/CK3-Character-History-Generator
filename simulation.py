@@ -184,18 +184,6 @@ class Simulation:
         # Use fertilityRates to determine if a child is produced
         female_age = mother.age
         fertility_rate = self.config['life_stages']['fertilityRates']['Female'][female_age]
-
-        # Track children born per dynasty per generation
-        dynasty_gen_count = {}
-        for character in self.all_characters:
-            if character.alive:
-                key = (character.dynasty, character.generation)
-                dynasty_gen_count[key] = dynasty_gen_count.get(key, 0) + 1
-
-        # Set a cap per dynasty per generation (adjust as needed)
-        # dynasty_child_cap = 50
-        # if dynasty_gen_count.get((father.dynasty, father.generation), 0) >= dynasty_child_cap:
-        #     return None  # Prevent excess children
         
         # Proceed with child creation
         self.character_count += 1
@@ -271,22 +259,31 @@ class Simulation:
         if birth_order == 1:
             fertilityModifier = 1
         elif birth_order == 2:
-            fertilityModifier = 0.925
+            fertilityModifier = 0.80
         elif birth_order == 3:
-            fertilityModifier = 0.875
+            fertilityModifier = 0.60
         elif birth_order == 4:
-            fertilityModifier = 0.825
+            fertilityModifier = 0.40
         elif birth_order == 5:
-            fertilityModifier = 0.775
+            fertilityModifier = 0.20
         else:
-            fertilityModifier = 0.725
+            fertilityModifier = 0.10
 
-        if child_sex == "Male":
-            if father.fertilityModifier != 1:
-                fertilityModifier *= father.fertilityModifier
-        else:
-            if mother.fertilityModifier != 1:
-                fertilityModifier *= mother.fertilityModifier
+        alive_members_in_dynasy = 0
+        for character in self.all_characters:
+            if character.dynasty == child_dynasty and character.alive:
+                alive_members_in_dynasy += 1
+
+        if alive_members_in_dynasy >= 15: #A lot of dynasty members are alive
+            if child_sex == "Male":
+                if father.fertilityModifier != 1:
+                    fertilityModifier *= father.fertilityModifier
+            else:
+                if mother.fertilityModifier != 1:
+                    fertilityModifier *= mother.fertilityModifier
+        elif alive_members_in_dynasy < 10: #A low number of dynasty members are alive
+            fertilityModifier = 1
+
         child = Character(
             char_id=child_char_id,
             name=child_name,
