@@ -2,7 +2,7 @@
   "dynasties": [
 	{
       "dynastyName": "Dadfiruzen",
-      "dynastyMotto": "",
+      "dynastyMotto": "From Fire and Stone, We Rise",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_dadfiruzen",
       "isHouse": false,
@@ -18,7 +18,7 @@
     },
 	{
       "dynastyName": "Adarfiruzen",
-      "dynastyMotto": "",
+      "dynastyMotto": "Our Name Is Our Bond",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_adarfiruzen",
       "isHouse": false,
@@ -34,7 +34,7 @@
     },
 	{
       "dynastyName": "Bahlikaran",
-      "dynastyMotto": "",
+      "dynastyMotto": "Let None Stand Before Us",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_bahlikaran",
       "isHouse": false,
@@ -50,7 +50,7 @@
     },
 	{
       "dynastyName": "Khudaradmen",
-      "dynastyMotto": "",
+      "dynastyMotto": "We Are the Storm Upon the Hill",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_khudaradmen",
       "isHouse": false,
@@ -66,7 +66,7 @@
     },
 	{
       "dynastyName": "Esrecarzen",
-      "dynastyMotto": "",
+      "dynastyMotto": "Guided by Flame, Guarded by Fate",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_esrecarzen",
       "isHouse": false,
@@ -82,7 +82,7 @@
     },
 	{
       "dynastyName": "Tarimez",
-      "dynastyMotto": "",
+      "dynastyMotto": "The Moon Knows Our True Name",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_tarimez",
       "isHouse": false,
@@ -98,7 +98,7 @@
     },
 	{
       "dynastyName": "Visnarmaken",
-      "dynastyMotto": "",
+      "dynastyMotto": "By the Blood of the Highlands and the Flame of the East",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_visnarmaken",
       "isHouse": false,
@@ -114,7 +114,7 @@
     },
   {
       "dynastyName": "Kerhamez",
-      "dynastyMotto": "",
+      "dynastyMotto": "Unbroken Through Wind and War",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_kerhamez",
       "isHouse": false,
@@ -130,7 +130,7 @@
     },
   {
       "dynastyName": "Namdarez",
-      "dynastyMotto": "",
+      "dynastyMotto": "Steel in Hand, Fire in Heart",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_namdarez",
       "isHouse": false,
@@ -146,7 +146,7 @@
     },
   {
       "dynastyName": "Mentarez",
-      "dynastyMotto": "",
+      "dynastyMotto": "We Strike from Shadow and Sunrise",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_mentarez",
       "isHouse": false,
@@ -162,7 +162,7 @@
     },
   {
       "dynastyName": "Naymardan",
-      "dynastyMotto": "",
+      "dynastyMotto": "We Dream in Sapphire and Smoke",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_naymardan",
       "isHouse": false,
@@ -178,7 +178,7 @@
     },
   {
       "dynastyName": "Shirzadeh",
-      "dynastyMotto": "",
+      "dynastyMotto": "Echoes of the Sacred Forge",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_shirzadeh",
       "isHouse": false,
@@ -194,7 +194,7 @@
     },
   {
       "dynastyName": "Farshidzen",
-      "dynastyMotto": "",
+      "dynastyMotto": "Ancient Roots, Unyielding Branches",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_farshidzen",
       "isHouse": false,
@@ -210,7 +210,7 @@
     },
   {
       "dynastyName": "Vahramzen",
-      "dynastyMotto": "",
+      "dynastyMotto": "Honour Wrought in Gold and Iron",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_vahramzen",
       "isHouse": false,
@@ -226,7 +226,7 @@
     },
   {
       "dynastyName": "Dahmard",
-      "dynastyMotto": "",
+      "dynastyMotto": "One Roar, One Blade, One Blood",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_dahmard",
       "isHouse": false,
@@ -242,7 +242,7 @@
     },
   {
       "dynastyName": "Bahraman",
-      "dynastyMotto": "",
+      "dynastyMotto": "Our Wrath Is Written in Flame",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_bahraman",
       "isHouse": false,
@@ -258,7 +258,7 @@
     },
   {
       "dynastyName": "Zaravan",
-      "dynastyMotto": "",
+      "dynastyMotto": "The Spirits Walk Beside Us",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_zaravan",
       "isHouse": false,
@@ -274,7 +274,7 @@
     },
   {
       "dynastyName": "Caramadran",
-      "dynastyMotto": "",
+      "dynastyMotto": "Eyes to the Sky, Feet in the Dust",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_caramadran",
       "isHouse": false,
@@ -290,7 +290,7 @@
     },
   {
       "dynastyName": "Garozen",
-      "dynastyMotto": "",
+      "dynastyMotto": "Bound by Oath, Freed by Glory",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_garozen",
       "isHouse": false,
@@ -306,7 +306,7 @@
     },
   {
       "dynastyName": "Homazen",
-      "dynastyMotto": "",
+      "dynastyMotto": "The Line Endures Like the Mountain",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_homazen",
       "isHouse": false,
@@ -322,7 +322,7 @@
     },
   {
       "dynastyName": "Imez",
-      "dynastyMotto": "",
+      "dynastyMotto": "The Horn Is Sounded, the Flame Awakens",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_imez",
       "isHouse": false,
@@ -338,7 +338,7 @@
     },
   {
       "dynastyName": "Jamo",
-      "dynastyMotto": "",
+      "dynastyMotto": "Though Few, We Are Fearless",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_jamo",
       "isHouse": false,
@@ -354,7 +354,7 @@
     },
   {
       "dynastyName": "Lamarzen",
-      "dynastyMotto": "",
+      "dynastyMotto": "The Falcon Sees All, The Stag Remembers",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_lamarzen",
       "isHouse": false,
@@ -370,7 +370,7 @@
     },
   {
       "dynastyName": "Osard",
-      "dynastyMotto": "",
+      "dynastyMotto": "What Is Written in the Stars, We Make Real",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_osard",
       "isHouse": false,
@@ -386,7 +386,7 @@
     },
   {
       "dynastyName": "Pamaran",
-      "dynastyMotto": "",
+      "dynastyMotto": "Clan of Stars, Kin of Kings",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_pamaran",
       "isHouse": false,
@@ -402,7 +402,7 @@
     },
   {
       "dynastyName": "Qudoz",
-      "dynastyMotto": "",
+      "dynastyMotto": "We Speak with the Voice of Ancestors",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_qudoz",
       "isHouse": false,
@@ -418,7 +418,7 @@
     },
   {
       "dynastyName": "Ramazen",
-      "dynastyMotto": "",
+      "dynastyMotto": "First to Rise, Last to Fall",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_ramazen",
       "isHouse": false,
@@ -434,7 +434,7 @@
     },
   {
       "dynastyName": "Umoza",
-      "dynastyMotto": "",
+      "dynastyMotto": "We Ride with Thunder",
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_umoza",
       "isHouse": false,
