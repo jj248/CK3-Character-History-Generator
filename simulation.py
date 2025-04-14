@@ -271,15 +271,15 @@ class Simulation:
         if birth_order == 1:
             fertilityModifier = 1
         elif birth_order == 2:
-            fertilityModifier = 0.96
+            fertilityModifier = 0.925
         elif birth_order == 3:
-            fertilityModifier = 0.92
+            fertilityModifier = 0.875
         elif birth_order == 4:
-            fertilityModifier = 0.88
+            fertilityModifier = 0.825
         elif birth_order == 5:
-            fertilityModifier = 0.84
+            fertilityModifier = 0.775
         else:
-            fertilityModifier = 0.80
+            fertilityModifier = 0.725
 
         if child_sex == "Male":
             if father.fertilityModifier != 1:
