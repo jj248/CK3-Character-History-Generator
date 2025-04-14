@@ -252,7 +252,7 @@
         "noNameInheritanceChance": 0.9
       }
     },
-    {
+  {
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_garozen",
       "isHouse": false,
@@ -266,7 +266,7 @@
         "noNameInheritanceChance": 0.9
       }
     },
-    {
+  {
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_homazen",
       "isHouse": false,
@@ -280,7 +280,7 @@
         "noNameInheritanceChance": 0.9
       }
     },
-    {
+  {
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_imez",
       "isHouse": false,
@@ -294,7 +294,7 @@
         "noNameInheritanceChance": 0.9
       }
     },
-    {
+  {
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_jamo",
       "isHouse": false,
@@ -308,7 +308,7 @@
         "noNameInheritanceChance": 0.9
       }
     },
-    {
+  {
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_lamarzen",
       "isHouse": false,
@@ -322,7 +322,7 @@
         "noNameInheritanceChance": 0.9
       }
     },
-    {
+  {
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_osard",
       "isHouse": false,
@@ -336,7 +336,7 @@
         "noNameInheritanceChance": 0.9
       }
     },
-    {
+  {
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_pamaran",
       "isHouse": false,
@@ -350,7 +350,7 @@
         "noNameInheritanceChance": 0.9
       }
     },
-    {
+  {
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_qudoz",
       "isHouse": false,
@@ -364,7 +364,7 @@
         "noNameInheritanceChance": 0.9
       }
     },
-    {
+  {
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_ramazen",
       "isHouse": false,
@@ -378,7 +378,7 @@
         "noNameInheritanceChance": 0.9
       }
     },
-    {
+  {
       "succession": "PRIMOGENITURE",
       "dynastyID": "dynasty_umoza",
       "isHouse": false,
@@ -399,7 +399,7 @@
       "startYear": 5668,
       "endYear": 5670,
       "deathReason": "bubonic_plague",
-      "deathMultiplier": 0.6,
+      "deathMultiplier": 0.3,
       "characterAgeStart": 0,
       "characterAgeEnd": 120
     },
@@ -408,7 +408,7 @@
       "startYear": 5983,
       "endYear": 6200,
       "deathReason": "death_battle",
-      "deathMultiplier":0.9,
+      "deathMultiplier": 0.9,
       "characterAgeStart": 16,
       "characterAgeEnd": 50
     }

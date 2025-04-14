@@ -18,8 +18,9 @@ class Character:
         generation=1, 
         is_progenitor=False,
         is_bastard=False,
-        birth_order=None,  # Add birth_order as an argument
-        negativeEventDeathReason=None
+        birth_order=1,  # Add birth_order as an argument
+        negativeEventDeathReason=None,
+        fertilityModifier=1
     ):
         self.is_bastard = is_bastard
         self.char_id = char_id
@@ -58,20 +59,15 @@ class Character:
         self.assign_sexuality(sexuality_distribution)
         self.mortality_risk = 0  # Initialize mortality risk
         self.negativeEventDeathReason=None
+        self.fertilityModifier = fertilityModifier
         
-        # Set the birth order if provided, otherwise default to None
+        # Set the birth order if provided, otherwise default to 1
         self.birth_order = birth_order
         
         # Record birth event
         birth_date_str = generate_random_date(self.birth_year)
         self.birth_year, self.birth_month, self.birth_day = map(int, birth_date_str.split('.'))
         self.add_event(birth_date_str, "birth = yes")
-
-    def calculate_fertility_modifier(self):
-        """ Apply a fertility penalty based on birth order """
-        if self.birth_order >= 3:
-            return 1 - (0.1 * (self.birth_order - 2))  # Reduced fertility
-        return 1.0
 
     def apply_dynasty_mortality_penalty(self):
         """ Increase mortality risk for distant branches (4+ generations away) """

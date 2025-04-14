@@ -24,23 +24,14 @@ class Simulation:
 
     def add_character_to_pool(self, character):
         """ Adjust fertility and mortality based on dynasty rules """
-        # fertility_modifier = character.calculate_fertility_modifier()
         mortality_penalty = character.apply_dynasty_mortality_penalty()
 
         # Modify fertility rates dynamically
         base_fertility = self.config['life_stages']['fertilityRates']['Female']
-        # adjusted_fertility = {age: rate * fertility_modifier for age, rate in enumerate(base_fertility)}
-        # self.config['life_stages']['fertilityRates']['Female'] = adjusted_fertility
         self.config['life_stages']['fertilityRates']['Female'] = base_fertility
 
         # Apply mortality penalty (pseudo-code, assuming there's a mortality function)
         character.mortality_risk += mortality_penalty  
-
-        # Adjust max children for main line
-        #if character.birth_order == 1:
-        #    self.config['life_stages']['maximumNumberOfChildren'] = 6  # Increase main line limit
-        #else:
-        #    self.config['life_stages']['maximumNumberOfChildren'] = 3  # Limit lesser branches
 
         # Add to character pool
         self.character_pool.setdefault(character.birth_year, []).append(character)
@@ -135,7 +126,6 @@ class Simulation:
                 
         return (random_var * mortality_event_multipler) < mortality_rate
 
-
     def marry_characters(self, char1, char2, year, marriage_type=None, children_dynasty=None):
         if char1.char_id == char2.char_id:
             logging.info(f"Attempted self-marriage for {char1.char_id}. Skipping.")
@@ -203,9 +193,9 @@ class Simulation:
                 dynasty_gen_count[key] = dynasty_gen_count.get(key, 0) + 1
 
         # Set a cap per dynasty per generation (adjust as needed)
-        dynasty_child_cap = 15
-        if dynasty_gen_count.get((father.dynasty, father.generation), 0) >= dynasty_child_cap:
-            return None  # Prevent excess children
+        # dynasty_child_cap = 50
+        # if dynasty_gen_count.get((father.dynasty, father.generation), 0) >= dynasty_child_cap:
+        #     return None  # Prevent excess children
         
         # Proceed with child creation
         self.character_count += 1
@@ -277,7 +267,26 @@ class Simulation:
 
         # Assign birth order before creating the child
         birth_order = len(mother.children) + 1  # Calculate birth order based on mother's children
+        fertilityModifier = 1
+        if birth_order == 1:
+            fertilityModifier = 1
+        elif birth_order == 2:
+            fertilityModifier = 0.96
+        elif birth_order == 3:
+            fertilityModifier = 0.92
+        elif birth_order == 4:
+            fertilityModifier = 0.88
+        elif birth_order == 5:
+            fertilityModifier = 0.84
+        else:
+            fertilityModifier = 0.80
 
+        if child_sex == "Male":
+            if father.fertilityModifier != 1:
+                fertilityModifier *= father.fertilityModifier
+        else:
+            if mother.fertilityModifier != 1:
+                fertilityModifier *= mother.fertilityModifier
         child = Character(
             char_id=child_char_id,
             name=child_name,
@@ -290,7 +299,8 @@ class Simulation:
             gender_law=child_gender_law,
             sexuality_distribution=sexuality_distribution,
             generation=child_generation,
-            birth_order=birth_order  # Pass birth order when creating the child
+            birth_order=birth_order,  # Pass birth order when creating the child
+            fertilityModifier = fertilityModifier
         )
 
         # Set parents
@@ -397,11 +407,6 @@ class Simulation:
         # Prioritize dynasties with fewer members for marriage
         males.sort(key=lambda c: (dynasty_sizes.get(c.dynasty, 0), c.birth_order if c.birth_order is not None else float('inf')))
         females.sort(key=lambda c: (dynasty_sizes.get(c.dynasty, 0), c.birth_order if c.birth_order is not None else float('inf')))
-
-        # Ensure all progenitor children get married
-        # for character in self.all_characters:
-        #     if character.alive and not character.married and character.age >= 18:
-        #         self.desperation_marriage_check(character, self.config['initialization']['minYear'] + 20)
 
         for male in males:
             if not male.alive or male.married or not male.can_marry:
@@ -643,8 +648,11 @@ class Simulation:
                     male_age = character.spouse.age
                     fertility_rate = fertility_rates['Female'][female_age]
                     fertility_rate_m = fertility_rates['Male'][male_age]
-                    
-                    if random.random() < (fertility_rate*fertility_rate_m):
+                    fertility_rate_m_modified = fertility_rates['Male'][male_age] * character.spouse.fertilityModifier
+                    # if character.spouse.dynasty == "dynasty_adarfiruzen":
+                    #     print(f"Male Fertility: {fertility_rate_m} | Male Fertility Modifier: {character.spouse.fertilityModifier} | Male Fertility Modified: {fertility_rate_m_modified} | Character: {character.spouse.char_id}")
+                    total_fertility = fertility_rate * fertility_rate_m_modified
+                    if random.random() < total_fertility:
                         # print(f"Father Age: {male_age} "
                         # f"Father Fertility: {fertility_rate_m} "
                         # f"Mother Age: {female_age} "
@@ -698,7 +706,7 @@ class Simulation:
                                 "death_cancer",
                                 "death_accident", 
                                 "death_murder"
-                            ])							
+                            ])
                         character.add_event(death_date, f"death = {{ death_reason = {death_cause} }}")
                         if character.married and character.spouse.alive:
                             character.spouse.married = False
