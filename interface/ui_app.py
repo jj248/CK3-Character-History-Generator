@@ -32,20 +32,20 @@ class GenderLaw(Enum):
     ENATIC_COGNATIC = "ENATIC_COGNATIC"
 
 # Load config
-def load_config():
-    with open(CONFIG_PATH, "r") as f:
+def load_config(config_path):
+    with open(config_path, "r") as f:
         return json.load(f)
 
 # Save config
-def save_config(config_data):
-    with open(CONFIG_PATH, "w") as f:
+def save_config(config_data, config_path):
+    with open(config_path, "w") as f:
         json.dump(config_data, f, indent=4)
 
 # Reset config to default
 def reset_to_default():
     with open(DEFAULT_CONFIG_PATH) as f:
         default_data = json.load(f)
-    save_config(default_data)
+    save_config(default_data, "config/initialization.json")
     st.session_state["reset_triggered"] = True
 
 def display_dynasty_config():
@@ -55,24 +55,24 @@ def display_dynasty_config():
 
     # Load config only if not already loaded
     if not st.session_state["config_loaded"]:
-        config = load_config()
+        config = load_config("config/initialization.json")
         st.session_state["config_loaded"] = True  # Mark the config as loaded
     else:
-        config = load_config()
+        config = load_config("config/initialization.json")
 
     # Disabling condition: Until the config is loaded, set the 'disabled' flag
     disabled = not st.session_state["config_loaded"]
 
-    if st.button("🔄 Reset to Default", disabled=disabled):
+    if st.button("🔄 Reset Dynasties", disabled=disabled):
         reset_to_default()
         
     # If reset was triggered, reload config and clear flag
     if st.session_state.get("reset_triggered", False):
-        config = load_config()
+        config = load_config("config/initialization.json")
         st.success("Configuration reset to default.")
         st.session_state["reset_triggered"] = False
     else:
-        config = load_config()
+        config = load_config("config/initialization.json")
 
     # Split the layout into 3 horizontal columns
     col1, col2 = st.columns(2)
@@ -90,7 +90,7 @@ def display_dynasty_config():
             config["minYear"] = int(min_year)
             config["maxYear"] = int(max_year)
             config["generationMax"] = int(max_generations)
-            save_config(config)
+            save_config(config, "config/initialization.json")
             st.success("Global settings saved successfully!")
         except ValueError:
             st.error("All inputs must be valid integers.")
@@ -133,10 +133,9 @@ def display_dynasty_config():
                 }
             }
             config['dynasties'].append(new_dynasty)
-            save_config(config)  # Your save function
+            save_config(config, "config/initialization.json")  # Your save function
             st.rerun()
 
-    
     config['dynasties'].sort(key=lambda d: d['dynastyID'].lower())
     for i, dynasty in enumerate(config['dynasties']):
         current_value = dynasty.get('gender_law', gender_options[0])
@@ -147,9 +146,9 @@ def display_dynasty_config():
         with col1:
             st.markdown(f"#### Dynasty: {dynasty['dynastyID']}")
         with col2:
-            if st.button("❌", key=f"delete_{i}", disabled=disabled):
+            if st.button("❌", key=f"delete_dynasty_{i}", disabled=disabled):
                 config['dynasties'].remove(dynasty)
-                save_config(config)
+                save_config(config, "config/initialization.json")
                 st.rerun()
 
         with st.expander("Edit Dynasty Details", expanded=False):
@@ -165,14 +164,171 @@ def display_dynasty_config():
             updated = True
 
     # Save updated values
-    if updated and st.button("💾 Save Changes", disabled=disabled):
-        save_config(config)
+    if updated and st.button("💾 Save Dynasty Changes", disabled=disabled):
+        save_config(config, "config/initialization.json")
         st.success("Configuration saved.")
         
     if st.button("Run Simulation", disabled=disabled):
         run_main()
+
+def display_event_config():
+    st.title("CK3 Character History Generator")
+    st.subheader("📜 Negative Events Impacting Death Rates")
+    if "config_loaded" not in st.session_state:
+        st.session_state["config_loaded"] = False
+
+    # Load config only if not already loaded
+    if not st.session_state["config_loaded"]:
+        config = load_config("config/initialization.json")
+        st.session_state["config_loaded"] = True  # Mark the config as loaded
+    else:
+        config = load_config("config/initialization.json")
+
+    # Disabling condition: Until the config is loaded, set the 'disabled' flag
+    disabled = not st.session_state["config_loaded"]
+
+    if st.button("🔄 Reset Events", disabled=disabled):
+        reset_to_default()
         
+    # If reset was triggered, reload config and clear flag
+    if st.session_state.get("reset_triggered", False):
+        config = load_config("config/initialization.json")
+        st.success("Events reset to default.")
+        st.session_state["reset_triggered"] = False
+    else:
+        config = load_config("config/initialization.json")
+
+    with st.expander("➕ Add New Event"):
+        with st.form(key="add_event"):
+            new_eventID = st.text_input("eventID", disabled=disabled)
+            new_startYear = st.number_input("startYear", value=6000, step=1, disabled=disabled)
+            new_endYear = st.number_input("endYear", value=6500, step=1, disabled=disabled)
+            new_deathReason = st.text_input("deathReason", disabled=disabled)
+            new_deathMultiplier = st.number_input("deathMultiplier", min_value=0.0, max_value=1.0, value=0.5, step=0.1, disabled=disabled)
+            new_characterAgeStart = st.number_input("startYear", min_value=0, max_value=120, value=0, step=1, disabled=disabled)
+            new_characterAgeEnd = st.number_input("startYear", min_value=0, max_value=120, value=60, step=1, disabled=disabled)
+            submit = st.form_submit_button("Add Event", disabled=disabled)
+
+        if submit:
+            new_event = {
+                "eventID": new_eventID,
+                "startYear": new_startYear,
+                "endYear": new_endYear,
+                "deathReason": new_deathReason,
+                "deathMultiplier": new_deathMultiplier,
+                "characterAgeStart": new_characterAgeStart,
+                "characterAgeEnd": new_characterAgeEnd,
+            }
+            config['events'].append(new_event)
+            save_config(config, "config/initialization.json")  # Your save function
+            st.rerun()
+            
+    config['events'].sort(key=lambda d: d['eventID'].lower())
+    for i, event in enumerate(config['events']):
+        # Create two columns for header: Dynasty title and Delete button
+        col1, col2 = st.columns([11, 1])  # Adjust widths as needed
+
+        with col1:
+            st.markdown(f"#### Event: {event['eventID']}")
+        with col2:
+            if st.button("❌", key=f"delete_event_{i}", disabled=disabled):
+                config['events'].remove(event)
+                save_config(config, "config/initialization.json")
+                st.rerun()
+
+        with st.expander("Edit Event Details", expanded=False):
+            event['eventID'] = st.text_input("event ID", event["eventID"], key=f"eventID_{i}", disabled=disabled)
+            event['startYear'] = st.number_input("Start Year", value=event["startYear"], step=1, key=f"startYear_{i}", disabled=disabled)
+            event['endYear'] = st.number_input("End Year", value=event["endYear"], step=1, key=f"endYear_{i}", disabled=disabled)
+            event['deathReason'] = st.text_input("Death Reason", event["deathReason"], key=f"deathReason_{i}", disabled=disabled)
+            event['deathMultiplier'] = st.number_input("Lethality Factor", min_value=0.0, max_value=1.0, value=event["deathMultiplier"], step=0.1, key=f"deathMultiplier_{i}", disabled=disabled)
+            event['characterAgeStart'] = st.number_input("Character Minimum Age", min_value=0, max_value=120, value=event["characterAgeStart"], step=1, key=f"characterAgeStart_{i}", disabled=disabled)
+            event["characterAgeEnd"] = st.number_input("Character Maximum Age", min_value=0, max_value=120, value=event["characterAgeEnd"], step=1, key=f"characterAgeEnd_{i}", disabled=disabled)
+             
+            updated = True
+
+    # Save updated values
+    if updated and st.button("💾 Save Event Changes", disabled=disabled):
+        save_config(config, "config/initialization.json")
+        st.success("Configuration saved.")
+
+def display_life_stage_config():
+    st.title("CK3 Character History Generator")
+    st.subheader("💉 Life Cycle Modifiers")
+    if "config_loaded" not in st.session_state:
+        st.session_state["config_loaded"] = False
+
+    # Load config only if not already loaded
+    if not st.session_state["config_loaded"]:
+        config = load_config("config/life_stages.json")
+        st.session_state["config_loaded"] = True  # Mark the config as loaded
+    else:
+        config = load_config("config/life_stages.json")
+
+    # Disabling condition: Until the config is loaded, set the 'disabled' flag
+    disabled = not st.session_state["config_loaded"]
+
+    if st.button("🔄 Reset Life Cycle Modifiers", disabled=disabled):
+        reset_to_default()
+        
+    # If reset was triggered, reload config and clear flag
+    if st.session_state.get("reset_triggered", False):
+        config = load_config("config/life_stages.json")
+        st.success("Life Cycle Modifiers reset to default.")
+        st.session_state["reset_triggered"] = False
+    else:
+        config = load_config("config/life_stages.json")
+
+    # with st.expander("Edit Life Cycle Modifier Details", expanded=False):
+    config['marriageMaxAgeDifference'] = st.number_input("Maximum Difference in Age Between Spouses", min_value=0, max_value=30, value=config["marriageMaxAgeDifference"], key=f"marriageMaxAgeDifference", disabled=disabled)
+    config['maximumNumberOfChildren'] = st.number_input("Maximum Number of Children", value=config["maximumNumberOfChildren"], min_value=1, max_value=10, step=1, key=f"maximumNumberOfChildren", disabled=disabled)
+    config['minimumYearsBetweenChildren'] = st.number_input("Minimum Years Between Children", min_value=1, max_value=10, value=config["minimumYearsBetweenChildren"], step=1, key=f"minimumYearsBetweenChildren", disabled=disabled)
+    config['bastardyChanceMale'] = st.number_input("Chance for Male Bastards", min_value=0.0000, max_value=1.0000, value=config["bastardyChanceMale"], step=0.0005, key=f"bastardyChanceMale", disabled=disabled)
+    config['bastardyChanceFemale'] = st.number_input("Chance for Female Bastards", min_value=0.0000, max_value=1.0000, value=config["bastardyChanceFemale"], step=0.0005, key=f"bastardyChanceFemale", disabled=disabled)
+    updated = True
+
+    # # Format the list with 10 entries per line
+    # formatted_desperationMarriageRates = ',\n    '.join(
+    #     str(config['desperationMarriageRates'][i:i+10]).strip('[]') 
+    #     for i in range(0, len(config['desperationMarriageRates']), 10)
+    # )
+    # formatted_maleMortalityRates = ',\n    '.join(
+    #     str(config['mortalityRates']['Male'][i:i+10]).strip('[]') 
+    #     for i in range(0, len(config['mortalityRates']['Male']), 10)
+    # )
+    # formatted_femaleMortalityRates = ',\n    '.join(
+    #     str(config['mortalityRates']['Female'][i:i+10]).strip('[]') 
+    #     for i in range(0, len(config['mortalityRates']['Female']), 10)
+    # )
+    # formatted_maleMarriageRates = ',\n    '.join(
+    #     str(config['marriageRates']['Male'][i:i+10]).strip('[]') 
+    #     for i in range(0, len(config['marriageRates']['Male']), 10)
+    # )
+    # formatted_femaleMarriageRates = ',\n    '.join(
+    #     str(config['marriageRates']['Female'][i:i+10]).strip('[]') 
+    #     for i in range(0, len(config['marriageRates']['Female']), 10)
+    # )
+    # formatted_maleFertilityRates = ',\n    '.join(
+    #     str(config['fertilityRates']['Male'][i:i+10]).strip('[]') 
+    #     for i in range(0, len(config['fertilityRates']['Male']), 10)
+    # )
+    # formatted_femaleFertilityRates = ',\n    '.join(
+    #     str(config['fertilityRates']['Female'][i:i+10]).strip('[]') 
+    #     for i in range(0, len(config['fertilityRates']['Female']), 10)
+    # )
+
+    # # Save the formatted string to a JSON file
+    # output = f'[\n    {formatted_desperationMarriageRates}\n]\n[\n    {formatted_maleMortalityRates}\n]'
+
+    # print(output)
+        
+    # Save updated values
+    if updated and st.button("💾 Save Life Cycle Modifier Changes", disabled=disabled):
+        save_config(config, "config/life_stages.json")
+        st.success("Configuration saved.")
+
 def display_generated_images(image_folder: str):
+    st.title("CK3 Character History Generator")
     st.subheader("🧬 Generated Dynastic Trees")
 
     # Get all image files
@@ -195,16 +351,21 @@ def display_generated_images(image_folder: str):
                 <p style='text-align:center;'><em>Dynasty Tree: {dynasty_id}</em></p>
             """
             st.markdown(image_html, unsafe_allow_html=True)
-
-            
+        
 def main():
-    tab1, tab2 = st.tabs(["🏛️ Dynasty Settings", "🌳 Dynasty Trees"])
+    tab1, tab2, tab3, tab4 = st.tabs(["🏛️ Dynasty Settings", "🌳 Dynasty Trees", "📜 Negative Events", "💉 Life Cycle Modifiers"])
 
     with tab1:
         display_dynasty_config()
 
     with tab2:
         display_generated_images("Dynasty Preview/")
+
+    with tab3:
+        display_event_config()
+
+    with tab4:
+        display_life_stage_config()
 
 if __name__ == "__main__":
     main()
