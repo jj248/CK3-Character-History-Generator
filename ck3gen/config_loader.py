@@ -8,6 +8,7 @@ class ConfigLoader:
         self.config = {}
         self.load_configs()
         self.validate_configs()
+        self.build_language_rules()
 
     def load_configs(self):
         config_files = {
@@ -173,3 +174,27 @@ class ConfigLoader:
 
     def get(self, category, key, default=None):
         return self.config.get(category, {}).get(key, default)
+    
+    # ------------------------------------------------------------
+    #  Languages: dynasty_id → list[(language_id, start_year, end_year)]
+    # ------------------------------------------------------------
+    def build_language_rules(self) -> None:
+        """Parse the optional 'languages' array for every dynasty."""
+        self.dynasty_language_rules: dict[str, list[tuple[str,int,int]]] = {}
+
+        dynasties = self.config.get('initialization', {}).get('dynasties', [])
+        for entry in dynasties:
+            lang_rules = []
+            for spec in entry.get('languages', []):
+                try:
+                    lang, start, end = spec.split(',')
+                    lang_rules.append((lang.strip(), int(start), int(end)))
+                except ValueError:
+                    logging.warning(
+                        f"Bad language spec '{spec}' in dynasty {entry.get('dynastyID')}"
+                    )
+            self.dynasty_language_rules[entry['dynastyID']] = lang_rules
+
+    def get_language_rules(self):
+        return self.dynasty_language_rules
+

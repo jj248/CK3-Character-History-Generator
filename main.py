@@ -23,6 +23,7 @@ def main():
     setup_logging()
     try:
         config_loader = ConfigLoader('config')  # Ensure 'config' directory is correct
+        Character.DYNASTY_LANGUAGE_RULES = config_loader.get_language_rules()
         generate_dynasty_definitions("config/initialization.json", "dynasty_definitions.txt")
         generate_dynasty_name_localization("config/initialization.json", "lotr_dynasty_names_l_english.yml")
         generate_dynasty_motto_localization("config/initialization.json", "lotr_mottos_l_english.yml")

@@ -400,6 +400,21 @@ class Character:
                 if event_detail == "birth = yes":
                     lines.append(f"\t{event_date} = {{")
                     lines.append(f"\t    {event_detail}")
+
+                    # ---------- language effect block ----------
+                    lang_effects = []
+                    # use the class attribute via self.*
+                    for lang, start, end in self.DYNASTY_LANGUAGE_RULES.get(self.dynasty, []):
+                        if start <= self.birth_year <= end:
+                            lang_effects.append(lang)
+
+                    if lang_effects:                # only if at least one language applies
+                        lines.append(f"\t    effect = {{")
+                        for l in lang_effects:
+                            lines.append(f"\t        learn_language = {l}")
+                        lines.append(f"\t    }}")
+                    # -------------------------------------------
+
                     lines.append(f"\t}}")
                 else:
                     # Parse the event date

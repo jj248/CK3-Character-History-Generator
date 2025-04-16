@@ -14,7 +14,12 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "languages": [
+                "language_sindarin,6000,7000",
+                "language_quenya,6200,6300",
+                "language_westron,6300,6500"
+            ]
         },
         {
             "dynastyName": "Bahlikaran",
