@@ -313,6 +313,9 @@ class Simulation:
         child.assign_education(self.config['skills_and_traits']['educationProbabilities'])
         child.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
 
+        # Evaluate congenital traits
+        Character.inherit_congenital(child, father, mother)
+
         # Update last child birth year
         self.couple_last_child_year[couple_key] = birth_year
 
@@ -458,7 +461,7 @@ class Simulation:
                 if female_age >= len(fertility_rates['Female']):
                     fertility_rate = 0.0
                 else:
-                    fertility_rate = fertility_rates['Female'][female_age]
+                    fertility_rate = fertility_rates['Female'][female_age]*character.fertility_mult()
 
                 if fertility_rate == 0.0:
                     continue  # Not fertile
@@ -643,9 +646,9 @@ class Simulation:
                     # Use fertilityRates to determine if a child is produced
                     female_age = character.age
                     male_age = character.spouse.age
-                    fertility_rate = fertility_rates['Female'][female_age]
-                    fertility_rate_m = fertility_rates['Male'][male_age]
-                    fertility_rate_m_modified = fertility_rates['Male'][male_age] * character.spouse.fertilityModifier
+                    fertility_rate = fertility_rates['Female'][female_age]*character.fertility_mult()
+                    fertility_rate_m = fertility_rates['Male'][male_age]*character.spouse.fertility_mult()
+                    fertility_rate_m_modified = fertility_rates['Male'][male_age]*character.spouse.fertilityModifier*character.spouse.fertility_mult()
                     # if character.spouse.dynasty == "dynasty_adarfiruzen":
                     #     print(f"Male Fertility: {fertility_rate_m} | Male Fertility Modifier: {character.spouse.fertilityModifier} | Male Fertility Modified: {fertility_rate_m_modified} | Character: {character.spouse.char_id}")
                     total_fertility = fertility_rate * fertility_rate_m_modified
