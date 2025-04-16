@@ -4,6 +4,7 @@ from pathlib import Path
 import streamlit as st
 import sys
 import os
+import matplotlib.pyplot as plt
 
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -279,53 +280,221 @@ def display_life_stage_config():
     else:
         config = load_config("config/life_stages.json")
 
-    # with st.expander("Edit Life Cycle Modifier Details", expanded=False):
     config['marriageMaxAgeDifference'] = st.number_input("Maximum Difference in Age Between Spouses", min_value=0, max_value=30, value=config["marriageMaxAgeDifference"], key=f"marriageMaxAgeDifference", disabled=disabled)
     config['maximumNumberOfChildren'] = st.number_input("Maximum Number of Children", value=config["maximumNumberOfChildren"], min_value=1, max_value=10, step=1, key=f"maximumNumberOfChildren", disabled=disabled)
     config['minimumYearsBetweenChildren'] = st.number_input("Minimum Years Between Children", min_value=1, max_value=10, value=config["minimumYearsBetweenChildren"], step=1, key=f"minimumYearsBetweenChildren", disabled=disabled)
     config['bastardyChanceMale'] = st.number_input("Chance for Male Bastards", min_value=0.0000, max_value=1.0000, value=config["bastardyChanceMale"], step=0.0005, key=f"bastardyChanceMale", disabled=disabled)
     config['bastardyChanceFemale'] = st.number_input("Chance for Female Bastards", min_value=0.0000, max_value=1.0000, value=config["bastardyChanceFemale"], step=0.0005, key=f"bastardyChanceFemale", disabled=disabled)
-    updated = True
-
-    # # Format the list with 10 entries per line
-    # formatted_desperationMarriageRates = ',\n    '.join(
-    #     str(config['desperationMarriageRates'][i:i+10]).strip('[]') 
-    #     for i in range(0, len(config['desperationMarriageRates']), 10)
-    # )
-    # formatted_maleMortalityRates = ',\n    '.join(
-    #     str(config['mortalityRates']['Male'][i:i+10]).strip('[]') 
-    #     for i in range(0, len(config['mortalityRates']['Male']), 10)
-    # )
-    # formatted_femaleMortalityRates = ',\n    '.join(
-    #     str(config['mortalityRates']['Female'][i:i+10]).strip('[]') 
-    #     for i in range(0, len(config['mortalityRates']['Female']), 10)
-    # )
-    # formatted_maleMarriageRates = ',\n    '.join(
-    #     str(config['marriageRates']['Male'][i:i+10]).strip('[]') 
-    #     for i in range(0, len(config['marriageRates']['Male']), 10)
-    # )
-    # formatted_femaleMarriageRates = ',\n    '.join(
-    #     str(config['marriageRates']['Female'][i:i+10]).strip('[]') 
-    #     for i in range(0, len(config['marriageRates']['Female']), 10)
-    # )
-    # formatted_maleFertilityRates = ',\n    '.join(
-    #     str(config['fertilityRates']['Male'][i:i+10]).strip('[]') 
-    #     for i in range(0, len(config['fertilityRates']['Male']), 10)
-    # )
-    # formatted_femaleFertilityRates = ',\n    '.join(
-    #     str(config['fertilityRates']['Female'][i:i+10]).strip('[]') 
-    #     for i in range(0, len(config['fertilityRates']['Female']), 10)
-    # )
-
-    # # Save the formatted string to a JSON file
-    # output = f'[\n    {formatted_desperationMarriageRates}\n]\n[\n    {formatted_maleMortalityRates}\n]'
-
-    # print(output)
         
     # Save updated values
-    if updated and st.button("💾 Save Life Cycle Modifier Changes", disabled=disabled):
+    if st.button("💾 Save Life Cycle Modifier Changes", disabled=disabled):
         save_config(config, "config/life_stages.json")
         st.success("Configuration saved.")
+    
+    display_desperation_marriage_rates(config)
+    display_mortality_rates(config)
+    display_marriage_rates(config)
+    display_fertility_rates(config)
+    
+    
+def display_desperation_marriage_rates(config):
+    st.subheader("Desperation Marriage Rates")
+    desperationMarriageRates = config['desperationMarriageRates']
+    
+    # Age range for the data
+    ages = list(range(len(desperationMarriageRates)))
+
+    # Plot desperation marriage rates
+    plt.figure(figsize=(12, 6))
+    plt.plot(ages, desperationMarriageRates, label='Desperation Marriage Rate', color='red')
+    plt.ylim(0.0, 1.0)
+    plt.xlabel('Age')
+    plt.ylabel('Rate')
+    plt.title('Desperation Marriage Rates by Age')
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    st.pyplot(plt.gcf())
+    plt.clf()
+    
+def display_mortality_rates(config):
+    st.subheader("Mortality Rates for Male/Female")
+
+    # Slider for adjusting mortality rates
+    maleMultiplier = st.slider(
+        "Adjust Male Mortality Rate Multiplier",
+        min_value=0.0,
+        max_value=2.0,
+        value=1.0,
+        step=0.01
+    )
+
+    # Load mortality rate data
+    maleMortalityRates = config['mortalityRates']['Male']
+    femaleMortalityRates = config['mortalityRates']['Female']
+    maleMR = list(range(len(maleMortalityRates)))
+    femaleMR = list(range(len(femaleMortalityRates)))
+
+    # Apply multiplier
+    adjustedMaleRates = [rate * maleMultiplier for rate in maleMortalityRates]
+
+    # Plotting
+    plt.figure(figsize=(12, 6))
+    plt.plot(maleMR, adjustedMaleRates, label='Male Mortality Rates', color='red')
+    plt.ylim(0.0, 1.0)
+    plt.xlabel('Age')
+    plt.ylabel('Rate')
+    plt.title('Male Mortality Rate by Age (Adjusted)')
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    st.pyplot(plt.gcf())
+    plt.clf()
+    
+    # Slider for adjusting female mortality rates
+    femaleMultiplier = st.slider(
+        "Adjust Female Mortality Rate Multiplier",
+        min_value=0.0,
+        max_value=2.0,
+        value=1.0,
+        step=0.01
+    )
+    
+    # Apply multiplier
+    adjustedFemaleRates = [rate * femaleMultiplier for rate in femaleMortalityRates]
+    
+    # Plot desperation marriage rates
+    plt.figure(figsize=(12, 6))
+    plt.plot(femaleMR, adjustedFemaleRates, label='Female Mortality Rate', color='red')
+    plt.ylim(0.0, 1.0)
+    plt.xlabel('Age')
+    plt.ylabel('Rate')
+    plt.title('Female Mortality Rate by Age')
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    st.pyplot(plt.gcf())
+    plt.clf()
+
+def display_marriage_rates(config):
+    st.subheader("Marriage Rates for Male/Female")
+    
+    # Slider for adjusting mortality rates
+    maleMultiplier = st.slider(
+        "Adjust Male Marriage Rate Multiplier",
+        min_value=0.0,
+        max_value=2.0,
+        value=1.0,
+        step=0.01
+    )
+    
+    maleMarriageRates = config['marriageRates']['Male']
+    femaleMarriageRates = config['marriageRates']['Female']
+    
+    # Age range for the data
+    maleMR = list(range(len(maleMarriageRates)))
+    femaleMR = list(range(len(femaleMarriageRates)))
+
+    # Apply multiplier
+    adjustedMaleRates = [rate * maleMultiplier for rate in maleMarriageRates]
+
+    # Plot desperation marriage rates
+    plt.figure(figsize=(12, 6))
+    plt.plot(maleMR, adjustedMaleRates, label='Male marriage Rates', color='red')
+    plt.ylim(0.0, 1.0)
+    plt.xlabel('Age')
+    plt.ylabel('Rate')
+    plt.title('Male Marriage Rate by Age')
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    st.pyplot(plt.gcf())
+    plt.clf()
+    
+    # Slider for adjusting mortality rates
+    femaleMultiplier = st.slider(
+        "Adjust Female Marriage Rate Multiplier",
+        min_value=0.0,
+        max_value=2.0,
+        value=1.0,
+        step=0.01
+    )
+    # Apply multiplier
+    adjustedFemaleRates = [rate * femaleMultiplier for rate in femaleMarriageRates]
+
+    # Plot desperation marriage rates
+    plt.figure(figsize=(12, 6))
+    plt.plot(femaleMR, adjustedFemaleRates, label='Female marriage Rate', color='red')
+    plt.ylim(0.0, 1.0)
+    plt.xlabel('Age')
+    plt.ylabel('Rate')
+    plt.title('Female Marriage Rate by Age')
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    st.pyplot(plt.gcf())
+    plt.clf()
+
+def display_fertility_rates(config):
+    st.subheader("Fertility Rates for Male/Female")
+
+    maleFertilityRates = config['fertilityRates']['Male']
+    femaleFertilityRates = config['fertilityRates']['Female']
+    
+    # Age range for the data
+    maleMR = list(range(len(maleFertilityRates)))
+    femaleMR = list(range(len(femaleFertilityRates)))
+
+    
+    # Slider for adjusting female mortality rates
+    maleMultiplier = st.slider(
+        "Adjust Male Fertility Rate Multiplier",
+        min_value=0.0,
+        max_value=2.0,
+        value=1.0,
+        step=0.01
+    )
+    
+    # Apply multiplier
+    adjustedMaleRates = [rate * maleMultiplier for rate in maleFertilityRates]
+
+    # Plot desperation fertility rates
+    plt.figure(figsize=(12, 6))
+    plt.plot(maleMR, adjustedMaleRates, label='Male fertility Rates', color='red')
+    plt.ylim(0.0, 1.0)
+    plt.xlabel('Age')
+    plt.ylabel('Rate')
+    plt.title('Male fertility Rate by Age')
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    st.pyplot(plt.gcf())
+    plt.clf()
+    
+    # Slider for adjusting female mortality rates
+    femaleMultiplier = st.slider(
+        "Adjust Female Fertility Rate Multiplier",
+        min_value=0.0,
+        max_value=2.0,
+        value=1.0,
+        step=0.01
+    )
+    
+    # Apply multiplier
+    adjustedFemaleRates = [rate * femaleMultiplier for rate in femaleFertilityRates]
+
+    # Plot desperation fertility rates
+    plt.figure(figsize=(12, 6))
+    plt.plot(femaleMR, adjustedFemaleRates, label='Female fertility Rate', color='red')
+    plt.ylim(0.0, 1.0)
+    plt.xlabel('Age')
+    plt.ylabel('Rate')
+    plt.title('Female fertility Rate by Age')
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    st.pyplot(plt.gcf())
+    plt.clf()
 
 def display_generated_images(image_folder: str):
     st.title("CK3 Character History Generator")
@@ -363,7 +532,7 @@ def main():
 
     with tab3:
         display_event_config()
-
+    
     with tab4:
         display_life_stage_config()
 
