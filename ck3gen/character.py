@@ -2,6 +2,46 @@ import random
 import logging
 from utils.utils import generate_random_date
 
+# ==============================================================
+# Congenital‑trait helper (beauty / intellect / physique)
+# ==============================================================
+
+_CONGENITAL_TIERS = {
+    "beauty": [
+        "beauty_bad_3", "beauty_bad_2", "beauty_bad_1",
+        "beauty_good_1", "beauty_good_2", "beauty_good_3",
+    ],
+    "intellect": [
+        "intellect_bad_3", "intellect_bad_2", "intellect_bad_1",
+        "intellect_good_1", "intellect_good_2", "intellect_good_3",
+    ],
+    "physique": [
+        "physique_bad_3", "physique_bad_2", "physique_bad_1",
+        "physique_good_1", "physique_good_2", "physique_good_3",
+    ],
+}
+
+# mutation odds in order  bad3..bad1, good1..good3
+_RANDOM_PICK_CHANCE = [0.0015, 0.0025, 0.005, 0.005, 0.0025, 0.0015]
+
+
+def _tier_index(trait: str, category: str) -> int | None:
+    """Return tier index (0..5) or None if trait not in this category."""
+    try:
+        return _CONGENITAL_TIERS[category].index(trait)
+    except ValueError:
+        return None
+
+
+def _parent_trait_idx(parent: "Character", category: str) -> int | None:
+    """Index of this parent’s trait for category (if any)."""
+    for t in parent.congenital_traits.values():
+        idx = _tier_index(t, category)
+        if idx is not None:
+            return idx
+    return None
+
+
 class Character:
     def __init__(
         self, 
@@ -158,6 +198,131 @@ class Character:
             excludes = available_traits[selected_trait].get('excludes', [])
             trait_pool = [trait for trait in trait_pool if trait != selected_trait and trait not in excludes]
             trait_weights = [available_traits[trait]['weight'] for trait in trait_pool]
+
+    # ------------------------------------------------------------------
+    #  Congenital‑trait inheritance (beauty / intellect / physique + singles)
+    # ------------------------------------------------------------------
+    @staticmethod
+    def inherit_congenital(child: "Character",
+                           father: "Character",
+                           mother: "Character") -> None:
+        """
+        Populate child.congenital_traits with inherited or random
+        beauty / intellect / physique tiers **and** single‑tier defects.
+        """
+
+        # ── tiered categories -------------------------------------------------
+        for category, tiers in _CONGENITAL_TIERS.items():
+            idx_f = _parent_trait_idx(father, category)
+            idx_m = _parent_trait_idx(mother, category)
+
+            if idx_f is None and idx_m is None:
+                best_parent_idx = None
+            else:
+                best_parent_idx = max(idx for idx in (idx_f, idx_m) if idx is not None)
+
+            # build search order
+            if best_parent_idx is None:               # no parent trait → skip to mutation
+                idx_sequence = []
+            elif best_parent_idx <= 2:                # parent’s best on bad side
+                idx_sequence = range(best_parent_idx, 3)           # 0→1→2
+            else:                                     # parent’s best on good side
+                idx_sequence = range(best_parent_idx, -1, -1)      # 5→…→0
+
+            inherited = False
+            for idx in idx_sequence:
+                trait_name = tiers[idx]
+                father_has = idx_f == idx
+                mother_has = idx_m == idx
+
+                # inheritance chance
+                if father_has and mother_has:
+                    chance = 0.80
+                elif father_has or mother_has:
+                    other_idx = idx_m if father_has else idx_f
+                    same_side_lower = (
+                        other_idx is not None
+                        and other_idx < idx
+                        and other_idx // 3 == idx // 3
+                    )
+                    chance = 0.50 if same_side_lower else 0.25
+                else:                                   # neither parent has tier
+                    chance = 0.10
+
+                if random.random() < chance:
+                    child.congenital_traits[category] = trait_name
+                    inherited = True
+                    break
+
+                # stop after failing good_1 when no parent owns any bad tier
+                if (
+                    idx == 3
+                    and best_parent_idx >= 3
+                    and (idx_f is None or idx_f > 2)
+                    and (idx_m is None or idx_m > 2)
+                ):
+                    break
+
+            # random mutation if nothing inherited
+            if not inherited:
+                rnd = random.random()
+                cumulative = 0.0
+                for idx, prob in enumerate(_RANDOM_PICK_CHANCE):
+                    cumulative += prob
+                    if rnd < cumulative:
+                        child.congenital_traits[category] = tiers[idx]
+                        break
+
+        # ── single‑tier congenital traits ------------------------------------
+        SINGLE_TRAITS = [
+            "clubfooted", "hunchbacked", "lisping", "stuttering",
+            "dwarf", "giant", "spindly", "scaly", "albino",
+            "wheezing", "bleeder","fecund", "infertile"
+        ]
+        MUTEX_GROUPS = [
+            {"dwarf", "giant"},
+            {"fecund", "infertile"}
+        ]
+        # helper to test exclusivity
+        def _conflicts(t: str) -> bool:
+            for grp in MUTEX_GROUPS:
+                if t in grp and grp & set(child.congenital_traits.values()):
+                    return True
+            return False
+
+        for trait in SINGLE_TRAITS:
+            father_has = trait in father.congenital_traits.values()
+            mother_has = trait in mother.congenital_traits.values()
+
+            if father_has and mother_has:
+                chance = 0.80
+            elif father_has or mother_has:
+                chance = 0.25
+            else:
+                chance = 0.0
+
+            inherited = False
+            if chance and random.random() < chance:
+                if not _conflicts(trait):
+                    child.congenital_traits[trait] = trait
+                    inherited = True
+
+            # mutation roll if not inherited
+            if not inherited and random.random() < 0.005:      # 0.5 %
+                if not _conflicts(trait):
+                    child.congenital_traits[trait] = trait
+
+    def fertility_mult(self) -> float:
+        """
+        Returns a multiplier (0, 1, 2 …) that should be
+        applied to the base fertility rate at character.age.
+        """
+        if "infertile" in self.congenital_traits.values():
+            return 0.0
+        mult = 1.0 * self.fertilityModifier
+        if "fecund" in self.congenital_traits.values():
+            mult *= 2.0
+        return mult
 			
     def add_trait(self, trait):
         """Adds a trait to the character."""
@@ -235,6 +400,21 @@ class Character:
                 if event_detail == "birth = yes":
                     lines.append(f"\t{event_date} = {{")
                     lines.append(f"\t    {event_detail}")
+
+                    # ---------- language effect block ----------
+                    lang_effects = []
+                    # use the class attribute via self.*
+                    for lang, start, end in self.DYNASTY_LANGUAGE_RULES.get(self.dynasty, []):
+                        if start <= self.birth_year <= end:
+                            lang_effects.append(lang)
+
+                    if lang_effects:                # only if at least one language applies
+                        lines.append(f"\t    effect = {{")
+                        for l in lang_effects:
+                            lines.append(f"\t        learn_language = {l}")
+                        lines.append(f"\t    }}")
+                    # -------------------------------------------
+
                     lines.append(f"\t}}")
                 else:
                     # Parse the event date
