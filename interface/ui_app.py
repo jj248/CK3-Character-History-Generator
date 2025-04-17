@@ -98,23 +98,23 @@ def display_dynasty_config():
     
     # Extract enum values as a list
     gender_options = [law.value for law in GenderLaw]
-    
+    succession_options = [law.value for law in SuccessionType]
     # Dynamically render dynasty accordions
     updated = False
     i = 0
     
     with st.expander("➕ Add New Dynasty"):
         with st.form(key="add_dynasty_form"):
-            new_id = st.text_input("Dynasty ID", disabled=disabled)
-            new_name = st.text_input("Dynasty Name", disabled=disabled)
-            new_motto = st.text_input("Motto", disabled=disabled)
-            new_culture = st.text_input("Culture ID", disabled=disabled)
-            new_faith = st.text_input("Faith ID", disabled=disabled)
-            new_gender_law = st.selectbox("Gender Law", ["AGNATIC", "AGNATIC_COGNATIC", "ABSOLUTE_COGNATIC", "ENATIC", "ENATIC_COGNATIC"], disabled=disabled)
-            new_succession = st.selectbox("Succession", ["PRIMOGENITURE", "ULTIMOGENITURE", "SENIORITY"], disabled=disabled)
-            new_house = st.checkbox("Is House?", value=False, disabled=disabled)
-            new_year = st.number_input("Progenitor Birth Year", value=6000, step=1, disabled=disabled)
-            submit = st.form_submit_button("Add Dynasty", disabled=disabled)
+            new_name = st.text_input(help="The localization that will be displayed in-game for the dynasty name",label="Dynasty Name", disabled=disabled)
+            new_motto = st.text_input(help="The localization that will be displayed in-game for the dynasty motto",label="Motto", disabled=disabled)
+            new_succession = st.selectbox(help="The succession law which is used to determine who will be the next ruler, with the possible rulers determined by the \"Gender Law\"", label="Succession", options=["PRIMOGENITURE", "ULTIMOGENITURE", "SENIORITY"], disabled=disabled)
+            new_id = st.text_input(help="The dynsaty ID that will be defined in script",label="Dynasty ID", disabled=disabled)
+            new_house = st.checkbox(help="Whether this dynasty is a cadet branch of an existing dynasty in the history files",label="Is House?", value=False, disabled=disabled)
+            new_faith = st.text_input(help="The religion ID that will be used when defining the dynasty and generating the characters",label="Faith ID", disabled=disabled)
+            new_culture = st.text_input(help="The culture ID that will be used when defining the dynasty and generating the characters",label="Culture ID", disabled=disabled)
+            new_gender_law = st.selectbox(help="The gender law which is applied to this dynasty.\nAGNATIC == Male Only\nAGNATIC_COGNATIC == Male Preference\nABSOLUTE_COGNATIC == Equal\nENATIC_COGNATIC == Female Preference\nENATIC == Female Only",label="Gender Law", options=["AGNATIC", "AGNATIC_COGNATIC", "ABSOLUTE_COGNATIC", "ENATIC", "ENATIC_COGNATIC"], disabled=disabled)
+            new_year = st.number_input(help="The birth year of the first character of this dynasty, essentially denoting when the dynasty starts",label="Progenitor Birth Year", value=6000, step=1, disabled=disabled)
+            submit = st.form_submit_button(label="Add Dynasty", disabled=disabled)
 
         if submit:
             new_dynasty = {
@@ -139,7 +139,8 @@ def display_dynasty_config():
 
     config['dynasties'].sort(key=lambda d: d['dynastyID'].lower())
     for i, dynasty in enumerate(config['dynasties']):
-        current_value = dynasty.get('gender_law', gender_options[0])
+        current_gender_law = dynasty.get('gender_law', gender_options[0])
+        current_succession_law = dynasty.get('succession', succession_options[0])
         
         # Create two columns for header: Dynasty title and Delete button
         col1, col2 = st.columns([11, 1])  # Adjust widths as needed
@@ -147,20 +148,21 @@ def display_dynasty_config():
         with col1:
             st.markdown(f"#### Dynasty: {dynasty['dynastyID']}")
         with col2:
-            if st.button("❌", key=f"delete_dynasty_{i}", disabled=disabled):
+            if st.button(help=f"Delete {dynasty['dynastyID']}", label="❌", key=f"delete_dynasty_{i}", disabled=disabled):
                 config['dynasties'].remove(dynasty)
                 save_config(config, "config/initialization.json")
                 st.rerun()
 
         with st.expander("Edit Dynasty Details", expanded=False):
-            dynasty['dynastyName'] = st.text_input("Dynasty Name", dynasty["dynastyName"], key=f"name_{i}", disabled=disabled)
-            dynasty['dynastyMotto'] = st.text_input("Dynasty Motto", dynasty["dynastyMotto"], key=f"motto_{i}", disabled=disabled)
-            dynasty['dynastyID'] = st.text_input("Dynasty ID", dynasty["dynastyID"], key=f"id_{i}", disabled=disabled)
-            dynasty['cultureID'] = st.text_input("Culture ID", dynasty["cultureID"], key=f"culture_{i}", disabled=disabled)
-            dynasty['faithID'] = st.text_input("Religion ID", dynasty["faithID"], key=f"faith_{i}", disabled=disabled)
-            dynasty['progenitorMaleBirthYear'] = st.number_input("Progenitor Birth Year", value=dynasty["progenitorMaleBirthYear"], step=1, key=f"birth_year_{i}", disabled=disabled)
-            dynasty["gender_law"] = st.selectbox("Gender Law", gender_options, index=gender_options.index(current_value), key=f"gender_{i}", disabled=disabled)
-            dynasty['isHouse'] = st.checkbox("Is House?", dynasty["isHouse"], key=f"house_{i}", disabled=disabled)
+            dynasty['dynastyName'] = st.text_input(help="The localization that will be displayed in-game for the dynasty name",label="Dynasty Name", value=dynasty["dynastyName"], key=f"name_{i}", disabled=disabled)
+            dynasty['dynastyMotto'] = st.text_input(help="The localization that will be displayed in-game for the dynasty motto",label="Dynasty Motto", value=dynasty["dynastyMotto"], key=f"motto_{i}", disabled=disabled)
+            dynasty["succession"] = st.selectbox(help="The succession law which is used to determine who will be the next ruler, with the possible rulers determined by the \"Gender Law\"",label="Succession", options=succession_options, index=succession_options.index(current_succession_law), key=f"succession_{i}", disabled=disabled)
+            dynasty['dynastyID'] = st.text_input(help="The dynsaty ID that will be defined in script",label="Dynasty ID", value=dynasty["dynastyID"], key=f"id_{i}", disabled=disabled)
+            dynasty['isHouse'] = st.checkbox(help="Whether this dynasty is a cadet branch of an existing dynasty in the history files",label="Is House?", value=dynasty["isHouse"], key=f"house_{i}", disabled=disabled)
+            dynasty['faithID'] = st.text_input(help="The religion ID that will be used when defining the dynasty and generating the characters",label="Faith ID", value=dynasty["faithID"], key=f"faith_{i}", disabled=disabled)
+            dynasty['cultureID'] = st.text_input(help="The culture ID that will be used when defining the dynasty and generating the characters",label="Culture ID", value=dynasty["cultureID"], key=f"culture_{i}", disabled=disabled)
+            dynasty["gender_law"] = st.selectbox(help="The gender law which is applied to this dynasty.\n\nAGNATIC == Male Only\n\nAGNATIC_COGNATIC == Male Preference\n\nABSOLUTE_COGNATIC == Equal\n\nENATIC_COGNATIC == Female Preference\n\nENATIC == Female Only",label="Gender Law", options=gender_options, index=gender_options.index(current_gender_law), key=f"gender_{i}", disabled=disabled)
+            dynasty['progenitorMaleBirthYear'] = st.number_input(help="The birth year of the first character of this dynasty, essentially denoting when the dynasty starts",label="Progenitor Birth Year", value=dynasty["progenitorMaleBirthYear"], step=1, key=f"birth_year_{i}", disabled=disabled)
             
             updated = True
 
@@ -280,11 +282,13 @@ def display_life_stage_config():
     else:
         config = load_config("config/life_stages.json")
 
-    config['marriageMaxAgeDifference'] = st.number_input("Maximum Difference in Age Between Spouses", min_value=0, max_value=30, value=config["marriageMaxAgeDifference"], key=f"marriageMaxAgeDifference", disabled=disabled)
-    config['maximumNumberOfChildren'] = st.number_input("Maximum Number of Children", value=config["maximumNumberOfChildren"], min_value=1, max_value=10, step=1, key=f"maximumNumberOfChildren", disabled=disabled)
-    config['minimumYearsBetweenChildren'] = st.number_input("Minimum Years Between Children", min_value=1, max_value=10, value=config["minimumYearsBetweenChildren"], step=1, key=f"minimumYearsBetweenChildren", disabled=disabled)
-    config['bastardyChanceMale'] = st.number_input("Chance for Male Bastards", min_value=0.0000, max_value=1.0000, value=config["bastardyChanceMale"], step=0.0005, key=f"bastardyChanceMale", disabled=disabled)
-    config['bastardyChanceFemale'] = st.number_input("Chance for Female Bastards", min_value=0.0000, max_value=1.0000, value=config["bastardyChanceFemale"], step=0.0005, key=f"bastardyChanceFemale", disabled=disabled)
+    # with st.expander("Edit Life Cycle Modifier Details", expanded=False):
+    config['marriageMaxAgeDifference'] = st.number_input(help="Determines what the maximum difference can be between 2 characters. As an example, if the maximum difference is 5, the largest marriage age difference will be 25 to 30.",label="Maximum Difference in Age Between Spouses", min_value=0, max_value=30, value=config["marriageMaxAgeDifference"], key=f"marriageMaxAgeDifference", disabled=disabled)
+    config['maximumNumberOfChildren'] = st.number_input(help="Determines the maximum number of children any female character can have.",label="Maximum Number of Children", value=config["maximumNumberOfChildren"], min_value=1, max_value=10, step=1, key=f"maximumNumberOfChildren", disabled=disabled)
+    config['minimumYearsBetweenChildren'] = st.number_input(help="Determines the number of years enforced between the births of siblings.",label="Minimum Years Between Children", min_value=1, max_value=10, value=config["minimumYearsBetweenChildren"], step=1, key=f"minimumYearsBetweenChildren", disabled=disabled)
+    config['bastardyChanceMale'] = st.number_input(help="The chance for a male child to be born as a bastard",label="Chance for Male Bastards", format="%0.4f", min_value=0.0000, max_value=1.0000, value=config["bastardyChanceMale"], step=0.0005, key=f"bastardyChanceMale", disabled=disabled)
+    config['bastardyChanceFemale'] = st.number_input(help="The chance for a female child to be born as a bastard",label="Chance for Female Bastards", min_value=0.0000, max_value=1.0000, value=config["bastardyChanceFemale"], step=0.0005, key=f"bastardyChanceFemale", disabled=disabled)
+    updated = True
         
     # Save updated values
     if st.button("💾 Save Life Cycle Modifier Changes", disabled=disabled):
