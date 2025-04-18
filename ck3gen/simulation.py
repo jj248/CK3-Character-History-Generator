@@ -21,6 +21,10 @@ class Simulation:
         self.couple_last_child_year = {}  # Tracks last child year for each couple
         self.marriage_max_age_diff = self.config['life_stages'].get('marriageMaxAgeDifference', 5)
         self.desperation_rates = self.config['life_stages'].get('desperationMarriageRates', {})
+        self.marriage_min_age = 16
+        self.numenor_marriage_inc = 5
+        self.marriage_rates    = config['life_stages']['marriageRates']
+        self.desperation_rates = config['life_stages']['desperationMarriageRates']
 
     def add_character_to_pool(self, character):
         """ Adjust fertility and mortality based on dynasty rules """
@@ -43,41 +47,85 @@ class Simulation:
             pool[age].remove(character)
 
     def update_unmarried_pools(self, year):
-        for character in self.all_characters:
-            if character.alive and not character.married and character.can_marry:
-                age = character.age
-                # Ensure age is within the bounds of the marriageRates list
-                if age >= len(self.config['life_stages']['marriageRates'][character.sex]):
-                    continue  # Skip if age is beyond the configured rates
-                marriage_rate = self.config['life_stages']['marriageRates'][character.sex][age]
-                if marriage_rate > 0 and random.random() < marriage_rate:
-                    pool = self.unmarried_males if character.sex == 'Male' else self.unmarried_females
-                    if age not in pool:
-                        pool[age] = []
-                    if character not in pool[age]:
-                        pool[age].append(character)
+        for char in self.all_characters:
+            if not (char.alive and not char.married and char.can_marry):
+                continue
+
+            age  = char.age
+            tier = char.numenorean_blood_tier or 0
+
+            # 1) enforce absolute minimum (16 + 5×tier)
+            if age < self.marriage_min_age + tier*self.numenor_marriage_inc:
+                continue
+
+            # 2) compute “effective age” for your lookup
+            eff_age = age - tier*self.numenor_marriage_inc
+            eff_age = max(eff_age, 0)
+            max_idx = len(self.marriage_rates[char.sex]) - 1
+            eff_age = min(eff_age, max_idx)
+
+            rate = self.marriage_rates[char.sex][eff_age]
+            if rate > 0 and random.random() < rate:
+                pool = self.unmarried_males if char.sex=="Male" else self.unmarried_females
+                pool.setdefault(age, []).append(char)
 
     def get_extended_fertility_rate(self, char, sex):
         base = self.fer_f if sex == 'Female' else self.fer_m
         peak = self.peak_f if sex == 'Female' else self.peak_m
 
-        age   = char.age
-        tier  = char.numenorean_blood_tier or 0
+        age  = char.age
+        tier = char.numenorean_blood_tier or 0
         extra = 10 * tier
+        n     = len(base)
 
+        # 1) before 16 → just use the table if available
         if age < 16:
-            return base[age] if age < len(base) else 0.0
+            return base[age] if age < n else 0.0
+
+        # 2) plateau at peak for the extra‑years window
         if age <= 16 + extra:
             return peak
+
+        # 3) shift the lookup and clamp into [0..n-1]
         eff = age - extra
-        return base[eff] if eff < len(base) else 0.0
+        if eff < 0:
+            eff = 0
+        elif eff >= n:
+            eff = n - 1
+
+        rate = base[eff]
+
+        # 4) apply the –2.5% per tier penalty
+        penalty = max(0.0, 1.0 - tier * 0.025)
+        return rate * penalty
+
+    def max_age_diff_for(self, character):
+        """
+        Return the maximum allowed age difference for a given character,
+        as base + (blood tier × hard‑coded increment).
+        """
+        tier = character.numenorean_blood_tier or 0
+        return self.marriage_max_age_diff + tier * 5
 
     def desperation_marriage_check(self, character, year):
         """Check if an unmarried character is willing to marry a lowborn due to desperation."""
-        if character.age < len(self.desperation_rates):
-            desperation_chance = self.desperation_rates[character.age]
-        else:
-            desperation_chance = 0.0
+        age  = character.age
+        tier = character.numenorean_blood_tier or 0
+
+        # 1) never allow until age 16 + 5yrs per tier
+        min_age = 16 + tier * 5
+        if age < min_age:
+            return False
+
+        # 2) compute “effective age” for the desperationRates lookup
+        eff_age = age - tier * 5
+        eff_age = max(eff_age, 0)
+        last_idx = len(self.desperation_rates) - 1
+        eff_age = min(eff_age, last_idx)
+
+        # 3) pull the shifted rate
+        desperation_chance = self.desperation_rates[eff_age]
+        
         if random.random() < desperation_chance:
             # Generate a lowborn spouse
             dynasty_prefix = character.dynasty.split('_')[1] if character.dynasty and '_' in character.dynasty else "lowborn"
@@ -322,13 +370,17 @@ class Simulation:
         )
 
         # Assign Numenorean Blood
-        # inherit_params = self.config.get("numenorInheritance", {})
         inherit_params = (
             self.config
                 .get("initialization", {})
                 .get("numenorInheritance", {})
         )
-        Character.inherit_numenorean_blood(child, father, mother, inherit_params)
+        decline_table = (
+            self.config
+                .get("initialization", {})
+                .get("numenorDecline", {})
+        )
+        Character.inherit_numenorean_blood(child, father, mother, inherit_params, decline_table)
 
         # Set parents
         child.father = father if father.sex == 'Male' else mother
@@ -448,7 +500,10 @@ class Simulation:
                 if f.alive and not f.married and f.can_marry and 
                 (f.dynasty != male.dynasty or f.dynasty is None) and 
                 not self.are_siblings(male, f) and
-                abs(f.age - male.age) <= self.marriage_max_age_diff
+                abs(f.age - male.age) <= max(
+                    self.max_age_diff_for(male),
+                    self.max_age_diff_for(f)
+                )
             ]
             
             if available_females:
@@ -466,7 +521,10 @@ class Simulation:
                 if f.alive and not f.married and f.can_marry and 
                 (f.dynasty == male.dynasty) and 
                 not self.are_siblings(male, f) and
-                abs(f.age - male.age) <= self.marriage_max_age_diff
+                abs(f.age - male.age) <= max(
+                    self.max_age_diff_for(male),
+                    self.max_age_diff_for(f)
+                )
             ]
             
             if available_females:
@@ -626,7 +684,12 @@ class Simulation:
                 .get("initialization", {})
                 .get("numenorInheritance", {})
         )
-        Character.inherit_numenorean_blood(child, child.father, child.mother, inherit_params)
+        decline_table = (
+            self.config
+                .get("initialization", {})
+                .get("numenorDecline", {})
+        )
+        Character.inherit_numenorean_blood(child, child.father, child.mother, inherit_params, decline_table)
 
         # Assign the 'bastard' trait
         child.add_trait('bastard')
@@ -731,7 +794,7 @@ class Simulation:
                         self.remove_from_unmarried_pools(character)
                         if character.negativeEventDeathReason != None:
                             death_cause = character.negativeEventDeathReason
-                        elif character.age > 65:
+                        elif character.age > (65+(20*(character.numenorean_blood_tier or 0))):
                             death_cause = "death_natural_causes"
                         elif character.age < 18:
                             death_cause = "death_ill"
@@ -745,8 +808,7 @@ class Simulation:
                                 "death_murder", 
                                 "death_natural_causes", 
                                 "death_drinking_passive", 
-                                "death_dungeon_passive", 
-                                "death_giant"
+                                "death_dungeon_passive"
                             ])
                         else:
                             death_cause = random.choice([
@@ -763,80 +825,80 @@ class Simulation:
             # 7. Update Unmarried Pools
             self.update_unmarried_pools(year)
 
-        for character in self.all_characters:
-            if character.alive:
-                character.age = year - character.birth_year
-                if character.age < 0:
-                    character.age = 0
-            # **Clear unmarried pools after updating ages**
-            self.unmarried_males.clear()
-            self.unmarried_females.clear()
+        # for character in self.all_characters:
+        #     if character.alive:
+        #         character.age = year - character.birth_year
+        #         if character.age < 0:
+        #             character.age = 0
+        #     # **Clear unmarried pools after updating ages**
+        #     self.unmarried_males.clear()
+        #     self.unmarried_females.clear()
 
-            # 2. Handle Marriages
-            # First, update unmarried pools based on marriage rates
-            self.update_unmarried_pools(year)
+        #     # 2. Handle Marriages
+        #     # First, update unmarried pools based on marriage rates
+        #     self.update_unmarried_pools(year)
 
-            # Extract all unmarried males and females
-            all_unmarried_males = []
-            for age, males in self.unmarried_males.items():
-                all_unmarried_males.extend(males)
-            all_unmarried_females = []
-            for age, females in self.unmarried_females.items():
-                all_unmarried_females.extend(females)
+        #     # Extract all unmarried males and females
+        #     all_unmarried_males = []
+        #     for age, males in self.unmarried_males.items():
+        #         all_unmarried_males.extend(males)
+        #     all_unmarried_females = []
+        #     for age, females in self.unmarried_females.items():
+        #         all_unmarried_females.extend(females)
 
-            # Proceed to match marriages
-            if all_unmarried_males and all_unmarried_females:
-                self.match_marriages(all_unmarried_males, all_unmarried_females, year)
+        #     # Proceed to match marriages
+        #     if all_unmarried_males and all_unmarried_females:
+        #         self.match_marriages(all_unmarried_males, all_unmarried_females, year)
 
-            # 5. Assign Skills, Education, and Traits at Age 16
-            for character in self.all_characters:
-                if character.alive and character.age == 16:
-                    character.assign_skills(self.config['skills_and_traits']['skillProbabilities'])
-                    character.assign_education(self.config['skills_and_traits']['educationProbabilities'])
-                    character.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
+        #     # 5. Assign Skills, Education, and Traits at Age 16
+        #     for character in self.all_characters:
+        #         if character.alive and character.age == 16:
+        #             character.assign_skills(self.config['skills_and_traits']['skillProbabilities'])
+        #             character.assign_education(self.config['skills_and_traits']['educationProbabilities'])
+        #             character.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
                     
-            # 6. Check for Deaths
-            for character in self.all_characters:
-                if character.alive:
-                    if self.character_death_check(character):
-                        character.alive = False
-                        character.death_year = year
-                        death_date = generate_random_date(year)
-                        character.death_year, character.death_month, character.death_day = map(int, death_date.split('.'))
-                        self.remove_from_unmarried_pools(character)
-                        if character.negativeEventDeathReason != None:
-                            death_cause = character.negativeEventDeathReason
-                        elif character.age > 65:
-                            death_cause = "death_natural_causes"
-                        elif character.age < 18:
-                            death_cause = "death_ill"
-                        elif character.sex == "Male":
-                            death_cause = random.choice([
-                                "death_ill",
-                                "death_cancer",
-                                "death_battle",
-                                "death_attacked",
-                                "death_accident", 
-                                "death_murder", 
-                                "death_natural_causes", 
-                                "death_drinking_passive", 
-                                "death_dungeon_passive", 
-                                "death_giant"
-                            ])
-                        else:
-                            death_cause = random.choice([
-                                "death_ill",
-                                "death_cancer",
-                                "death_accident", 
-                                "death_murder"
-                            ])							
-                        character.add_event(death_date, f"death = {{ death_reason = {death_cause} }}")
-                        if character.married and character.spouse.alive:
-                            character.spouse.married = False
-                            character.spouse.married = None
+        #     # 6. Check for Deaths
+        #     for character in self.all_characters:
+        #         if character.alive:
+        #             if self.character_death_check(character):
+        #                 character.alive = False
+        #                 character.death_year = year
+        #                 death_date = generate_random_date(year)
+        #                 character.death_year, character.death_month, character.death_day = map(int, death_date.split('.'))
+        #                 self.remove_from_unmarried_pools(character)
+        #                 if character.negativeEventDeathReason != None:
+        #                     death_cause = character.negativeEventDeathReason
+        #                 elif character.age > 65:
+        #                     death_cause = "death_natural_causes"
+        #                 elif character.age < 18:
+        #                     death_cause = "death_ill"
+        #                 elif character.sex == "Male":
+        #                     death_cause = random.choice([
+        #                         "death_ill",
+        #                         "death_cancer",
+        #                         "death_battle",
+        #                         "death_attacked",
+        #                         "death_accident", 
+        #                         "death_murder", 
+        #                         "death_natural_causes", 
+        #                         "death_drinking_passive", 
+        #                         "death_dungeon_passive", 
+        #                         "death_giant"
+        #                     ])
+        #                 else:
+        #                     death_cause = random.choice([
+        #                         "death_ill",
+        #                         "death_cancer",
+        #                         "death_accident", 
+        #                         "death_murder"
+        #                     ])							
+        #                 character.add_event(death_date, f"death = {{ death_reason = {death_cause} }}")
+        #                 if character.married and character.spouse.alive:
+        #                     character.spouse.married = False
+        #                     character.spouse.married = None
 
-            # 7. Update Unmarried Pools
-            self.update_unmarried_pools(year)
+        #     # 7. Update Unmarried Pools
+        #     self.update_unmarried_pools(year)
 
     def export_characters(self, output_filename="family_history.txt"):
         # Set output folder and ensure it exists

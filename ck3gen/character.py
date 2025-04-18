@@ -326,7 +326,7 @@ class Character:
         return mult
     
     @staticmethod
-    def inherit_numenorean_blood(child: "Character", father: "Character", mother: "Character", params: dict) -> None:
+    def inherit_numenorean_blood(child: "Character", father: "Character", mother: "Character", params: dict, decline_table) -> None:
         
         """
         Decide child.numenorean_blood_tier based on parents & configured chances:
@@ -361,8 +361,27 @@ class Character:
         if random.random() < chance:
             child.numenorean_blood_tier = high
         else:
-            # ensure we never go below tier 1
-            child.numenorean_blood_tier = max(high - drop, 1)
+            # ensure we never go below tier 0
+            child.numenorean_blood_tier = max(high - drop, 0)
+        
+        raw = child.numenorean_blood_tier
+
+        # Now clamp by decline_table:
+        #   find the highest allowed tier for this birth_year
+        allowed = raw
+        by_year = child.birth_year
+
+        # Iterate decline thresholds in ascending tier order:
+        for tier_str, cutoff in sorted(decline_table.items(), key=lambda kv: int(kv[0])):
+            tier_i = int(tier_str)
+            if raw >= tier_i and by_year > cutoff:
+                # if the child *would* be tier_i or above but was born too late,
+                # drop to tier_i - 1
+                allowed = min(allowed, tier_i - 1)
+
+        child.numenorean_blood_tier = max(allowed, 0)
+
+
 			
     def add_trait(self, trait):
         """Adds a trait to the character."""

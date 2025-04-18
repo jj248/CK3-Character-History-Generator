@@ -10,7 +10,7 @@
             "cultureID": "clyan",
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6022,
-            "numenorBloodTier": 7,
+            "numenorBloodTier": 9,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
@@ -32,7 +32,6 @@
             "cultureID": "clyan",
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6024,
-            "numenorBloodTier": 7,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
@@ -49,7 +48,6 @@
             "cultureID": "clyan",
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6050,
-            "numenorBloodTier": 7,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
@@ -66,7 +64,6 @@
             "cultureID": "clyan",
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6054,
-            "numenorBloodTier": 7,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
@@ -83,7 +80,6 @@
             "cultureID": "clyan",
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6020,
-            "numenorBloodTier": 7,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
@@ -100,7 +96,6 @@
             "cultureID": "clyan",
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6048,
-            "numenorBloodTier": 7,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
@@ -117,7 +112,6 @@
             "cultureID": "clyan",
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6028,
-            "numenorBloodTier": 7,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
@@ -134,7 +128,6 @@
             "cultureID": "clyan",
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6044,
-            "numenorBloodTier": 7,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
@@ -492,5 +485,17 @@
       "sameTierChance": 0.8,
       "closeTierChance": 0.5,
       "farTierChance":   0.25
+    },
+    "numenorDecline": {
+      "10": 4533,
+      "9": 4833,
+      "8": 5233,
+      "7": 5633,
+      "6": 5933,
+      "5": 6133,
+      "4": 6433,
+      "3": 6733,
+      "2": 7033,
+      "1": 7454
     }
 }
