@@ -46,6 +46,7 @@ def main():
         gender_law = dynasty_config['gender_law']
         is_house = dynasty_config['isHouse']
         progenitor_birth_year = dynasty_config['progenitorMaleBirthYear']
+        tier = dynasty_config.get('numenorBloodTier', 0)
         dynasty_prefix = dynasty_id.split('_')[1] if '_' in dynasty_id else dynasty_id
 
         if gender_law == "ENATIC" or gender_law == "ENATIC_COGNATIC":
@@ -68,6 +69,7 @@ def main():
                 birth_order=1
             )
             progenitor_male.age = 18
+            progenitor_male.numenorean_blood_tier = tier
             simulation.add_character_to_pool(progenitor_male)
             simulation.all_characters.append(progenitor_male)
 
@@ -90,6 +92,7 @@ def main():
                 is_progenitor=True,
                 birth_order=1
             )
+            progenitor_female.numenorean_blood_tier = tier
             simulation.add_character_to_pool(progenitor_female)
             simulation.all_characters.append(progenitor_female)
 
@@ -124,6 +127,7 @@ def main():
                 birth_order=1
             )
             progenitor_male.age = 18
+            progenitor_male.numenorean_blood_tier = tier
             simulation.add_character_to_pool(progenitor_male)
             simulation.all_characters.append(progenitor_male)
 
@@ -146,6 +150,7 @@ def main():
                 is_progenitor=True,
                 birth_order=1
             )
+            progenitor_female.numenorean_blood_tier = tier
             simulation.add_character_to_pool(progenitor_female)
             simulation.all_characters.append(progenitor_female)
 

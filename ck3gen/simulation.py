@@ -57,6 +57,21 @@ class Simulation:
                     if character not in pool[age]:
                         pool[age].append(character)
 
+    def get_extended_fertility_rate(self, char, sex):
+        base = self.fer_f if sex == 'Female' else self.fer_m
+        peak = self.peak_f if sex == 'Female' else self.peak_m
+
+        age   = char.age
+        tier  = char.numenorean_blood_tier or 0
+        extra = 10 * tier
+
+        if age < 16:
+            return base[age] if age < len(base) else 0.0
+        if age <= 16 + extra:
+            return peak
+        eff = age - extra
+        return base[eff] if eff < len(base) else 0.0
+
     def desperation_marriage_check(self, character, year):
         """Check if an unmarried character is willing to marry a lowborn due to desperation."""
         if character.age < len(self.desperation_rates):
@@ -95,6 +110,12 @@ class Simulation:
 
     def character_death_check(self, character):
         age = character.age
+        # effective age for mortality = real age minus 20yrs per blood tier
+        tier = character.numenorean_blood_tier or 0
+        age = character.age - 20 * tier
+        if age < 0:
+            age = 0
+
         sex = character.sex
         birth_year = character.birth_year  # Assuming character has a birth year attribute
         mortality_event_multipler = 1
@@ -300,6 +321,15 @@ class Simulation:
             fertilityModifier = fertilityModifier
         )
 
+        # Assign Numenorean Blood
+        # inherit_params = self.config.get("numenorInheritance", {})
+        inherit_params = (
+            self.config
+                .get("initialization", {})
+                .get("numenorInheritance", {})
+        )
+        Character.inherit_numenorean_blood(child, father, mother, inherit_params)
+
         # Set parents
         child.father = father if father.sex == 'Male' else mother
         child.mother = mother if mother.sex == 'Female' else father
@@ -458,11 +488,11 @@ class Simulation:
             if character.sex == "Female":
                 # Check if fertility rate is non-zero
                 female_age = character.age
-                if female_age >= len(fertility_rates['Female']):
-                    fertility_rate = 0.0
-                else:
-                    fertility_rate = fertility_rates['Female'][female_age]*character.fertility_mult()
-
+                fertility_rate = (
+                    self.get_extended_fertility_rate(character, 'Female')
+                    * character.fertility_mult()
+                )
+                
                 if fertility_rate == 0.0:
                     continue  # Not fertile
 
@@ -589,6 +619,15 @@ class Simulation:
             child.father = None
             parent.children.append(child)
 
+        # Assign Numenorean Blood
+        # inherit_params = self.config.get("numenorInheritance", {})
+        inherit_params = (
+            self.config
+                .get("initialization", {})
+                .get("numenorInheritance", {})
+        )
+        Character.inherit_numenorean_blood(child, child.father, child.mother, inherit_params)
+
         # Assign the 'bastard' trait
         child.add_trait('bastard')
 
@@ -607,6 +646,13 @@ class Simulation:
         bastardy_chance_male = life_stages['bastardyChanceMale']
         bastardy_chance_female = life_stages['bastardyChanceFemale']
         maximum_children = life_stages['maximumNumberOfChildren']
+        fer_f = life_stages['fertilityRates']['Female']
+        fer_m = life_stages['fertilityRates']['Male']
+        # Precompute once:
+        self.peak_f  = max(fer_f[16:]) if len(fer_f) > 16 else 0.0
+        self.peak_m  = max(fer_m[16:]) if len(fer_m) > 16 else 0.0
+        self.fer_f   = fer_f
+        self.fer_m   = fer_m
 
         for year in range(self.config['initialization']['minYear'], self.config['initialization']['maxYear'] + 1):
             # 1. Update Characters' Ages
@@ -644,14 +690,16 @@ class Simulation:
                         continue
 
                     # Use fertilityRates to determine if a child is produced
-                    female_age = character.age
-                    male_age = character.spouse.age
-                    fertility_rate = fertility_rates['Female'][female_age]*character.fertility_mult()
-                    fertility_rate_m = fertility_rates['Male'][male_age]*character.spouse.fertility_mult()
-                    fertility_rate_m_modified = fertility_rates['Male'][male_age]*character.spouse.fertilityModifier*character.spouse.fertility_mult()
-                    # if character.spouse.dynasty == "dynasty_adarfiruzen":
+                    fertility_rate = (
+                        self.get_extended_fertility_rate(character, 'Female')
+                        * character.fertility_mult()
+                    )
+                    fertility_rate_m = (
+                        self.get_extended_fertility_rate(character.spouse, 'Male')
+                        * character.spouse.fertility_mult()
+                    )
                     #     print(f"Male Fertility: {fertility_rate_m} | Male Fertility Modifier: {character.spouse.fertilityModifier} | Male Fertility Modified: {fertility_rate_m_modified} | Character: {character.spouse.char_id}")
-                    total_fertility = fertility_rate * fertility_rate_m_modified
+                    total_fertility = fertility_rate * fertility_rate_m
                     if random.random() < total_fertility:
                         # print(f"Father Age: {male_age} "
                         # f"Father Fertility: {fertility_rate_m} "
@@ -789,7 +837,6 @@ class Simulation:
 
             # 7. Update Unmarried Pools
             self.update_unmarried_pools(year)
-
 
     def export_characters(self, output_filename="family_history.txt"):
         # Set output folder and ensure it exists

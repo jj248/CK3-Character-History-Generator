@@ -181,6 +181,10 @@ class FamilyTree:
                 # Format the label with proper line breaks
                 birth_date = char["birth_year"]
                 death_date = char["death_year"]
+                age_suffix = ""
+                if birth_date.isdigit() and death_date.isdigit():
+                    age = int(death_date) - int(birth_date)
+                    age_suffix = f" ({age})"
                 start_date = self.title_holders.get(char_id, {}).get("start_date", "N/A")
                 end_date = self.title_holders.get(char_id, {}).get("end_date", "N/A")
                 
@@ -195,7 +199,7 @@ class FamilyTree:
                 if start_year and start_year != "N/A" and end_year and end_year != "N/A":
                     ruled_label = f" Ruled: {start_year} - {end_year}"
 
-                label = f'< <b>{char["name"]}</b><br/>{char["id"]}<br/>{birth_date} - {death_date}<br/>{ruled_label} >'
+                label = f'< <b>{char["name"]}</b><br/>{char["id"]}<br/>{birth_date} - {death_date}{age_suffix}<br/>{ruled_label} >'
 
                 border_color = "blue"  # Default for males
                 if char.get("female") == "yes":
