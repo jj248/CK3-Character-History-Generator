@@ -10,6 +10,7 @@
             "cultureID": "clyan",
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6022,
+            "numenorBloodTier": 9,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
@@ -479,5 +480,22 @@
     "maxYear": 7033,
     "generationMax": 100,
     "treeGeneration": "TB",
-    "spouseVisible": "no"
+    "spouseVisible": "no",
+    "numenorInheritance": {
+      "sameTierChance": 0.8,
+      "closeTierChance": 0.5,
+      "farTierChance":   0.25
+    },
+    "numenorDecline": {
+      "10": 4283,
+      "9": 4933,
+      "8": 5233,
+      "7": 5683,
+      "6": 5783,
+      "5": 5933,
+      "4": 6133,
+      "3": 6433,
+      "2": 6883,
+      "1": 7233
+    }
 }

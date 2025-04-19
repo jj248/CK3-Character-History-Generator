@@ -100,6 +100,7 @@ class Character:
         self.mortality_risk = 0  # Initialize mortality risk
         self.negativeEventDeathReason=None
         self.fertilityModifier = fertilityModifier
+        self.numenorean_blood_tier: int | None = None
         
         # Set the birth order if provided, otherwise default to 1
         self.birth_order = birth_order
@@ -323,6 +324,64 @@ class Character:
         if "fecund" in self.congenital_traits.values():
             mult *= 2.0
         return mult
+    
+    @staticmethod
+    def inherit_numenorean_blood(child: "Character", father: "Character", mother: "Character", params: dict, decline_table) -> None:
+        
+        """
+        Decide child.numenorean_blood_tier based on parents & configured chances:
+          - sameTierChance  if tf == tm
+          - closeTierChance if 1 <= |tf-tm| <= 2
+          - farTierChance   if |tf-tm| > 2
+        On failure, drop by 1 tier (or 2 tiers, for the far case).
+        """
+
+        # handle None parents gracefully
+        tf = (father.numenorean_blood_tier if father and father.numenorean_blood_tier else 0)
+        tm = (mother.numenorean_blood_tier if mother and mother.numenorean_blood_tier else 0)
+
+
+        # no blood at all → nothing to do
+        if tf == 0 and tm == 0:
+            return
+
+        high, low = max(tf, tm), min(tf, tm)
+        diff = high - low
+
+        if diff == 0:
+            chance = params["sameTierChance"]
+            drop   = 1
+        elif diff <= 2:
+            chance = params["closeTierChance"]
+            drop   = 1
+        else:
+            chance = params["farTierChance"]
+            drop   = 2
+
+        if random.random() < chance:
+            child.numenorean_blood_tier = high
+        else:
+            # ensure we never go below tier 0
+            child.numenorean_blood_tier = max(high - drop, 0)
+        
+        raw = child.numenorean_blood_tier
+
+        # Now clamp by decline_table:
+        #   find the highest allowed tier for this birth_year
+        allowed = raw
+        by_year = child.birth_year
+
+        # Iterate decline thresholds in ascending tier order:
+        for tier_str, cutoff in sorted(decline_table.items(), key=lambda kv: int(kv[0])):
+            tier_i = int(tier_str)
+            if raw >= tier_i and by_year > cutoff:
+                # if the child *would* be tier_i or above but was born too late,
+                # drop to tier_i - 1
+                allowed = min(allowed, tier_i - 1)
+
+        child.numenorean_blood_tier = max(allowed, 0)
+
+
 			
     def add_trait(self, trait):
         """Adds a trait to the character."""
@@ -390,6 +449,11 @@ class Character:
                 lines.append(f"\ttrait = education_{self.education_skill}_{self.education_tier}")
         for trait in self.congenital_traits.values():
             lines.append(f"\ttrait = {trait}")
+        if getattr(self, "numenorean_blood_tier", None):
+            tier = self.numenorean_blood_tier
+            if 1 <= tier <= 10:
+                lines.append("")
+                lines.append(f"\ttrait = blood_of_numenor_{tier}")
 
         # Include events
         if self.events:

@@ -15,6 +15,11 @@ from ck3gen.config_loader import ConfigLoader
 
 
 class FamilyTree:
+    ROMAN = {
+        1: "I",  2: "II", 3: "III", 4: "IV",  5: "V",
+        6: "VI", 7: "VII",8: "VIII",9: "IX",  10: "X"
+    }
+    
     def __init__(self, character_file, title_file, config):
         self.characters = {}
         self.dynasties = defaultdict(list)  # Stores characters by dynasty
@@ -59,6 +64,10 @@ class FamilyTree:
             # Check for bastard trait
             is_bastard_match = re.search(r"\btrait\s*=\s*bastard\b", content, re.IGNORECASE)
             char_data["is_bastard"] = True if is_bastard_match else False  # Flag for bastard trait
+
+            # Check for blood of numenor trait
+            blood_match = re.search(r"\btrait\s*=\s*blood_of_numenor_(\d+)\b", content)
+            char_data["numenor_tier"] = int(blood_match.group(1)) if blood_match else None
 
             # Debugging output
             # print(f"Is Female: {is_female_match}, Is Bastard: {char_data['is_bastard']}")
@@ -181,12 +190,24 @@ class FamilyTree:
                 # Format the label with proper line breaks
                 birth_date = char["birth_year"]
                 death_date = char["death_year"]
+                age_suffix = ""
+                if birth_date.isdigit() and death_date.isdigit():
+                    age = int(death_date) - int(birth_date)
+                    age_suffix = f" ({age})"
                 start_date = self.title_holders.get(char_id, {}).get("start_date", "N/A")
                 end_date = self.title_holders.get(char_id, {}).get("end_date", "N/A")
                 
                 # Convert the start and end dates to in-game year format
                 start_year = convert_to_ingame_date(start_date.split('.')[0] if start_date != "N/A" else "N/A")
                 end_year = convert_to_ingame_date(end_date.split('.')[0] if end_date != "N/A" else "N/A")
+
+                # blood tier (blank if None)
+                tier = char.get("numenor_tier")
+                if tier:
+                    roman = self.ROMAN.get(tier, str(tier))
+                    blood_label = f" ({roman})"
+                else:
+                    blood_label = ""
 
                 # Build the label, only include "Ruled: start_year - end_year" if the character has ruled
                 ruled_label = ""
@@ -195,7 +216,7 @@ class FamilyTree:
                 if start_year and start_year != "N/A" and end_year and end_year != "N/A":
                     ruled_label = f" Ruled: {start_year} - {end_year}"
 
-                label = f'< <b>{char["name"]}</b><br/>{char["id"]}<br/>{birth_date} - {death_date}<br/>{ruled_label} >'
+                label = f'< <b>{char["name"]}</b><br/>{char["id"]}<br/>{birth_date} - {death_date}{age_suffix}{blood_label}<br/>{ruled_label} >'
 
                 border_color = "blue"  # Default for males
                 if char.get("female") == "yes":
