@@ -26,6 +26,15 @@ class Simulation:
         self.marriage_rates    = config['life_stages']['marriageRates']
         self.desperation_rates = config['life_stages']['desperationMarriageRates']
 
+        # Map each education skill to its two possible childhood traits
+        self.childhood_by_education = {
+            "diplomacy":    ["charming", "curious"],
+            "intrigue":     ["charming", "rowdy"],
+            "martial":      ["rowdy",   "bossy"],
+            "stewardship":  ["pensive", "bossy"],
+            "learning":     ["pensive", "curious"],
+        }
+
     def add_character_to_pool(self, character):
         """ Adjust fertility and mortality based on dynasty rules """
         mortality_penalty = character.apply_dynasty_mortality_penalty()
@@ -151,6 +160,23 @@ class Simulation:
             if spouse:
                 self.add_character_to_pool(spouse)
                 self.all_characters.append(spouse)
+                spouse.assign_skills(self.config['skills_and_traits']['skillProbabilities'])
+                spouse.assign_education(self.config['skills_and_traits']['educationProbabilities'])
+                spouse.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
+                # pick from the two that correspond to their education_skill
+                skill = spouse.education_skill or "diplomacy"
+                choices = self.childhood_by_education.get(skill, ["charming","curious"])
+                trait = random.choice(choices)
+                date = f"{spouse.birth_year+3}.{spouse.birth_month:02d}.{spouse.birth_day:02d}"
+                spouse.add_event(date, f"trait = {trait}")
+                # build the date (their real birthday)
+                date = f"{spouse.birth_year+16}.{spouse.birth_month:02d}.{spouse.birth_day:02d}"
+                # collect the three personality traits…
+                detail_lines = [f"trait = {t}" for t in spouse.personality_traits]
+                # join them into one block (each on its own line, indented by 4 spaces)
+                event_detail = "\n    ".join(detail_lines)
+                # emit a single event with all four lines
+                spouse.add_event(date, event_detail)
 
             spouse_dynasty = character.dynasty  # Noble's dynasty does not transfer
             self.marry_characters(character, spouse, year, children_dynasty=spouse_dynasty)
@@ -393,7 +419,6 @@ class Simulation:
         # Assign skills, education, and personality traits
         child.assign_skills(self.config['skills_and_traits']['skillProbabilities'])
         child.assign_education(self.config['skills_and_traits']['educationProbabilities'])
-        child.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
 
         # Evaluate congenital traits
         Character.inherit_congenital(child, father, mother)
@@ -697,7 +722,7 @@ class Simulation:
         # Assign skills, education, and personality traits
         child.assign_skills(self.config['skills_and_traits']['skillProbabilities'])
         child.assign_education(self.config['skills_and_traits']['educationProbabilities'])
-        child.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
+        # child.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
 
         return child
 
@@ -718,12 +743,47 @@ class Simulation:
         self.fer_m   = fer_m
 
         for year in range(self.config['initialization']['minYear'], self.config['initialization']['maxYear'] + 1):
+            # 0. Ensure we're not hanging on to old negative event death reasons
+            for character in self.all_characters:
+                character.negativeEventDeathReason = None
+            
             # 1. Update Characters' Ages
             for character in self.all_characters:
                 if character.alive:
                     character.age = year - character.birth_year
                     if character.age < 0:
                         character.age = 0
+
+            # Give under‑bookmark kids their single childhood trait at age 3
+            for character in self.all_characters:
+                if character.alive and character.age == 3:
+                    # pick from the two that correspond to their education_skill
+                    skill = character.education_skill or "diplomacy"
+                    choices = self.childhood_by_education.get(skill, ["charming","curious"])
+                    trait = random.choice(choices)
+                    # print(skill,choices,trait)
+                    date = f"{year}.{character.birth_month:02d}.{character.birth_day:02d}"
+                    character.add_event(date, f"trait = {trait}")
+
+            # At age 16, under‑bookmark kids get *one* multi‑trait event
+            for character in self.all_characters:
+                if not (character.alive and character.age == 16):
+                    continue
+
+                # first pick their three adult traits
+                character.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
+
+                # build the date (their real birthday)
+                date = f"{year}.{character.birth_month:02d}.{character.birth_day:02d}"
+
+                # collect the three personality traits…
+                detail_lines = [f"trait = {t}" for t in character.personality_traits]
+
+                # join them into one block (each on its own line, indented by 4 spaces)
+                event_detail = "\n    ".join(detail_lines)
+
+                # emit a single event with all four lines
+                character.add_event(date, event_detail)
 						
             # **Clear unmarried pools after updating ages**
             self.unmarried_males.clear()
@@ -777,11 +837,11 @@ class Simulation:
             self.handle_bastardy(year, bastardy_chance_male, bastardy_chance_female, fertility_rates)
 
             # 5. Assign Skills, Education, and Traits at Age 16
-            for character in self.all_characters:
-                if character.alive and character.age == 16:
-                    character.assign_skills(self.config['skills_and_traits']['skillProbabilities'])
-                    character.assign_education(self.config['skills_and_traits']['educationProbabilities'])
-                    character.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
+            # for character in self.all_characters:
+            #     if character.alive and character.age == 16:
+            #         character.assign_skills(self.config['skills_and_traits']['skillProbabilities'])
+            #         character.assign_education(self.config['skills_and_traits']['educationProbabilities'])
+            #         character.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
 
             # 6. Check for Deaths
             for character in self.all_characters:

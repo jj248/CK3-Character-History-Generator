@@ -73,11 +73,25 @@ class FamilyTree:
             # print(f"Is Female: {is_female_match}, Is Bastard: {char_data['is_bastard']}")
 
             # Extract birth and death years
-            birth_match = re.search(r"(\d{4})\.\d{2}\.\d{2}\s*=\s*\{\s*birth\s*=\s*yes", content)
-            death_match = re.search(r"(\d{4})\.\d{2}\.\d{2}\s*=\s*\{\s*death", content, re.DOTALL)
+            birth_match = re.search(
+                r"(\d{4})\.\d{2}\.\d{2}\s*=\s*\{\s*birth\s*=\s*yes",
+                content
+            )
+            char_data["birth_year"] = (
+                convert_to_ingame_date(birth_match.group(1))
+                if birth_match else ""
+            )
 
-            char_data["birth_year"] = convert_to_ingame_date(birth_match.group(1)) if birth_match else ""
-            char_data["death_year"] = convert_to_ingame_date(death_match.group(1)) if death_match else ""
+            char_data["death_year"] = ""
+            for m in re.finditer(
+                r"(\d{4})\.(\d{2})\.(\d{2})\s*=\s*\{([^}]*)\}",
+                content,
+                re.DOTALL
+            ):
+                y, inner = m.group(1), m.group(4)
+                if re.search(r"\bdeath\b", inner):
+                    char_data["death_year"] = convert_to_ingame_date(y)
+                    break
 
             # Store character data
             self.characters[identifier] = char_data
