@@ -119,7 +119,7 @@ def display_dynasty_config():
             numenor_blood = st.text_input("Numenor Blood Tier (optional)", help="Leave empty to omit", disabled=disabled)
             
             # Optional field: Languages list
-            language_input = st.text_area("Languages (optional)", help="Format: language_id,start,end\nOne per line.", disabled=disabled)
+            language_input = st.text_area("Languages (optional)", help="Languages that characters will learn in history.\n\nFormat: LANGUAGE_ID,START_YEAR,END_YEAR\n\nExample: language_sindarin, 6033,7033\n\nThe above example will give characters in this dynasty the sindarin language between the 6033 and 7033 dates.", disabled=disabled)
 
             submit = st.form_submit_button("Add Dynasty", disabled=disabled)
 
@@ -141,12 +141,13 @@ def display_dynasty_config():
                 }
             }
 
-            # Conditionally add numenorBloodTier
-            if numenor_blood.strip():
+            if int(numenor_blood.strip()) > 0 and int(numenor_blood.strip()) < 11:
                 try:
                     new_dynasty["numenorBloodTier"] = int(numenor_blood)
                 except ValueError:
-                    st.warning("Numenor Blood Tier must be an integer if set.")
+                    st.warning("Numenor Blood Tier must be an integer if set and must be between (exclusive) 0 - 10 (inclusive).")
+            else:
+                dynasty.pop("numenorBloodTier", None)  # Remove if 0 or not set
 
             # Parse and add languages
             if language_input.strip():
@@ -191,7 +192,59 @@ def display_dynasty_config():
             dynasty['cultureID'] = st.text_input(help="The culture ID that will be used when defining the dynasty and generating the characters",label="Culture ID", value=dynasty["cultureID"], key=f"culture_{i}", disabled=disabled)
             dynasty["gender_law"] = st.selectbox(help="The gender law which is applied to this dynasty.\n\nAGNATIC == Male Only\n\nAGNATIC_COGNATIC == Male Preference\n\nABSOLUTE_COGNATIC == Equal\n\nENATIC_COGNATIC == Female Preference\n\nENATIC == Female Only",label="Gender Law", options=gender_options, index=gender_options.index(current_gender_law), key=f"gender_{i}", disabled=disabled)
             dynasty['progenitorMaleBirthYear'] = st.number_input(help="The birth year of the first character of this dynasty, essentially denoting when the dynasty starts",label="Progenitor Birth Year", value=dynasty["progenitorMaleBirthYear"], step=1, key=f"birth_year_{i}", disabled=disabled)
-            
+            if "numenorBloodTier" in dynasty:
+                dynasty["numenorBloodTier"] = st.number_input(help="The numenorean blood tier of this dyansties progenitor",label="Numenor Blood Tier", value=dynasty["numenorBloodTier"], step=1, key=f"numenor_blood_tier_{i}", disabled=disabled)
+            # --- Languages Editing Section ---
+            st.markdown("**Languages**")
+
+            # Ensure a stable key prefix per dynasty
+            lang_key_prefix = f"lang_{i}_"
+
+            # Initialize language list if not present in both config and session state
+            if "languages" not in dynasty:
+                dynasty["languages"] = []
+
+            session_key = f"{lang_key_prefix}list"
+            if session_key not in st.session_state:
+                st.session_state[session_key] = dynasty["languages"]
+
+            # Store edited languages
+            edited_languages = []
+
+            for lang_index, lang_entry in enumerate(st.session_state[session_key]):
+                try:
+                    lang_id, start, end = lang_entry.split(",")
+                    start = int(start)
+                    end = int(end)
+                except ValueError:
+                    lang_id, start, end = "", 0, 0
+
+                lang_cols = st.columns([4, 2, 2, 1])
+                with lang_cols[0]:
+                    new_id = st.text_input("Language", value=lang_id, key=f"{lang_key_prefix}id_{lang_index}", disabled=disabled)
+                with lang_cols[1]:
+                    new_start = st.number_input("Start", value=start, key=f"{lang_key_prefix}start_{lang_index}", step=1, disabled=disabled)
+                with lang_cols[2]:
+                    new_end = st.number_input("End", value=end, key=f"{lang_key_prefix}end_{lang_index}", step=1, disabled=disabled)
+                with lang_cols[3]:
+                    if st.button("❌", key=f"{lang_key_prefix}delete_{lang_index}", help="Remove this language", disabled=disabled):
+                        st.session_state[session_key].pop(lang_index)
+                        st.rerun()
+
+                if new_id:
+                    edited_languages.append(f"{new_id},{int(new_start)},{int(new_end)}")
+
+            # Add new language entry
+            if st.button("➕ Add Language", key=f"{lang_key_prefix}add", disabled=disabled):
+                st.session_state[session_key].append("new_lang,0,0")
+                st.rerun()
+
+            # Save the edited list back to dynasty config
+            if edited_languages:
+                dynasty["languages"] = edited_languages
+            elif "languages" in dynasty:
+                del dynasty["languages"]
+
             updated = True
 
     # Save updated values
