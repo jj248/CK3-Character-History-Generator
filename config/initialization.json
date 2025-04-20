@@ -482,20 +482,20 @@
     "treeGeneration": "TB",
     "spouseVisible": "no",
     "numenorInheritance": {
-      "sameTierChance": 0.8,
-      "closeTierChance": 0.5,
-      "farTierChance":   0.25
+        "sameTierChance": 0.8,
+        "closeTierChance": 0.5,
+        "farTierChance": 0.25
     },
     "numenorDecline": {
-      "10": 4283,
-      "9": 4933,
-      "8": 5233,
-      "7": 5683,
-      "6": 5783,
-      "5": 5933,
-      "4": 6133,
-      "3": 6433,
-      "2": 6883,
-      "1": 7233
+        "10": 4283,
+        "9": 4933,
+        "8": 5233,
+        "7": 5683,
+        "6": 5783,
+        "5": 5933,
+        "4": 6133,
+        "3": 6433,
+        "2": 6883,
+        "1": 7233
     }
 }

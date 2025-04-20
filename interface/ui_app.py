@@ -105,16 +105,23 @@ def display_dynasty_config():
     
     with st.expander("➕ Add New Dynasty"):
         with st.form(key="add_dynasty_form"):
-            new_name = st.text_input(help="The localization that will be displayed in-game for the dynasty name",label="Dynasty Name", disabled=disabled)
-            new_motto = st.text_input(help="The localization that will be displayed in-game for the dynasty motto",label="Motto", disabled=disabled)
-            new_succession = st.selectbox(help="The succession law which is used to determine who will be the next ruler, with the possible rulers determined by the \"Gender Law\"", label="Succession", options=["PRIMOGENITURE", "ULTIMOGENITURE", "SENIORITY"], disabled=disabled)
-            new_id = st.text_input(help="The dynsaty ID that will be defined in script",label="Dynasty ID", disabled=disabled)
-            new_house = st.checkbox(help="Whether this dynasty is a cadet branch of an existing dynasty in the history files",label="Is House?", value=False, disabled=disabled)
-            new_faith = st.text_input(help="The religion ID that will be used when defining the dynasty and generating the characters",label="Faith ID", disabled=disabled)
-            new_culture = st.text_input(help="The culture ID that will be used when defining the dynasty and generating the characters",label="Culture ID", disabled=disabled)
-            new_gender_law = st.selectbox(help="The gender law which is applied to this dynasty.\nAGNATIC == Male Only\nAGNATIC_COGNATIC == Male Preference\nABSOLUTE_COGNATIC == Equal\nENATIC_COGNATIC == Female Preference\nENATIC == Female Only",label="Gender Law", options=["AGNATIC", "AGNATIC_COGNATIC", "ABSOLUTE_COGNATIC", "ENATIC", "ENATIC_COGNATIC"], disabled=disabled)
-            new_year = st.number_input(help="The birth year of the first character of this dynasty, essentially denoting when the dynasty starts",label="Progenitor Birth Year", value=6000, step=1, disabled=disabled)
-            submit = st.form_submit_button(label="Add Dynasty", disabled=disabled)
+            new_name = st.text_input("Dynasty Name", help="In-game localization", disabled=disabled)
+            new_motto = st.text_input("Motto", help="In-game motto localization", disabled=disabled)
+            new_succession = st.selectbox("Succession", options=succession_options, disabled=disabled)
+            new_id = st.text_input("Dynasty ID", help="Script ID", disabled=disabled)
+            new_house = st.checkbox("Is House?", value=False, disabled=disabled)
+            new_faith = st.text_input("Faith ID", disabled=disabled)
+            new_culture = st.text_input("Culture ID", disabled=disabled)
+            new_gender_law = st.selectbox("Gender Law", options=gender_options, disabled=disabled)
+            new_year = st.number_input("Progenitor Birth Year", value=6000, step=1, disabled=disabled)
+            
+            # Optional field: Numenor Blood Tier
+            numenor_blood = st.text_input("Numenor Blood Tier (optional)", help="Leave empty to omit", disabled=disabled)
+            
+            # Optional field: Languages list
+            language_input = st.text_area("Languages (optional)", help="Format: language_id,start,end\nOne per line.", disabled=disabled)
+
+            submit = st.form_submit_button("Add Dynasty", disabled=disabled)
 
         if submit:
             new_dynasty = {
@@ -133,8 +140,29 @@ def display_dynasty_config():
                     "noNameInheritanceChance": 0.9
                 }
             }
+
+            # Conditionally add numenorBloodTier
+            if numenor_blood.strip():
+                try:
+                    new_dynasty["numenorBloodTier"] = int(numenor_blood)
+                except ValueError:
+                    st.warning("Numenor Blood Tier must be an integer if set.")
+
+            # Parse and add languages
+            if language_input.strip():
+                lines = language_input.strip().splitlines()
+                parsed_languages = []
+                for line in lines:
+                    parts = [x.strip() for x in line.split(",")]
+                    if len(parts) == 3:
+                        parsed_languages.append(f"{parts[0]},{parts[1]},{parts[2]}")
+                    else:
+                        st.warning(f"Invalid language entry: {line}")
+                if parsed_languages:
+                    new_dynasty["languages"] = parsed_languages
+
             config['dynasties'].append(new_dynasty)
-            save_config(config, "config/initialization.json")  # Your save function
+            save_config(config, "config/initialization.json")
             st.rerun()
 
     config['dynasties'].sort(key=lambda d: d['dynastyID'].lower())
