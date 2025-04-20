@@ -87,15 +87,18 @@ class CharacterLoader:
             is_bastard = bool(re.search(r"trait\s*=\s*bastard", content))
 
             birth_match = re.search(r"(\d{4})\.(\d{2})\.(\d{2})\s*=\s*\{\s*birth\s*=\s*yes", content)
-            death_match = re.search(r"(\d{4})\.(\d{2})\.(\d{2})\s*=\s*\{\s*death", content)
+            death_year = death_month = death_day = None
+            for m in re.finditer(r"(\d{4})\.(\d{2})\.(\d{2})\s*=\s*\{([^}]*)\}", content, re.DOTALL):
+                y, mo, d, inner = m.group(1), m.group(2), m.group(3), m.group(4)
+                if re.search(r"\bdeath\b", inner):
+                    death_year  = int(y)
+                    death_month = int(mo)
+                    death_day   = int(d)
+                    break
 
             birth_year = int(birth_match.group(1)) if birth_match else None
             birth_month = int(birth_match.group(2)) if birth_match else None
             birth_day = int(birth_match.group(3)) if birth_match else None
-
-            death_year = int(death_match.group(1)) if death_match else None
-            death_month = int(death_match.group(2)) if death_match else None
-            death_day = int(death_match.group(3)) if death_match else None
 
             # Create a Character object
             character = Character(

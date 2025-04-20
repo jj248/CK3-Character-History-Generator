@@ -380,8 +380,6 @@ class Character:
                 allowed = min(allowed, tier_i - 1)
 
         child.numenorean_blood_tier = max(allowed, 0)
-
-
 			
     def add_trait(self, trait):
         """Adds a trait to the character."""
@@ -437,11 +435,11 @@ class Character:
             for trait in self.traits:
                 lines.append(f"\ttrait = {trait}")
         
-        # Include personality traits and education
-        if self.personality_traits or self.education_tier is not None or self.congenital_traits:
+        # Include congenital traits and education
+        if self.education_tier is not None or self.congenital_traits:
             lines.append("")
-        for trait in self.personality_traits:
-            lines.append(f"\ttrait = {trait}")
+        # for trait in self.personality_traits:
+        #     lines.append(f"\ttrait = {trait}")
         if self.education_tier is not None and self.education_skill is not None:
             if self.education_skill == "prowess":
                 lines.append(f"\ttrait = education_martial_{self.education_tier}")
@@ -452,7 +450,7 @@ class Character:
         if getattr(self, "numenorean_blood_tier", None):
             tier = self.numenorean_blood_tier
             if 1 <= tier <= 10:
-                lines.append("")
+                # lines.append("")
                 lines.append(f"\ttrait = blood_of_numenor_{tier}")
 
         # Include events
@@ -498,14 +496,18 @@ class Character:
                         event_desc = f"# Married at age {age}"
                     elif event_detail.startswith("add_matrilineal_spouse"):
                         event_desc = f"# Married at age {age}"
-                    elif event_detail.startswith("death"):
+                    elif event_detail.startswith("trait"):
                         event_desc = f""
+                    elif event_detail.startswith("death"):
+                        event_desc = f"# Died at age {age}"
                     else:
                         event_desc = f"# Event at age {age}"
 
                     # Add event with description
                     lines.append(f"\t{event_date} = {{  {event_desc}")
-                    lines.append(f"\t    {event_detail}")
+                    for detail_line in event_detail.strip().splitlines():
+                        # strip away any existing tabs/spaces, then re‑indent exactly one tab + four spaces
+                        lines.append(f"\t    {detail_line.strip()}")
                     lines.append(f"\t}}")
 
         lines.append(f"}}\n")
