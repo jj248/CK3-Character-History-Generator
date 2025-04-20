@@ -416,13 +416,26 @@ def display_life_stage_config():
 def display_desperation_marriage_rates(config):
     st.subheader("Desperation Marriage Rates")
     desperationMarriageRates = config['desperationMarriageRates']
+
+    # Slider for adjusting mortality rates
+    Multiplier = st.slider(
+        "Adjust Desperation Marriage Rate Multiplier",
+        min_value=0.0,
+        max_value=2.0,
+        value=1.0,
+        step=0.01
+    )
     
     # Age range for the data
     ages = list(range(len(desperationMarriageRates)))
 
+    # Apply multiplier
+    adjustedRates = [rate * Multiplier for rate in desperationMarriageRates]
+
+
     # Plot desperation marriage rates
     plt.figure(figsize=(12, 6))
-    plt.plot(ages, desperationMarriageRates, label='Desperation Marriage Rate', color='red')
+    plt.plot(ages, adjustedRates, label='Desperation Marriage Rate', color='red')
     plt.ylim(0.0, 1.0)
     plt.xlabel('Age')
     plt.ylabel('Rate')
