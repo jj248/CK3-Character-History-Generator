@@ -1,3 +1,5 @@
 Dynasty Preview/
 __pycache__/
 Character and Title files/
+dist/
+build/
