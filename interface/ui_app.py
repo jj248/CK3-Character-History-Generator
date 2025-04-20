@@ -192,8 +192,39 @@ def display_dynasty_config():
             dynasty['cultureID'] = st.text_input(help="The culture ID that will be used when defining the dynasty and generating the characters",label="Culture ID", value=dynasty["cultureID"], key=f"culture_{i}", disabled=disabled)
             dynasty["gender_law"] = st.selectbox(help="The gender law which is applied to this dynasty.\n\nAGNATIC == Male Only\n\nAGNATIC_COGNATIC == Male Preference\n\nABSOLUTE_COGNATIC == Equal\n\nENATIC_COGNATIC == Female Preference\n\nENATIC == Female Only",label="Gender Law", options=gender_options, index=gender_options.index(current_gender_law), key=f"gender_{i}", disabled=disabled)
             dynasty['progenitorMaleBirthYear'] = st.number_input(help="The birth year of the first character of this dynasty, essentially denoting when the dynasty starts",label="Progenitor Birth Year", value=dynasty["progenitorMaleBirthYear"], step=1, key=f"birth_year_{i}", disabled=disabled)
-            if "numenorBloodTier" in dynasty:
-                dynasty["numenorBloodTier"] = st.number_input(help="The numenorean blood tier of this dyansties progenitor",label="Numenor Blood Tier", value=dynasty["numenorBloodTier"], step=1, key=f"numenor_blood_tier_{i}", disabled=disabled)
+            # --- Numenor Blood Tier Editing ---
+            st.markdown("**Numenor Blood Tier**")
+
+            # If the field doesn't exist, show a way to add it
+            if "numenorBloodTier" not in dynasty:
+                add_key = f"add_blood_tier_{i}_clicked"
+                if st.button("➕ Add Numenor Blood Tier", key=f"add_blood_tier_{i}", disabled=disabled):
+                    st.session_state[add_key] = True
+                    dynasty["numenorBloodTier"] = 1  # Default value
+
+                # Show the slider if it's in the config or the session state tracked the button press
+                if "numenorBloodTier" in dynasty or st.session_state.get(add_key, False):
+                    tier = dynasty.get("numenorBloodTier", 1)
+                    new_tier = st.slider(
+                        help="The numenorean blood tier of this dynasty's progenitor",
+                        label="Numenor Blood Tier",
+                        min_value=1, max_value=10,
+                        value=int(tier),
+                        key=f"blood_tier_{i}",
+                        disabled=disabled
+                    )
+                    dynasty["numenorBloodTier"] = new_tier
+                    if st.button("❌ Remove Blood Tier", key=f"remove_blood_tier_{i}", disabled=disabled):
+                        dynasty.pop("numenorBloodTier", None)
+                        st.session_state.pop(add_key, None)
+            else:
+                tier = dynasty.get("numenorBloodTier", 0)
+                new_tier = st.slider(help="The numenorean blood tier of this dyansties progenitor", label="Numenor Blood Tier", min_value=1, max_value=10, value=int(tier), key=f"blood_tier_{i}", disabled=disabled)
+                dynasty["numenorBloodTier"] = new_tier
+                if st.button("❌ Remove Blood Tier", key=f"remove_blood_tier_{i}", disabled=disabled):
+                    del dynasty["numenorBloodTier"]
+                    st.rerun()
+            
             # --- Languages Editing Section ---
             st.markdown("**Languages**")
 
