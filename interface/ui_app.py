@@ -225,6 +225,7 @@ def display_dynasty_config():
                     if st.button("❌ Remove Blood Tier", key=f"remove_blood_tier_{i}", disabled=disabled):
                         dynasty.pop("numenorBloodTier", None)
                         st.session_state.pop(add_key, None)
+                        save_config(config, "config/initialization.json")
                         st.rerun()
             else:
                 tier = dynasty.get("numenorBloodTier", 0)
@@ -232,6 +233,7 @@ def display_dynasty_config():
                 dynasty["numenorBloodTier"] = new_tier
                 if st.button("❌ Remove Blood Tier", key=f"remove_blood_tier_{i}", disabled=disabled):
                     del dynasty["numenorBloodTier"]
+                    save_config(config, "config/initialization.json")
                     st.rerun()
             
             # --- Languages Editing Section ---
