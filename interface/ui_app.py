@@ -16,6 +16,10 @@ from enum import Enum
 ############################
 # Enums for Succession/Gender
 ############################
+class EventType(Enum):
+    event_plague = "event_plague"
+    event_war = "event_war"
+    event_battle = "event_battle"
 
 class SuccessionType(Enum):
     PRIMOGENITURE = "PRIMOGENITURE"
@@ -105,26 +109,25 @@ def display_dynasty_config():
     gender_options = [law.value for law in GenderLaw]
     succession_options = [law.value for law in SuccessionType]
     # Dynamically render dynasty accordions
-    updated = False
     i = 0
     
     with st.expander("➕ Add New Dynasty"):
         with st.form(key="add_dynasty_form"):
-            new_name = st.text_input("Dynasty Name", help="In-game localization", disabled=disabled)
-            new_motto = st.text_input("Motto", help="In-game motto localization", disabled=disabled)
-            new_succession = st.selectbox("Succession", options=succession_options, disabled=disabled)
-            new_id = st.text_input("Dynasty ID", help="Script ID", disabled=disabled)
-            new_house = st.checkbox("Is House?", value=False, disabled=disabled)
-            new_faith = st.text_input("Faith ID", disabled=disabled)
-            new_culture = st.text_input("Culture ID", disabled=disabled)
-            new_gender_law = st.selectbox("Gender Law", options=gender_options, disabled=disabled)
-            new_year = st.number_input("Progenitor Birth Year", value=6000, step=1, disabled=disabled)
+            new_name = st.text_input(help="The localization that will be displayed in-game for the dynasty name",label="Dynasty Name", disabled=disabled)
+            new_motto = st.text_input(help="The localization that will be displayed in-game for the dynasty motto",label="Motto", disabled=disabled)
+            new_succession = st.selectbox(help="The succession law which is used to determine who will be the next ruler, with the possible rulers determined by the \"Gender Law\"",label="Succession", options=succession_options, disabled=disabled)
+            new_id = st.text_input(help="The dynasty ID that will be defined in script",label="Dynasty ID", disabled=disabled)
+            new_house = st.checkbox(help="Whether this dynasty is a cadet branch of an existing dynasty in the history files",label="Is House?", value=False, disabled=disabled)
+            new_faith = st.text_input(help="The religion ID that will be used when defining the dynasty and generating the characters",label="Faith ID", disabled=disabled)
+            new_culture = st.text_input(help="The culture ID that will be used when defining the dynasty and generating the characters",label="Culture ID", disabled=disabled)
+            new_gender_law = st.selectbox(help="The gender law which is applied to this dynasty.\n\nAGNATIC == Male Only\n\nAGNATIC_COGNATIC == Male Preference\n\nABSOLUTE_COGNATIC == Equal\n\nENATIC_COGNATIC == Female Preference\n\nENATIC == Female Only",label="Gender Law", options=gender_options, disabled=disabled)
+            new_year = st.number_input(help="The birth year of the first character of this dynasty, essentially denoting when the dynasty starts",label="Progenitor Birth Year", value=6000, step=1, disabled=disabled)
             
             # Optional field: Numenor Blood Tier
-            numenor_blood = st.text_input("Numenor Blood Tier (optional)", help="Leave empty to omit", disabled=disabled)
+            numenor_blood = st.number_input("Numenor Blood Tier (Optional - Set value to 0 for it to NOT be included)", min_value=0, value=0, max_value=10, help="Set value to 0 if you do NOT want a dynasty to have numenorean blood", disabled=disabled)
             
             # Optional field: Languages list
-            language_input = st.text_area("Languages (optional)", help="Languages that characters will learn in history.\n\nFormat: LANGUAGE_ID,START_YEAR,END_YEAR\n\nExample: language_sindarin, 6033,7033\n\nThe above example will give characters in this dynasty the sindarin language between the 6033 and 7033 dates.", disabled=disabled)
+            language_input = st.text_area("Languages (Optional - Format: language_id,startYear,endYear)", help="Languages that characters will learn in history.\n\nFormat: LANGUAGE_ID,START_YEAR,END_YEAR\n\nExample: language_sindarin, 6033,7033\n\nThe above example will give characters in this dynasty the sindarin language between the 6033 and 7033 dates.", disabled=disabled)
 
             submit = st.form_submit_button("Add Dynasty", disabled=disabled)
 
@@ -146,7 +149,7 @@ def display_dynasty_config():
                 }
             }
 
-            if int(numenor_blood.strip()) > 0 and int(numenor_blood.strip()) < 11:
+            if numenor_blood != 0:
                 try:
                     new_dynasty["numenorBloodTier"] = int(numenor_blood)
                 except ValueError:
@@ -191,7 +194,7 @@ def display_dynasty_config():
             dynasty['dynastyName'] = st.text_input(help="The localization that will be displayed in-game for the dynasty name",label="Dynasty Name", value=dynasty["dynastyName"], key=f"name_{i}", disabled=disabled)
             dynasty['dynastyMotto'] = st.text_input(help="The localization that will be displayed in-game for the dynasty motto",label="Dynasty Motto", value=dynasty["dynastyMotto"], key=f"motto_{i}", disabled=disabled)
             dynasty["succession"] = st.selectbox(help="The succession law which is used to determine who will be the next ruler, with the possible rulers determined by the \"Gender Law\"",label="Succession", options=succession_options, index=succession_options.index(current_succession_law), key=f"succession_{i}", disabled=disabled)
-            dynasty['dynastyID'] = st.text_input(help="The dynsaty ID that will be defined in script",label="Dynasty ID", value=dynasty["dynastyID"], key=f"id_{i}", disabled=disabled)
+            dynasty['dynastyID'] = st.text_input(help="The dynasty ID that will be defined in script",label="Dynasty ID", value=dynasty["dynastyID"], key=f"id_{i}", disabled=disabled)
             dynasty['isHouse'] = st.checkbox(help="Whether this dynasty is a cadet branch of an existing dynasty in the history files",label="Is House?", value=dynasty["isHouse"], key=f"house_{i}", disabled=disabled)
             dynasty['faithID'] = st.text_input(help="The religion ID that will be used when defining the dynasty and generating the characters",label="Faith ID", value=dynasty["faithID"], key=f"faith_{i}", disabled=disabled)
             dynasty['cultureID'] = st.text_input(help="The culture ID that will be used when defining the dynasty and generating the characters",label="Culture ID", value=dynasty["cultureID"], key=f"culture_{i}", disabled=disabled)
@@ -222,6 +225,7 @@ def display_dynasty_config():
                     if st.button("❌ Remove Blood Tier", key=f"remove_blood_tier_{i}", disabled=disabled):
                         dynasty.pop("numenorBloodTier", None)
                         st.session_state.pop(add_key, None)
+                        st.rerun()
             else:
                 tier = dynasty.get("numenorBloodTier", 0)
                 new_tier = st.slider(help="The numenorean blood tier of this dyansties progenitor", label="Numenor Blood Tier", min_value=1, max_value=10, value=int(tier), key=f"blood_tier_{i}", disabled=disabled)
@@ -281,10 +285,8 @@ def display_dynasty_config():
             elif "languages" in dynasty:
                 del dynasty["languages"]
 
-            updated = True
-
     # Save updated values
-    if updated and st.button("💾 Save Dynasty Changes", disabled=disabled):
+    if st.button("💾 Save Dynasty Changes", disabled=disabled):
         save_config(config, "config/initialization.json")
         st.success("Configuration saved.")
         
@@ -318,15 +320,17 @@ def display_event_config():
     else:
         config = load_config("config/initialization.json")
 
+    event_options = [event.value for event in EventType] 
+    
     with st.expander("➕ Add New Event"):
         with st.form(key="add_event"):
-            new_eventID = st.text_input("eventID", disabled=disabled)
-            new_startYear = st.number_input("startYear", value=6000, step=1, disabled=disabled)
-            new_endYear = st.number_input("endYear", value=6500, step=1, disabled=disabled)
-            new_deathReason = st.text_input("deathReason", disabled=disabled)
-            new_deathMultiplier = st.number_input("deathMultiplier", min_value=0.0, max_value=1.0, value=0.5, step=0.1, disabled=disabled)
-            new_characterAgeStart = st.number_input("startYear", min_value=0, max_value=120, value=0, step=1, disabled=disabled)
-            new_characterAgeEnd = st.number_input("startYear", min_value=0, max_value=120, value=60, step=1, disabled=disabled)
+            new_eventID = st.selectbox(help="The internal event ID which will be used to determine death reason of a character",label="Event ID", options=event_options, key=f"eventID", disabled=disabled)
+            new_startYear = st.number_input(help="The date at which this event STARTS to apply to the characters",label="Start Year", value=6000, step=1, disabled=disabled)
+            new_endYear = st.number_input(help="The date at which this event STOPS applying to the characters",label="End Year", value=6500, step=1, disabled=disabled)
+            new_deathReason = st.text_input(help="The id of the death reason applied to the character in history\n\nAn example of a death id would be \"death_plague\" for a plague event",label="Death Reason ID", disabled=disabled)
+            new_deathMultiplier = st.number_input(help="The increased chance of a character dying during this event",label="Lethality Factor", min_value=0.0, max_value=1.0, value=0.5, step=0.1, disabled=disabled)
+            new_characterAgeStart = st.number_input(help="The minimum age at which this event can start affecting characters",label="Minimum Character Age", min_value=0, max_value=300, value=0, step=1, disabled=disabled)
+            new_characterAgeEnd = st.number_input(help="The maximum age at which this event can start affecting characters",label="Maximum Character Age", min_value=0, max_value=300, value=60, step=1, disabled=disabled)
             submit = st.form_submit_button("Add Event", disabled=disabled)
 
         if submit:
@@ -343,8 +347,11 @@ def display_event_config():
             save_config(config, "config/initialization.json")  # Your save function
             st.rerun()
             
+
     config['events'].sort(key=lambda d: d['eventID'].lower())
     for i, event in enumerate(config['events']):
+        current_event = event.get('eventID', event_options[0])
+
         # Create two columns for header: Dynasty title and Delete button
         col1, col2 = st.columns([11, 1])  # Adjust widths as needed
 
@@ -355,20 +362,18 @@ def display_event_config():
                 config['events'].remove(event)
                 save_config(config, "config/initialization.json")
                 st.rerun()
-
+            
         with st.expander("Edit Event Details", expanded=False):
-            event['eventID'] = st.text_input("event ID", event["eventID"], key=f"eventID_{i}", disabled=disabled)
-            event['startYear'] = st.number_input("Start Year", value=event["startYear"], step=1, key=f"startYear_{i}", disabled=disabled)
-            event['endYear'] = st.number_input("End Year", value=event["endYear"], step=1, key=f"endYear_{i}", disabled=disabled)
-            event['deathReason'] = st.text_input("Death Reason", event["deathReason"], key=f"deathReason_{i}", disabled=disabled)
-            event['deathMultiplier'] = st.number_input("Lethality Factor", min_value=0.0, max_value=1.0, value=event["deathMultiplier"], step=0.1, key=f"deathMultiplier_{i}", disabled=disabled)
-            event['characterAgeStart'] = st.number_input("Character Minimum Age", min_value=0, max_value=120, value=event["characterAgeStart"], step=1, key=f"characterAgeStart_{i}", disabled=disabled)
-            event["characterAgeEnd"] = st.number_input("Character Maximum Age", min_value=0, max_value=120, value=event["characterAgeEnd"], step=1, key=f"characterAgeEnd_{i}", disabled=disabled)
-             
-            updated = True
+            new_eventID = st.selectbox(help="The internal event ID which will be used to determine death reason of a character",label="Event ID", options=event_options, index=event_options.index(current_event), key=f"eventID_{i}", disabled=disabled)
+            event['startYear'] = st.number_input(help="The date at which this event STARTS to apply to the characters",label="Start Year", value=event["startYear"], step=1, key=f"startYear_{i}", disabled=disabled)
+            event['endYear'] = st.number_input(help="The date at which this event STOPS applying to the characters",label="End Year", value=event["endYear"], step=1, key=f"endYear_{i}", disabled=disabled)
+            event['deathReason'] = st.text_input(help="The id of the death reason applied to the character in history",label="Death Reason", value=event["deathReason"], key=f"deathReason_{i}", disabled=disabled)
+            event['deathMultiplier'] = st.number_input(help="The increased chance of a character dying during this event",label="Lethality Factor", min_value=0.0, max_value=1.0, value=event["deathMultiplier"], step=0.1, key=f"deathMultiplier_{i}", disabled=disabled)
+            event['characterAgeStart'] = st.number_input(help="The minimum age at which this event can start affecting characters",label="Character Minimum Age", min_value=0, max_value=120, value=event["characterAgeStart"], step=1, key=f"characterAgeStart_{i}", disabled=disabled)
+            event["characterAgeEnd"] = st.number_input(help="The maximum age at which this event can start affecting characters",label="Character Maximum Age", min_value=0, max_value=120, value=event["characterAgeEnd"], step=1, key=f"characterAgeEnd_{i}", disabled=disabled)
 
     # Save updated values
-    if updated and st.button("💾 Save Event Changes", disabled=disabled):
+    if st.button("💾 Save Event Changes", disabled=disabled):
         save_config(config, "config/initialization.json")
         st.success("Configuration saved.")
 
@@ -404,8 +409,7 @@ def display_life_stage_config():
     config['maximumNumberOfChildren'] = st.number_input(help="Determines the maximum number of children any female character can have.",label="Maximum Number of Children", value=config["maximumNumberOfChildren"], min_value=1, max_value=10, step=1, key=f"maximumNumberOfChildren", disabled=disabled)
     config['minimumYearsBetweenChildren'] = st.number_input(help="Determines the number of years enforced between the births of siblings.",label="Minimum Years Between Children", min_value=1, max_value=10, value=config["minimumYearsBetweenChildren"], step=1, key=f"minimumYearsBetweenChildren", disabled=disabled)
     config['bastardyChanceMale'] = st.number_input(help="The chance for a male child to be born as a bastard",label="Chance for Male Bastards", format="%0.4f", min_value=0.0000, max_value=1.0000, value=config["bastardyChanceMale"], step=0.0005, key=f"bastardyChanceMale", disabled=disabled)
-    config['bastardyChanceFemale'] = st.number_input(help="The chance for a female child to be born as a bastard",label="Chance for Female Bastards", min_value=0.0000, max_value=1.0000, value=config["bastardyChanceFemale"], step=0.0005, key=f"bastardyChanceFemale", disabled=disabled)
-    updated = True
+    config['bastardyChanceFemale'] = st.number_input(help="The chance for a female child to be born as a bastard",label="Chance for Female Bastards", format="%0.4f", min_value=0.0000, max_value=1.0000, value=config["bastardyChanceFemale"], step=0.0005, key=f"bastardyChanceFemale", disabled=disabled)
         
     # Save updated values
     if st.button("💾 Save Life Cycle Modifier Changes", disabled=disabled):

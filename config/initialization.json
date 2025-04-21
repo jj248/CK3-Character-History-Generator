@@ -10,7 +10,6 @@
             "cultureID": "clyan",
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6022,
-            "numenorBloodTier": 9,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
@@ -460,7 +459,7 @@
             "eventID": "event_plague",
             "startYear": 5668,
             "endYear": 5670,
-            "deathReason": "bubonic_plague",
+            "deathReason": "death_bubonic_plague",
             "deathMultiplier": 0.3,
             "characterAgeStart": 0,
             "characterAgeEnd": 120
