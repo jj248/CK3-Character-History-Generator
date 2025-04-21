@@ -13,9 +13,6 @@ from main import run_main
 import json
 from enum import Enum
 
-CONFIG_PATH="config/initialization.json"
-DEFAULT_CONFIG_PATH="config/fallback_config_files/initialization.json"
-
 ############################
 # Enums for Succession/Gender
 ############################
@@ -32,21 +29,33 @@ class GenderLaw(Enum):
     ENATIC = "ENATIC"
     ENATIC_COGNATIC = "ENATIC_COGNATIC"
 
+def get_resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except AttributeError:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 # Load config
 def load_config(config_path):
-    with open(config_path, "r") as f:
+    dyn_config_path = get_resource_path(config_path)
+    with open(dyn_config_path, "r") as f:
         return json.load(f)
 
 # Save config
 def save_config(config_data, config_path):
-    with open(config_path, "w") as f:
+    dyn_config_path = get_resource_path(config_path)
+    with open(dyn_config_path, "w") as f:
         json.dump(config_data, f, indent=4)
 
 # Reset config to default
 def reset_to_default():
-    with open(DEFAULT_CONFIG_PATH) as f:
+    dyn_config_path = get_resource_path("config/initialization.json")
+    with open(dyn_config_path) as f:
         default_data = json.load(f)
-    save_config(default_data, "config/initialization.json")
+    save_config(default_data, dyn_config_path)
     st.session_state["reset_triggered"] = True
 
 def display_dynasty_config():

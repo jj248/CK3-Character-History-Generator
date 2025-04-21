@@ -1,4 +1,6 @@
 import logging
+import os
+import sys
 from ck3gen.config_loader import ConfigLoader
 from ck3gen.family_tree import FamilyTree
 from ck3gen.name_loader import NameLoader
@@ -9,6 +11,16 @@ from ck3gen.title_history import TitleHistory
 from ck3gen.dynasty_creation import generate_dynasty_definitions, generate_dynasty_name_localization, generate_dynasty_motto_localization
 from utils.utils import generate_char_id, generate_random_date
 import random
+
+
+def get_resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except AttributeError:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 def setup_logging():
     logging.basicConfig(
@@ -24,9 +36,11 @@ def run_main():
     try:
         config_loader = ConfigLoader('config')  # Ensure 'config' directory is correct
         Character.DYNASTY_LANGUAGE_RULES = config_loader.get_language_rules()
-        generate_dynasty_definitions("config/initialization.json", "dynasty_definitions.txt")
-        generate_dynasty_name_localization("config/initialization.json", "lotr_dynasty_names_l_english.yml")
-        generate_dynasty_motto_localization("config/initialization.json", "lotr_mottos_l_english.yml")
+        
+        dynasty_config_path = get_resource_path("config/initialization.json")
+        generate_dynasty_definitions(dynasty_config_path, "dynasty_definitions.txt")
+        generate_dynasty_name_localization(dynasty_config_path, "lotr_dynasty_names_l_english.yml")
+        generate_dynasty_motto_localization(dynasty_config_path, "lotr_mottos_l_english.yml")
     except Exception as e:
         logging.error(f"Failed to load configuration: {e}")
         return
@@ -176,8 +190,9 @@ def run_main():
     character_loader.load_characters("Character and Title files/family_history.txt")  # Loads characters into memory
     # character_loader.print_family_info()
 
+    dynasty_config_path = get_resource_path("config/initialization.json")
     # # Load title history, passing the CharacterLoader instance
-    titles = TitleHistory(character_loader, "config/initialization.json")
+    titles = TitleHistory(character_loader, dynasty_config_path)
     titles.build_title_histories()
     titles.print_title_histories()
     titles.write_title_histories_to_file()
