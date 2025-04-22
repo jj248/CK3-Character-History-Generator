@@ -117,13 +117,13 @@ class Character:
         return 0.0
 
     def siblings(self):
-        # Returns a list of siblings (children of the same parents, excluding the character itself)
-        siblings = []
+        sibs = set()
         if self.father:
-            siblings.extend([child for child in self.father.children if child != self])
+            sibs.update(self.father.children)
         if self.mother:
-            siblings.extend([child for child in self.mother.children if child != self])
-        return siblings
+            sibs.update(self.mother.children)
+        sibs.discard(self)
+        return list(sibs)
     
     def assign_sexuality(self, sexuality_distribution):
         """Assign sexuality to the character based on distribution."""

@@ -26,6 +26,12 @@ class Simulation:
         self.marriage_rates    = config['life_stages']['marriageRates']
         self.desperation_rates = config['life_stages']['desperationMarriageRates']
 
+        # Load dynasty‑level cousin‑marriage rule
+        self.allow_cousin_marriage = {
+            d['dynastyID']: d.get('allowFirstCousinMarriage', False)
+            for d in config['initialization']['dynasties']
+        }
+
         # Map each education skill to its two possible childhood traits
         self.childhood_by_education = {
             "diplomacy":    ["charming", "curious"],
@@ -521,11 +527,17 @@ class Simulation:
             
             # Prioritize marriage for firstborn children
             available_females = [
-                f for f in females 
-                if f.alive and not f.married and f.can_marry and 
-                (f.dynasty != male.dynasty or f.dynasty is None) and 
-                not self.are_siblings(male, f) and
-                abs(f.age - male.age) <= max(
+                f for f in females
+                if f.alive
+                and not f.married
+                and f.can_marry
+                and (f.dynasty != male.dynasty or f.dynasty is None)
+                and not self.are_siblings(male, f)
+                and (
+                    self.allow_cousin_marriage.get(male.dynasty, False)
+                    or not self.are_first_cousins(male, f)
+                )
+                and abs(f.age - male.age) <= max(
                     self.max_age_diff_for(male),
                     self.max_age_diff_for(f)
                 )
@@ -543,12 +555,21 @@ class Simulation:
             # If still no match, prioritize same-dynasty marriage
             available_females = [
                 f for f in females 
-                if f.alive and not f.married and f.can_marry and 
-                (f.dynasty == male.dynasty) and 
-                not self.are_siblings(male, f) and
-                abs(f.age - male.age) <= max(
-                    self.max_age_diff_for(male),
-                    self.max_age_diff_for(f)
+                if (
+                    f.alive
+                    and not f.married
+                    and f.can_marry
+                    and f.dynasty == male.dynasty
+                    and not self.are_siblings(male, f)
+                    # ◀ skip first‑cousins unless this dynasty allows it
+                    and (
+                        self.allow_cousin_marriage.get(male.dynasty, False)
+                        or not self.are_first_cousins(male, f)
+                    )
+                    and abs(f.age - male.age) <= max(
+                        self.max_age_diff_for(male),
+                        self.max_age_diff_for(f)
+                    )
                 )
             ]
             
@@ -557,9 +578,14 @@ class Simulation:
                 self.marry_characters(male, female, year)
 
     def are_siblings(self, char1, char2):
-        """Check if two characters are siblings based on shared parents."""
-        return (char1.father is not None and char1.father == char2.father) and \
-               (char1.mother is not None and char1.mother == char2.mother)
+        return char2 in char1.siblings()
+    
+    def are_first_cousins(self, char1, char2):
+        for p1 in (char1.father, char1.mother):
+            for p2 in (char2.father, char2.mother):
+                if p1 and p2 and self.are_siblings(p1, p2):
+                    return True
+        return False
 			   
     def handle_bastardy(self, year, bastardy_chance_male, bastardy_chance_female, fertility_rates):
         father_bastard_done = set() # track father IDs who have fathered a bastard this year
