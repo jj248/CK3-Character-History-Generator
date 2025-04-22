@@ -544,7 +544,7 @@ class Simulation:
             ]
             
             if available_females:
-                female = random.choice(available_females)
+                female = self.pick_partner_by_blood_preference(male, available_females)
                 self.marry_characters(male, female, year)
                 continue
             
@@ -574,7 +574,7 @@ class Simulation:
             ]
             
             if available_females:
-                female = random.choice(available_females)
+                female = self.pick_partner_by_blood_preference(male, available_females)
                 self.marry_characters(male, female, year)
 
     def are_siblings(self, char1, char2):
@@ -586,7 +586,45 @@ class Simulation:
                 if p1 and p2 and self.are_siblings(p1, p2):
                     return True
         return False
-			   
+
+    def pick_partner_by_blood_preference(self, seeker, candidates):
+        """
+        Return *one* candidate from candidates according to the rules:
+
+        • blooded seeker  → prefer blooded partner, closest tier
+        • non‑blood seeker → prefer non‑blood, else lowest tier blood
+        """
+        if not candidates:
+            return None
+
+        # current tiers (0 == no blood)
+        t_seek = seeker.numenorean_blood_tier or 0
+        if t_seek > 0:
+            # --- blooded seeker ---------------------------------------
+            blooded = [c for c in candidates if (c.numenorean_blood_tier or 0) > 0]
+            if blooded:
+                # minimise |tier diff|
+                best_dist = min(abs(t_seek - (c.numenorean_blood_tier or 0)) for c in blooded)
+                best = [c for c in blooded
+                        if abs(t_seek - (c.numenorean_blood_tier or 0)) == best_dist]
+                return random.choice(best)
+            # else: nobody with blood → fall through to vanilla choice
+
+        else:
+            # --- non‑blood seeker -------------------------------------
+            non_blood = [c for c in candidates if (c.numenorean_blood_tier or 0) == 0]
+            if non_blood:
+                return random.choice(non_blood)
+
+            # no tier‑0 partner available → take the *lowest* tier present
+            lowest = min(c.numenorean_blood_tier or 0 for c in candidates)
+            best   = [c for c in candidates
+                      if (c.numenorean_blood_tier or 0) == lowest]
+            return random.choice(best)
+
+        # default fall‑back (all rules exhausted)
+        return random.choice(candidates)        
+
     def handle_bastardy(self, year, bastardy_chance_male, bastardy_chance_female, fertility_rates):
         father_bastard_done = set() # track father IDs who have fathered a bastard this year
         

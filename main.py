@@ -17,7 +17,7 @@ import random
 STATS_ENABLED = True
 
 # Toggle this to True if you want to print info about titles
-TITLE_INFO_ENABLED = True
+TITLE_INFO_ENABLED = False
 
 
 def get_resource_path(relative_path):
