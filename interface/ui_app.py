@@ -94,19 +94,18 @@ def display_dynasty_config():
     with reset_dynsaties:
         if st.button("🔄 Reset Dynasties", disabled=disabled):
             reset_to_default()
+            # If reset was triggered, reload config and clear flag
+            if st.session_state.get("reset_triggered", False):
+                config = load_config("config/initialization.json")
+                st.success("Configuration reset to default.")
+                st.session_state["reset_triggered"] = False
+            else:
+                config = load_config("config/initialization.json")
     with set_new_dynasties:
         if st.button("🔄 Set New Fallback Dynasties", disabled=disabled):
             set_new_default()
             st.success("New default dynasties set.")
             
-    
-    # If reset was triggered, reload config and clear flag
-    if st.session_state.get("reset_triggered", False):
-        config = load_config("config/initialization.json")
-        st.success("Configuration reset to default.")
-        st.session_state["reset_triggered"] = False
-    else:
-        config = load_config("config/initialization.json")
 
     # Split the layout into 3 horizontal columns
     col1, col2 = st.columns(2)
