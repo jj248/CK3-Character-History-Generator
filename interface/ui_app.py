@@ -58,6 +58,23 @@ def reset_to_default():
     save_config(default_data, dyn_config_path)
     st.session_state["reset_triggered"] = True
 
+
+# Reset config to default
+def set_new_default():
+    # Path to current user-modified config
+    current_config_path = get_resource_path("config/initialization.json")
+    
+    # Path to fallback (default) config that we will overwrite
+    fallback_config_path = get_resource_path("config/fallback_config_files/initialization.json")
+
+    # Load the current config data
+    with open(current_config_path, 'r', encoding='utf-8') as f:
+        user_config_data = json.load(f)
+
+    # Write it to the fallback config location
+    with open(fallback_config_path, 'w', encoding='utf-8') as f:
+        json.dump(user_config_data, f, indent=4)
+
 def display_dynasty_config():
     st.title("CK3 Character History Generator")
     if "config_loaded" not in st.session_state:
@@ -73,9 +90,16 @@ def display_dynasty_config():
     # Disabling condition: Until the config is loaded, set the 'disabled' flag
     disabled = not st.session_state["config_loaded"]
 
-    if st.button("🔄 Reset Dynasties", disabled=disabled):
-        reset_to_default()
-        
+    reset_dynsaties, set_new_dynasties = st.columns(2)
+    with reset_dynsaties:
+        if st.button("🔄 Reset Dynasties", disabled=disabled):
+            reset_to_default()
+    with set_new_dynasties:
+        if st.button("🔄 Set New Fallback Dynasties", disabled=disabled):
+            set_new_default()
+            st.success("New default dynasties set.")
+            
+    
     # If reset was triggered, reload config and clear flag
     if st.session_state.get("reset_triggered", False):
         config = load_config("config/initialization.json")
