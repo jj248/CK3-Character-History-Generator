@@ -10,7 +10,7 @@
             "cultureID": "clyan",
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6022,
-            "numenorBloodTier": 9,
+            "numenorBloodTier": 4,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
@@ -20,7 +20,8 @@
                 "language_sindarin,6000,7000",
                 "language_quenya,6200,6300",
                 "language_westron,6300,6500"
-            ]
+            ],
+            "allowFirstCousinMarriage": true
         },
         {
             "dynastyName": "Bahlikaran",
@@ -36,7 +37,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Bahraman",
@@ -52,7 +54,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Caramadran",
@@ -68,7 +71,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Dadfiruzen",
@@ -84,7 +88,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Dahmard",
@@ -100,7 +105,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Esrecarzen",
@@ -116,7 +122,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Farshidzen",
@@ -132,7 +139,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Garozen",
@@ -148,7 +156,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Homazen",
@@ -164,7 +173,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Imez",
@@ -180,7 +190,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Jamo",
@@ -196,7 +207,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Kerhamez",
@@ -212,7 +224,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Khudaradmen",
@@ -228,7 +241,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Lamarzen",
@@ -244,7 +258,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Mentarez",
@@ -260,7 +275,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Namdarez",
@@ -276,7 +292,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Naymardan",
@@ -292,7 +309,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Osard",
@@ -308,7 +326,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Pamaran",
@@ -324,7 +343,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Qudoz",
@@ -340,7 +360,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Ramazen",
@@ -356,7 +377,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Shirzadeh",
@@ -372,7 +394,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Tarimez",
@@ -388,7 +411,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Umoza",
@@ -404,7 +428,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Vahramzen",
@@ -420,7 +445,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Visnarmaken",
@@ -436,7 +462,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Zaravan",
@@ -452,7 +479,8 @@
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            }
+            },
+            "allowFirstCousinMarriage": false
         }
     ],
     "events": [
@@ -482,20 +510,20 @@
     "treeGeneration": "TB",
     "spouseVisible": "no",
     "numenorInheritance": {
-      "sameTierChance": 0.8,
-      "closeTierChance": 0.5,
-      "farTierChance":   0.25
+        "sameTierChance": 0.8,
+        "closeTierChance": 0.5,
+        "farTierChance": 0.25
     },
     "numenorDecline": {
-      "10": 4283,
-      "9": 4933,
-      "8": 5233,
-      "7": 5683,
-      "6": 5783,
-      "5": 5933,
-      "4": 6133,
-      "3": 6433,
-      "2": 6883,
-      "1": 7233
+        "10": 4283,
+        "9": 4933,
+        "8": 5233,
+        "7": 5683,
+        "6": 5783,
+        "5": 5933,
+        "4": 6133,
+        "3": 6433,
+        "2": 6883,
+        "1": 7233
     }
 }

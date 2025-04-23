@@ -122,7 +122,7 @@ def display_dynasty_config():
             new_culture = st.text_input(help="The culture ID that will be used when defining the dynasty and generating the characters",label="Culture ID", disabled=disabled)
             new_gender_law = st.selectbox(help="The gender law which is applied to this dynasty.\n\nAGNATIC == Male Only\n\nAGNATIC_COGNATIC == Male Preference\n\nABSOLUTE_COGNATIC == Equal\n\nENATIC_COGNATIC == Female Preference\n\nENATIC == Female Only",label="Gender Law", options=gender_options, disabled=disabled)
             new_year = st.number_input(help="The birth year of the first character of this dynasty, essentially denoting when the dynasty starts",label="Progenitor Birth Year", value=6000, step=1, disabled=disabled)
-            
+            new_firstCousinMarraige = st.checkbox(help="Whether a dynasty will allow first cousin marraiges",label="First Cousin Marriage",value=False)
             # Optional field: Numenor Blood Tier
             numenor_blood = st.number_input("Numenor Blood Tier (Optional - Set value to 0 for it to NOT be included)", min_value=0, value=0, max_value=10, help="Set value to 0 if you do NOT want a dynasty to have numenorean blood", disabled=disabled)
             
@@ -142,6 +142,7 @@ def display_dynasty_config():
                 "cultureID": new_culture,
                 "gender_law": new_gender_law,
                 "progenitorMaleBirthYear": int(new_year),
+                "allowFirstCousinMarriage": new_firstCousinMarraige,
                 "nameInheritance": {
                     "grandparentNameInheritanceChance": 0.05,
                     "parentNameInheritanceChance": 0.05,
@@ -193,13 +194,14 @@ def display_dynasty_config():
         with st.expander("Edit Dynasty Details", expanded=False):
             dynasty['dynastyName'] = st.text_input(help="The localization that will be displayed in-game for the dynasty name",label="Dynasty Name", value=dynasty["dynastyName"], key=f"name_{i}", disabled=disabled)
             dynasty['dynastyMotto'] = st.text_input(help="The localization that will be displayed in-game for the dynasty motto",label="Dynasty Motto", value=dynasty["dynastyMotto"], key=f"motto_{i}", disabled=disabled)
-            dynasty["succession"] = st.selectbox(help="The succession law which is used to determine who will be the next ruler, with the possible rulers determined by the \"Gender Law\"",label="Succession", options=succession_options, index=succession_options.index(current_succession_law), key=f"succession_{i}", disabled=disabled)
+            dynasty['succession'] = st.selectbox(help="The succession law which is used to determine who will be the next ruler, with the possible rulers determined by the \"Gender Law\"",label="Succession", options=succession_options, index=succession_options.index(current_succession_law), key=f"succession_{i}", disabled=disabled)
             dynasty['dynastyID'] = st.text_input(help="The dynasty ID that will be defined in script",label="Dynasty ID", value=dynasty["dynastyID"], key=f"id_{i}", disabled=disabled)
             dynasty['isHouse'] = st.checkbox(help="Whether this dynasty is a cadet branch of an existing dynasty in the history files",label="Is House?", value=dynasty["isHouse"], key=f"house_{i}", disabled=disabled)
             dynasty['faithID'] = st.text_input(help="The religion ID that will be used when defining the dynasty and generating the characters",label="Faith ID", value=dynasty["faithID"], key=f"faith_{i}", disabled=disabled)
             dynasty['cultureID'] = st.text_input(help="The culture ID that will be used when defining the dynasty and generating the characters",label="Culture ID", value=dynasty["cultureID"], key=f"culture_{i}", disabled=disabled)
             dynasty["gender_law"] = st.selectbox(help="The gender law which is applied to this dynasty.\n\nAGNATIC == Male Only\n\nAGNATIC_COGNATIC == Male Preference\n\nABSOLUTE_COGNATIC == Equal\n\nENATIC_COGNATIC == Female Preference\n\nENATIC == Female Only",label="Gender Law", options=gender_options, index=gender_options.index(current_gender_law), key=f"gender_{i}", disabled=disabled)
             dynasty['progenitorMaleBirthYear'] = st.number_input(help="The birth year of the first character of this dynasty, essentially denoting when the dynasty starts",label="Progenitor Birth Year", value=dynasty["progenitorMaleBirthYear"], step=1, key=f"birth_year_{i}", disabled=disabled)
+            dynasty['allowFirstCousinMarriage'] = st.checkbox(help="Whether a dynasty will allow first cousin marraiges",label="First Cousin Marriage",key=f"first_cousin_marriage_{i}",value=dynasty['allowFirstCousinMarriage'])
             # --- Numenor Blood Tier Editing ---
             st.markdown("**Numenor Blood Tier**")
 
@@ -422,8 +424,7 @@ def display_life_stage_config():
     display_mortality_rates(config)
     display_marriage_rates(config)
     display_fertility_rates(config)
-    
-    
+
 def display_desperation_marriage_rates(config):
     st.subheader("Desperation Marriage Rates")
     desperationMarriageRates = config['desperationMarriageRates']
