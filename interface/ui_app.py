@@ -87,6 +87,7 @@ def display_dynasty_config():
     # Split the layout into 3 horizontal columns
     col1, col2 = st.columns(2)
 
+    st.header(body="Global Simulation Settings", divider="grey")
     # Text inputs inside columns
     with col1:
         min_year = st.text_input("Start Year", value=str(config.get("minYear", "0")), key="min_year_input")
@@ -111,6 +112,7 @@ def display_dynasty_config():
     # Dynamically render dynasty accordions
     i = 0
     
+    st.header(body="Add New Dynasty", divider="grey")
     with st.expander("➕ Add New Dynasty"):
         with st.form(key="add_dynasty_form"):
             new_name = st.text_input(help="The localization that will be displayed in-game for the dynasty name",label="Dynasty Name", disabled=disabled)
@@ -175,6 +177,7 @@ def display_dynasty_config():
             save_config(config, "config/initialization.json")
             st.rerun()
 
+    st.header(body="Current Dynasties in Simulation", divider="grey")
     config['dynasties'].sort(key=lambda d: d['dynastyID'].lower())
     for i, dynasty in enumerate(config['dynasties']):
         current_gender_law = dynasty.get('gender_law', gender_options[0])
@@ -289,11 +292,12 @@ def display_dynasty_config():
             elif "languages" in dynasty:
                 del dynasty["languages"]
 
-    # Save updated values
+    st.header(body="Save Dynasty Changes", divider="grey")
     if st.button("💾 Save Dynasty Changes", disabled=disabled):
         save_config(config, "config/initialization.json")
         st.success("Configuration saved.")
-        
+    
+    st.header(body="Run Simulation", divider="grey")
     if st.button("Run Simulation", disabled=disabled):
         run_main()
 
