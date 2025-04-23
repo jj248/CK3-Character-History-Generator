@@ -90,9 +90,9 @@ def display_dynasty_config():
     st.header(body="Global Simulation Settings", divider="grey")
     # Text inputs inside columns
     with col1:
-        min_year = st.text_input("Start Year", value=str(config.get("minYear", "0")), key="min_year_input")
+        min_year = st.text_input("Start Year of Simulation (script date)", value=str(config.get("minYear", "0")), key="min_year_input")
     with col2:
-        max_year = st.text_input("End Year", value=str(config.get("maxYear", "1000")), key="max_year_input")
+        max_year = st.text_input("End Year of Simulation (script date)", value=str(config.get("maxYear", "1000")), key="max_year_input")
     max_generations = st.slider("Maximum Number of Generations", min_value=1, max_value=200, value=config.get('generationMax'), step=1, key="max_gen_characters")
 
     # Save button
