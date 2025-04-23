@@ -175,13 +175,13 @@ def display_dynasty_config():
                 }
             }
 
-            if numenor_blood != 0:
+            if numenor_blood > 0 and numenor_blood < 11:
                 try:
                     new_dynasty["numenorBloodTier"] = int(numenor_blood)
                 except ValueError:
                     st.warning("Numenor Blood Tier must be an integer if set and must be between (exclusive) 0 - 10 (inclusive).")
             else:
-                dynasty.pop("numenorBloodTier", None)  # Remove if 0 or not set
+                new_dynasty.pop("numenorBloodTier", None)  # Remove if 0 or not set
 
             # Parse and add languages
             if language_input.strip():
