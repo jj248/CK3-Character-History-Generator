@@ -265,6 +265,70 @@ class Simulation:
         marriage_date = generate_random_date(year)
         char1.add_event(marriage_date, f"{marriage_type} = {char2.char_id}")
 
+    def has_dynasty(self, c: Character) -> bool:
+        # True for any non-lowborn dynasty string.
+        return c and c.dynasty and c.dynasty != "Lowborn"
+
+
+    def sibling_index(self, c: Character) -> int:
+        #0-based birth order among the children of the first parent found.
+        p = c.father or c.mother
+        if not p:
+            return 0
+        ordered = sorted(
+            p.children,
+            key=lambda x: (x.birth_year or 0, x.birth_month or 1, x.birth_day or 1)
+        )
+        try:
+            return ordered.index(c)
+        except ValueError:
+            return len(ordered)
+
+
+    def dyn_grandparent(self, child: Character) -> Character | None:
+        # Return ONE of the grand-parents who shares the childs dynasty.
+        # If both do, choose the senior (lower sibling index).
+
+        gps = [gp for gp in (child.father, child.mother) if self.has_dynasty(gp)
+            and gp.dynasty == child.dynasty]
+        if not gps:
+            return None
+        if len(gps) == 1:
+            return gps[0]
+        return min(gps, key=self.sibling_index)
+
+
+    def elder_of(self, a: Character, b: Character) -> Character: # Selects for eldest line
+        # dynasty presence shortcut
+        ad, bd = self.has_dynasty(a), self.has_dynasty(b)
+        if ad and not bd:
+            return a
+        if bd and not ad:
+            return b
+        # (if neither has a dynasty, fall through – shouldn't occur per rules)
+
+        # compare birth-order among siblings 
+        ia, ib = self.sibling_index(a), self.sibling_index(b)
+        if ia != ib:
+            return a if ia < ib else b
+
+        # tie → look one generation up on each side 
+        gpa, gpb = self.dyn_grandparent(a), self.dyn_grandparent(b)
+
+        # if only one side can climb, the other (root) side wins
+        if gpa and not gpb:
+            return a
+        if gpb and not gpa:
+            return b
+        if not gpa and not gpb:
+            return a  # both lines exhausted ⇒ deterministic pick
+
+        # both grand-parents found – recurse
+        return self.elder_of(gpa, gpb)
+
+
+    
+
     def create_child(self, mother, father, birth_year):
 
         #print(f"Father Age:",{father.age},"Father Fertility:",{self.config['life_stages']['fertilityRates']['Female'][father.age]},"Mother Age:",{mother.age},"Mother Fertility:",{self.config['life_stages']['fertilityRates']['Female'][mother.age]})
@@ -331,17 +395,18 @@ class Simulation:
             child_religion = mother.religion
             child_gender_law = mother.gender_law
         else:
-            if random.random() < 0.5:
-                child_dynasty = father.dynasty
-                child_is_house = father.is_house
-                child_culture = father.culture
-                child_religion = father.religion
+            elder_parent = self.elder_of(mother, father)
+            if elder_parent is father:
+                child_dynasty   = father.dynasty
+                child_is_house  = father.is_house
+                child_culture   = father.culture
+                child_religion  = father.religion
                 child_gender_law = father.gender_law
-            else:
-                child_dynasty = mother.dynasty
-                child_is_house = mother.is_house
-                child_culture = mother.culture
-                child_religion = mother.religion
+            else:                                # mother is the elder line
+                child_dynasty   = mother.dynasty
+                child_is_house  = mother.is_house
+                child_culture   = mother.culture
+                child_religion  = mother.religion
                 child_gender_law = mother.gender_law
 
         # Handle lowborn characters (dynasty can be None)
