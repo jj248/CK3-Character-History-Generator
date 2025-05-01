@@ -14,7 +14,7 @@ from utils.utils import generate_char_id, generate_random_date
 import random
 
 # Toggle this to True if you want to collect & print stats of characters
-STATS_ENABLED = True
+STATS_ENABLED = False
 
 # Toggle this to True if you want to print info about titles
 TITLE_INFO_ENABLED = False

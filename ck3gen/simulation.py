@@ -122,6 +122,26 @@ class Simulation:
         tier = character.numenorean_blood_tier or 0
         return self.marriage_max_age_diff + tier * 5
 
+    def get_num_fertile_dynasty_members(self, character):
+        """Return list of alive and fertile characters from the same dynasty."""
+        if not character.dynasty:
+            return []
+
+        def is_fertile(c):
+            if not c.alive:
+                return False
+            age = c.age
+            if c.sex == "Male":
+                return 16 <= age <= 70
+            elif c.sex == "Female":
+                return 16 <= age <= 45
+            return False
+
+        return [
+            c for c in self.all_characters
+            if c.dynasty == character.dynasty and is_fertile(c)
+        ]
+
     def desperation_marriage_check(self, character, year):
         """Check if an unmarried character is willing to marry a lowborn due to desperation."""
         age  = character.age
@@ -137,11 +157,17 @@ class Simulation:
         eff_age = max(eff_age, 0)
         last_idx = len(self.desperation_rates) - 1
         eff_age = min(eff_age, last_idx)
-
+        base_chance = self.desperation_rates[eff_age]
+            # Modify desperation based on dynasty size
+        dynasty_members = self.get_num_fertile_dynasty_members(character)
+        living_count = len(dynasty_members)
+        num_dynasty_members_alive_modifier = (max(0,10 - living_count) * 0.20) + 1.0
+        
         # 3) pull the shifted rate
-        desperation_chance = self.desperation_rates[eff_age]
+        desperation_chance = min (1.0,  base_chance * num_dynasty_members_alive_modifier)
         
         if random.random() < desperation_chance:
+            print(f"Lowborn marriage happened, Char ID: {character.char_id}")
             # Generate a lowborn spouse
             dynasty_prefix = character.dynasty.split('_')[1] if character.dynasty and '_' in character.dynasty else "lowborn"
             spouse_char_id = generate_char_id(dynasty_prefix, self.dynasty_char_counters)
@@ -269,7 +295,6 @@ class Simulation:
         # True for any non-lowborn dynasty string.
         return c and c.dynasty and c.dynasty != "Lowborn"
 
-
     def sibling_index(self, c: Character) -> int:
         #0-based birth order among the children of the first parent found.
         p = c.father or c.mother
@@ -284,7 +309,6 @@ class Simulation:
         except ValueError:
             return len(ordered)
 
-
     def dyn_grandparent(self, child: Character) -> Character | None:
         # Return ONE of the grand-parents who shares the childs dynasty.
         # If both do, choose the senior (lower sibling index).
@@ -296,7 +320,6 @@ class Simulation:
         if len(gps) == 1:
             return gps[0]
         return min(gps, key=self.sibling_index)
-
 
     def elder_of(self, a: Character, b: Character) -> Character: # Selects for eldest line
         # dynasty presence shortcut
@@ -325,9 +348,6 @@ class Simulation:
 
         # both grand-parents found – recurse
         return self.elder_of(gpa, gpb)
-
-
-    
 
     def create_child(self, mother, father, birth_year):
 
@@ -370,12 +390,12 @@ class Simulation:
         has_male_sibling = any(sibling.sex == "Male" for sibling in siblings)
         has_female_sibling = any(sibling.sex == "Female" for sibling in siblings)
 
-        # **Apply gender bias (+25%) only if no sibling of that gender exists**
+        # **Apply gender bias (+40%) only if no sibling of that gender exists**
         base_chance = 0.5
         if gender_preference == "Male" and not has_male_sibling:
-            male_chance = 0.65
+            male_chance = 0.9
         elif gender_preference == "Female" and not has_female_sibling:
-            male_chance = 0.35
+            male_chance = 0.1
         else:
             male_chance = base_chance  # No modification
 
