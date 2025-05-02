@@ -475,23 +475,25 @@ class Character:
                     for trait_line in trait_lines:
                         trait_name = trait_line.split("=", 1)[1].strip()
                         if trait_name in child_traits:
-                            extracted_child_traits.append(trait_name)
-                            current_child_trait = trait_name
+                            if age < 16:
+                                extracted_child_traits.append(trait_name)
+                                current_child_trait = trait_name
+                            # Skip this trait from the event
                         else:
                             non_child_trait_lines.append(trait_line)
 
-                    if age >= 16 and current_child_trait:
-                        remove_year = event_year - 1
-                        remove_date = f"{remove_year:04}.{event_month:02}.{event_day:02}"
-                        remove_event_lines = [
-                            f"\t{remove_date} = {{  # Remove childhood trait",
-                            f"\t    effect = {{",
-                            f"\t        remove_trait = {current_child_trait}",
-                            f"\t    }}",
-                            f"\t}}"
-                        ]
-                        processed_events.append((remove_date, remove_event_lines))
-                        current_child_trait = None
+                    # if age >= 16 and current_child_trait:
+                    #     remove_year = event_year - 1
+                    #     remove_date = f"{remove_year:04}.{event_month:02}.{event_day:02}"
+                    #     remove_event_lines = [
+                    #         f"\t{remove_date} = {{  # Remove childhood trait",
+                    #         f"\t    effect = {{",
+                    #         f"\t        remove_trait = {current_child_trait}",
+                    #         f"\t    }}",
+                    #         f"\t}}"
+                    #     ]
+                    #     processed_events.append((remove_date, remove_event_lines))
+                    #     current_child_trait = None
 
                     if not non_child_trait_lines:
                         continue  # Skip event block entirely if only child traits
