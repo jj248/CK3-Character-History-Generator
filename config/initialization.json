@@ -15,12 +15,7 @@
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
             },
-            "languages": [
-                "language_sindarin,6000,7000",
-                "language_quenya,6200,6300",
-                "language_westron,6300,6500"
-            ],
-            "allowFirstCousinMarriage": true
+            "allowFirstCousinMarriage": false
         },
         {
             "dynastyName": "Bahlikaran",
@@ -168,6 +163,295 @@
             "cultureID": "clyan",
             "gender_law": "AGNATIC_COGNATIC",
             "progenitorMaleBirthYear": 6058,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false
+        },
+        {
+            "dynastyName": "Imez",
+            "dynastyMotto": "The Horn Is Sounded, the Flame Awakens",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_imez",
+            "isHouse": false,
+            "faithID": "faith_tilanik",
+            "cultureID": "clyan",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6230,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false
+        },
+        {
+            "dynastyName": "Jamo",
+            "dynastyMotto": "Though Few, We Are Fearless",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_jamo",
+            "isHouse": false,
+            "faithID": "faith_tilanik",
+            "cultureID": "clyan",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6232,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false
+        },
+        {
+            "dynastyName": "Kerhamez",
+            "dynastyMotto": "Unbroken Through Wind and War",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_kerhamez",
+            "isHouse": false,
+            "faithID": "faith_tilanik",
+            "cultureID": "clyan",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6234,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false
+        },
+        {
+            "dynastyName": "Khudaradmen",
+            "dynastyMotto": "We Are the Storm Upon the Hill",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_khudaradmen",
+            "isHouse": false,
+            "faithID": "faith_tilanik",
+            "cultureID": "clyan",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6226,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false
+        },
+        {
+            "dynastyName": "Lamarzen",
+            "dynastyMotto": "The Falcon Sees All, The Stag Remembers",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_lamarzen",
+            "isHouse": false,
+            "faithID": "faith_tilanik",
+            "cultureID": "clyan",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6224,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false
+        },
+        {
+            "dynastyName": "Mentarez",
+            "dynastyMotto": "We Strike from Shadow and Sunrise",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_mentarez",
+            "isHouse": false,
+            "faithID": "faith_tilanik",
+            "cultureID": "clyan",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6238,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false
+        },
+        {
+            "dynastyName": "Namdarez",
+            "dynastyMotto": "Steel in Hand, Fire in Heart",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_namdarez",
+            "isHouse": false,
+            "faithID": "faith_tilanik",
+            "cultureID": "clyan",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6236,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false
+        },
+        {
+            "dynastyName": "Naymardan",
+            "dynastyMotto": "We Dream in Sapphire and Smoke",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_naymardan",
+            "isHouse": false,
+            "faithID": "faith_tilanik",
+            "cultureID": "clyan",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6240,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false
+        },
+        {
+            "dynastyName": "Osard",
+            "dynastyMotto": "What Is Written in the Stars, We Make Real",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_osard",
+            "isHouse": false,
+            "faithID": "faith_tilanik",
+            "cultureID": "clyan",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6436,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false
+        },
+        {
+            "dynastyName": "Pamaran",
+            "dynastyMotto": "Clan of Stars, Kin of Kings",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_pamaran",
+            "isHouse": false,
+            "faithID": "faith_tilanik",
+            "cultureID": "clyan",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6448,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false
+        },
+        {
+            "dynastyName": "Qudoz",
+            "dynastyMotto": "We Speak with the Voice of Ancestors",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_qudoz",
+            "isHouse": false,
+            "faithID": "faith_tilanik",
+            "cultureID": "clyan",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6410,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false
+        },
+        {
+            "dynastyName": "Ramazen",
+            "dynastyMotto": "First to Rise, Last to Fall",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_ramazen",
+            "isHouse": false,
+            "faithID": "faith_tilanik",
+            "cultureID": "clyan",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6422,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false
+        },
+        {
+            "dynastyName": "Shirzadeh",
+            "dynastyMotto": "Echoes of the Sacred Forge",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_shirzadeh",
+            "isHouse": false,
+            "faithID": "faith_tilanik",
+            "cultureID": "clyan",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6442,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false
+        },
+        {
+            "dynastyName": "Tarimez",
+            "dynastyMotto": "The Moon Knows Our True Name",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_tarimez",
+            "isHouse": false,
+            "faithID": "faith_tilanik",
+            "cultureID": "clyan",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6430,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false
+        },
+        {
+            "dynastyName": "Umoza",
+            "dynastyMotto": "We Ride with Thunder",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_umoza",
+            "isHouse": false,
+            "faithID": "faith_tilanik",
+            "cultureID": "clyan",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6474,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false
+        },
+        {
+            "dynastyName": "Vahramzen",
+            "dynastyMotto": "Honour Wrought in Gold and Iron",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_vahramzen",
+            "isHouse": false,
+            "faithID": "faith_tilanik",
+            "cultureID": "clyan",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6446,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false
+        },
+        {
+            "dynastyName": "Visnarmaken",
+            "dynastyMotto": "By the Blood of the Highlands and the Flame of the East",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_visnarmaken",
+            "isHouse": false,
+            "faithID": "faith_tilanik",
+            "cultureID": "clyan",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6432,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,

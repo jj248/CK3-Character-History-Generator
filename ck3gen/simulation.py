@@ -455,19 +455,29 @@ class Simulation:
         else:
             fertilityModifier = 0.10
 
+        def is_fertile(c):
+            if not c.alive:
+                return False
+            age = c.age
+            if c.sex == "Male":
+                return 16 <= age <= 70
+            elif c.sex == "Female":
+                return 16 <= age <= 45
+            return False
+
         alive_members_in_dynasy = 0
         for character in self.all_characters:
-            if character.dynasty == child_dynasty and character.alive:
+            if character.dynasty == child_dynasty and character.alive and is_fertile(character):
                 alive_members_in_dynasy += 1
 
-        if alive_members_in_dynasy >= 15: #A lot of dynasty members are alive
+        if alive_members_in_dynasy > 8: #A lot of dynasty members are alive
             if child_sex == "Male":
                 if father.fertilityModifier != 1:
                     fertilityModifier *= father.fertilityModifier
             else:
                 if mother.fertilityModifier != 1:
                     fertilityModifier *= mother.fertilityModifier
-        elif alive_members_in_dynasy < 10: #A low number of dynasty members are alive
+        elif alive_members_in_dynasy <= 8: #A low number of dynasty members are alive
             fertilityModifier = 1
 
         child = Character(

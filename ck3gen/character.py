@@ -397,120 +397,147 @@ class Character:
         if self.sex == 'Female':
             lines.append(f"\tfemale = yes")
 
-        # Include culture and religion
         lines.append(f"\tculture = {self.culture}")
         lines.append(f"\treligion = {self.religion}")
 
-        # Collect dynasty and parents information
         sections = []
-        if self.dynasty and self.dynasty != "Lowborn":  # Avoid printing "dynasty = Lowborn"
+        if self.dynasty and self.dynasty != "Lowborn":
             if self.is_house:
                 sections.append(f"\tdynasty_house = {self.dynasty}")
             else:
                 sections.append(f"\tdynasty = {self.dynasty}")
-        
         if self.father:
             sections.append(f"\tfather = {self.father.char_id}")
         if self.mother:
             sections.append(f"\tmother = {self.mother.char_id}")
-
-        # Add dynasty and parents sections if they exist
         if sections:
-            lines.append("")  # Empty line before dynasty/parents
+            lines.append("")
             lines.extend(sections)
 
-        # Always add sexuality with a single empty line before it
-        lines.append("")  # Single empty line before sexuality
+        lines.append("")
         lines.append(f"\tsexuality = {self.sexuality}")
 
-        # Include skills
         if self.skills:
             lines.append("")
             for skill, value in self.skills.items():
                 lines.append(f"\t{skill} = {value}")
 
-        # Export traits
+        # Track childhood traits
+        child_traits = {"charming", "curious", "rowdy", "bossy", "pensive"}
+        extracted_child_traits = []
+
         if self.traits:
             lines.append("")
             for trait in self.traits:
                 lines.append(f"\ttrait = {trait}")
-        
-        # Include congenital traits and education
+
+        # Add education trait
         if self.education_tier is not None or self.congenital_traits:
             lines.append("")
-        # for trait in self.personality_traits:
-        #     lines.append(f"\ttrait = {trait}")
+
         if self.education_tier is not None and self.education_skill is not None:
             if self.education_skill == "prowess":
                 lines.append(f"\ttrait = education_martial_{self.education_tier}")
             else:
                 lines.append(f"\ttrait = education_{self.education_skill}_{self.education_tier}")
+
         for trait in self.congenital_traits.values():
             lines.append(f"\ttrait = {trait}")
+
         if getattr(self, "numenorean_blood_tier", None):
             tier = self.numenorean_blood_tier
             if 1 <= tier <= 10:
-                # lines.append("")
                 lines.append(f"\ttrait = blood_of_numenor_{tier}")
 
-        # Include events
+        # Process events
         if self.events:
             lines.append("")
-            # Sort events by date
             sorted_events = sorted(self.events, key=lambda e: e[0])
-            for event_date, event_detail in sorted_events:
-                if event_detail == "birth = yes":
-                    lines.append(f"\t{event_date} = {{")
-                    lines.append(f"\t    {event_detail}")
+            current_child_trait = None
+            processed_events = []
 
-                    # ---------- language effect block ----------
+            for event_date, event_detail in sorted_events:
+                try:
+                    event_year, event_month, event_day = map(int, event_date.split('.'))
+                except ValueError:
+                    logging.warning(f"Invalid event date format for character {self.char_id}: {event_date}")
+                    event_year, event_month, event_day = self.birth_year, self.birth_month, self.birth_day
+
+                age = event_year - self.birth_year
+                if (event_month, event_day) < (self.birth_month, self.birth_day):
+                    age -= 1
+
+                # Handle child trait assignments
+                if event_detail.strip().startswith("trait ="):
+                    lines_in_event = event_detail.strip().splitlines()
+                    trait_lines = [line.strip() for line in lines_in_event if line.strip().startswith("trait =")]
+                    non_child_trait_lines = []
+                    for trait_line in trait_lines:
+                        trait_name = trait_line.split("=", 1)[1].strip()
+                        if trait_name in child_traits:
+                            extracted_child_traits.append(trait_name)
+                            current_child_trait = trait_name
+                        else:
+                            non_child_trait_lines.append(trait_line)
+
+                    if age >= 16 and current_child_trait:
+                        remove_year = event_year - 1
+                        remove_date = f"{remove_year:04}.{event_month:02}.{event_day:02}"
+                        remove_event_lines = [
+                            f"\t{remove_date} = {{  # Remove childhood trait",
+                            f"\t    effect = {{",
+                            f"\t        remove_trait = {current_child_trait}",
+                            f"\t    }}",
+                            f"\t}}"
+                        ]
+                        processed_events.append((remove_date, remove_event_lines))
+                        current_child_trait = None
+
+                    if not non_child_trait_lines:
+                        continue  # Skip event block entirely if only child traits
+
+                    event_detail = "\n".join(non_child_trait_lines)
+
+                # Standard event formatting
+                event_lines = []
+                if event_detail == "birth = yes":
+                    event_lines.append(f"\t{event_date} = {{")
+                    event_lines.append(f"\t    {event_detail}")
+
                     lang_effects = []
-                    # use the class attribute via self.*
                     for lang, start, end in self.DYNASTY_LANGUAGE_RULES.get(self.dynasty, []):
                         if start <= self.birth_year <= end:
                             lang_effects.append(lang)
-
-                    if lang_effects:                # only if at least one language applies
-                        lines.append(f"\t    effect = {{")
+                    if lang_effects:
+                        event_lines.append(f"\t    effect = {{")
                         for l in lang_effects:
-                            lines.append(f"\t        learn_language = {l}")
-                        lines.append(f"\t    }}")
-                    # -------------------------------------------
-
-                    lines.append(f"\t}}")
+                            event_lines.append(f"\t        learn_language = {l}")
+                        event_lines.append(f"\t    }}")
+                    event_lines.append(f"\t}}")
                 else:
-                    # Parse the event date
-                    try:
-                        event_year, event_month, event_day = map(int, event_date.split('.'))
-                    except ValueError:
-                        logging.warning(f"Invalid event date format for character {self.char_id}: {event_date}")
-                        event_year, event_month, event_day = self.birth_year, self.birth_month, self.birth_day
-
-                    # Calculate age
-                    age = event_year - self.birth_year
-                    if (event_month, event_day) < (self.birth_month, self.birth_day):
-                        age -= 1
-
-                    # Determine event description
-                    if event_detail.startswith("add_spouse"):
-                        event_desc = f"# Married at age {age}"
-                    elif event_detail.startswith("add_matrilineal_spouse"):
+                    if event_detail.startswith("add_spouse") or event_detail.startswith("add_matrilineal_spouse"):
                         event_desc = f"# Married at age {age}"
                     elif event_detail.startswith("trait"):
-                        event_desc = f""
+                        event_desc = ""
                     elif event_detail.startswith("death"):
                         event_desc = f"# Died at age {age}"
                     else:
                         event_desc = f"# Event at age {age}"
 
-                    # Add event with description
-                    lines.append(f"\t{event_date} = {{  {event_desc}")
+                    event_lines.append(f"\t{event_date} = {{  {event_desc}")
                     for detail_line in event_detail.strip().splitlines():
-                        # strip away any existing tabs/spaces, then re‑indent exactly one tab + four spaces
-                        lines.append(f"\t    {detail_line.strip()}")
-                    lines.append(f"\t}}")
+                        event_lines.append(f"\t    {detail_line.strip()}")
+                    event_lines.append(f"\t}}")
 
-        lines.append(f"}}\n")
+                processed_events.append((event_date, event_lines))
+
+            # Add extracted child traits to main trait list (outside any date block)
+            if extracted_child_traits:
+                for trait in extracted_child_traits:
+                    lines.append(f"\ttrait = {trait}")
+
+            for _, event_lines in sorted(processed_events, key=lambda e: e[0]):
+                lines.extend(event_lines)
+
+        lines.append("}\n")
         return "\n".join(lines)
-    
-    
