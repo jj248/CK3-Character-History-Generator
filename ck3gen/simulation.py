@@ -243,8 +243,8 @@ class Simulation:
             mortality_rate = 1.0  # 100% chance of death
 
         for event in self.config.get('initialization', {}).get('events', []):
-            if birth_year > event.get("startYear") and birth_year < event.get("endYear") and age >= event.get("characterAgeStart") and age <= event.get("characterAgeEnd"):
-                mortality_event_multipler = event.get("deathMultiplier")
+            if birth_year >= event.get("startYear") and birth_year <= event.get("endYear") and age >= event.get("characterAgeStart") and age <= event.get("characterAgeEnd"):
+                mortality_event_multipler = 1 - event.get("deathMultiplier")
                 character.negativeEventDeathReason = event.get("deathReason")
                 # print(f"Negative Char Event: {character.negativeEventDeathReason} | Current Age: {age}")
                 # print(type(mortality_event_multipler))
