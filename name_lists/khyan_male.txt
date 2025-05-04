@@ -97,7 +97,7 @@ Huzvak
 Ishvat
 Izadyar
 Jahanabad
-Jamasp
+Jamaspa
 Janafruz
 Jangi
 Kamdele
@@ -162,6 +162,7 @@ Ramgushnasp
 Ramin
 Ramisht
 Rayomand
+Razi
 Roshan
 Safna
 Sahi
@@ -187,6 +188,7 @@ Urvakhsha
 Urvatatnara
 Vardanis
 Vasna
+Vindafarnah
 Vishnasp
 Vispanfria
 Vourunemangha
