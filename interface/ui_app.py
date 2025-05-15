@@ -154,7 +154,8 @@ def display_dynasty_config():
             new_culture = st.text_input(help="The culture ID that will be used when defining the dynasty and generating the characters",label="Culture ID", disabled=disabled)
             new_gender_law = st.selectbox(help="The gender law which is applied to this dynasty.\n\nAGNATIC == Male Only\n\nAGNATIC_COGNATIC == Male Preference\n\nABSOLUTE_COGNATIC == Equal\n\nENATIC_COGNATIC == Female Preference\n\nENATIC == Female Only",label="Gender Law", options=gender_options, disabled=disabled)
             new_year = st.number_input(help="The birth year of the first character of this dynasty, essentially denoting when the dynasty starts",label="Progenitor Birth Year", value=6000, step=1, disabled=disabled)
-            new_firstCousinMarraige = st.checkbox(help="Whether a dynasty will allow first cousin marraiges",label="First Cousin Marriage",value=False)
+            new_firstCousinMarraige = st.checkbox(help="Whether a dynasty will allow first cousin marriages",label="First Cousin Marriage",value=False)
+            new_prioritiseLowbornMarriage = st.checkbox(help="Whether a dynasty will prioritise lowborns over nobles in marriages",label="Prioritise Lowborn Marriage",value=False)
             # Optional field: Numenor Blood Tier
             numenor_blood = st.number_input("Numenor Blood Tier (Optional - Set value to 0 for it to NOT be included)", min_value=0, value=0, max_value=10, help="Set value to 0 if you do NOT want a dynasty to have numenorean blood", disabled=disabled)
             
@@ -174,12 +175,13 @@ def display_dynasty_config():
                 "cultureID": new_culture,
                 "gender_law": new_gender_law,
                 "progenitorMaleBirthYear": int(new_year),
-                "allowFirstCousinMarriage": new_firstCousinMarraige,
                 "nameInheritance": {
                     "grandparentNameInheritanceChance": 0.05,
                     "parentNameInheritanceChance": 0.05,
                     "noNameInheritanceChance": 0.9
-                }
+                },
+                "allowFirstCousinMarriage": new_firstCousinMarraige,
+                "prioritiseLowbornMarraige": new_prioritiseLowbornMarriage
             }
 
             if numenor_blood > 0 and numenor_blood < 11:
@@ -234,9 +236,10 @@ def display_dynasty_config():
             dynasty['cultureID'] = st.text_input(help="The culture ID that will be used when defining the dynasty and generating the characters",label="Culture ID", value=dynasty["cultureID"], key=f"culture_{i}", disabled=disabled)
             dynasty["gender_law"] = st.selectbox(help="The gender law which is applied to this dynasty.\n\nAGNATIC == Male Only\n\nAGNATIC_COGNATIC == Male Preference\n\nABSOLUTE_COGNATIC == Equal\n\nENATIC_COGNATIC == Female Preference\n\nENATIC == Female Only",label="Gender Law", options=gender_options, index=gender_options.index(current_gender_law), key=f"gender_{i}", disabled=disabled)
             dynasty['progenitorMaleBirthYear'] = st.number_input(help="The birth year of the first character of this dynasty, essentially denoting when the dynasty starts",label="Progenitor Birth Year", value=dynasty["progenitorMaleBirthYear"], step=1, key=f"birth_year_{i}", disabled=disabled)
-            dynasty['allowFirstCousinMarriage'] = st.checkbox(help="Whether a dynasty will allow first cousin marraiges",label="First Cousin Marriage",key=f"first_cousin_marriage_{i}",value=dynasty['allowFirstCousinMarriage'])
+            dynasty['allowFirstCousinMarriage'] = st.checkbox(help="Whether a dynasty will allow first cousin marriages",label="First Cousin Marriage",key=f"first_cousin_marriage_{i}",value=dynasty['allowFirstCousinMarriage'])
+            dynasty['prioritiseLowbornMarraige'] = st.checkbox(help="Whether a dynasty will prioritise lowborn marriages over characters with dynasties",label="Prioritise Lowborn Marriage",key=f"prioritise_lowborn_marriage_{i}",value=dynasty['prioritiseLowbornMarraige'])
             # --- Numenor Blood Tier Editing ---
-            st.markdown("**Numenor Blood Tier**")
+            st.markdown("**Numenor Blood Tier**", help="Set ***value to 0*** if you do ***NOT*** want a dynasty to have numenorean blood")
 
             # If the field doesn't exist, show a way to add it
             if "numenorBloodTier" not in dynasty:
@@ -272,7 +275,7 @@ def display_dynasty_config():
                     st.rerun()
             
             # --- Languages Editing Section ---
-            st.markdown("**Languages**")
+            st.markdown("**Languages**", help="Languages that characters will learn in history.\n\nFormat: LANGUAGE_ID,START_YEAR,END_YEAR\n\nExample: language_sindarin, 6033,7033\n\nThe above example will give characters in this dynasty the sindarin language between the 6033 and 7033 dates.")
 
             # Ensure a stable key prefix per dynasty
             lang_key_prefix = f"lang_{i}_"
@@ -321,11 +324,12 @@ def display_dynasty_config():
                 dynasty["languages"] = edited_languages
             elif "languages" in dynasty:
                 del dynasty["languages"]
-
-    st.header(body="Save Dynasty Changes", divider="grey")
-    if st.button("💾 Save Dynasty Changes", disabled=disabled):
+                
         save_config(config, "config/initialization.json")
-        st.success("Configuration saved.")
+
+    # st.header(body="Save Dynasty Changes", divider="grey")
+    # if st.button("💾 Save Dynasty Changes", disabled=disabled):
+        
     
     st.header(body="Run Simulation", divider="grey")
     if st.button("Run Simulation", disabled=disabled):
