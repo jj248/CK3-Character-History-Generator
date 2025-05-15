@@ -51,6 +51,10 @@ def run_main():
 
     name_loader = NameLoader('name_lists')
     
+    lowborn_married_array = []
+    total_num_char_array = []
+    percentages_array = []
+    
     for num_simulation in range(NUM_SIMULATIONS):
         simulation = Simulation(config_loader.config, name_loader)
 
@@ -186,22 +190,23 @@ def run_main():
                         simulation.add_character_to_pool(child)
                         simulation.all_characters.append(child)
 
-        print("---------------------------")
+        print("-------------------------------")
         print(f"--- Running Simulation {num_simulation + 1}/{NUM_SIMULATIONS} ---")
-        print("---------------------------")
+        print("-------------------------------")
         # Run the simulation
         simulation.run_simulation()
-        lowborn_married_count = 0
 
         # Gather Statistics
         if STATS_ENABLED:
             # 1) Gather a flat list of “records”
             records = []
+            lowborn_married_count = 0
+            total_num_char = 0
             for c in simulation.all_characters:
                 sex = c.sex
                 gen = c.generation
                 num_children = len(c.children)
-                
+                total_num_char += 1
                 if c.dynasty and c.spouse and c.spouse.dynasty == "Lowborn" and c.dynasty != "Lowborn":
                     lowborn_married_count += 1
                     
@@ -241,7 +246,19 @@ def run_main():
                     "tier": tier,
                     "lowborn Marraiges": lowborn_married_count
                 })
+            
+            if total_num_char > 0:
+                percent_lowborn_marriage = (lowborn_married_count / total_num_char) * 100
+            else:
+                percent_lowborn_marriage = 0
+
+            lowborn_married_array.append(lowborn_married_count)
+            total_num_char_array.append(total_num_char)
+            percentages_array.append(percent_lowborn_marriage)
+
             print(f"\nTotal lowborns married into noble dynasties: {lowborn_married_count}")
+            print(f"Percentage of Lowborn Marriages: {percent_lowborn_marriage:.2f}%")
+            
 
             from collections import defaultdict
             import statistics
@@ -340,6 +357,12 @@ def run_main():
                 print("Average Númenórean tier  |  Male:", round(avg_tier_by_sex["Male"],2),
                     " Female:", round(avg_tier_by_sex["Female"],2))
 
+    if percentages_array:
+        average_lowborn_marriage_percent = sum(percentages_array) / len(percentages_array)
+        print("\n===============================")
+        print(f"Average % of Lowborn Marriages across {NUM_SIMULATIONS} runs: {average_lowborn_marriage_percent:.2f}%")
+        print("===============================")
+
     # Export characters
     simulation.export_characters("family_history.txt")
 
@@ -358,9 +381,9 @@ def run_main():
 
     titles.write_title_histories_to_file()
 
-    # tree = FamilyTree("Character and Title files/family_history.txt", "Character and Title files/title_history.txt", config_loader.config)  # Ensure both files exist
-    # tree.build_trees()
-    # tree.render_trees()
+    tree = FamilyTree("Character and Title files/family_history.txt", "Character and Title files/title_history.txt", config_loader.config)  # Ensure both files exist
+    tree.build_trees()
+    tree.render_trees()
 
 if __name__ == "__main__":
     run_main()

@@ -149,15 +149,22 @@ class Simulation:
         ]
 
     def desperation_marriage_check(self, character, year):
+        # 1) never allow until age 16 + 5yrs per tier
+        min_age = 16 + (character.numenorean_blood_tier or 0) * 5
+        if character.age < min_age:
+            return False
+
+        # 2) pull the shifted rate
+        desperation_chance = self.desperation_value(character)
+        
+        if random.random() < desperation_chance:
+            self.generate_lowborn_and_marry(character, year)
+            # print(f'{character.char_id} ({character.birth_year}) and {spouse.char_id} ({spouse.birth_year}) married in {year} desperately with desperation of {desperation_chance}')
+
+    def desperation_value(self, character):
         """Check if an unmarried character is willing to marry a lowborn due to desperation."""
         age  = character.age
         tier = character.numenorean_blood_tier or 0
-
-        # 1) never allow until age 16 + 5yrs per tier
-        min_age = 16 + tier * 5
-        if age < min_age:
-            return False
-
         # 2) compute “effective age” for the desperationRates lookup
         eff_age = age - tier * 5
         eff_age = max(eff_age, 0)
@@ -168,59 +175,56 @@ class Simulation:
         dynasty_members = self.get_num_fertile_dynasty_members(character)
         living_count = len(dynasty_members)
         num_dynasty_members_alive_modifier = (max(0,10 - living_count) * 0.20) + 1.0
-        
-        # 3) pull the shifted rate
-        desperation_chance = min (1.0,  base_chance * num_dynasty_members_alive_modifier)
-        
-        if random.random() < desperation_chance:
-            if DEBUG_PRINT:
-                print(f"Lowborn marriage happened, Char ID: {character.char_id}")
+        return min (1.0,  base_chance * num_dynasty_members_alive_modifier)
+
+    def generate_lowborn_and_marry(self, character, year):
+        if DEBUG_PRINT:
+            print(f"Lowborn marriage happened, Char ID: {character.char_id}")
             # Generate a lowborn spouse
-            dynasty_prefix = character.dynasty.split('_')[1] if character.dynasty and '_' in character.dynasty else "lowborn"
-            spouse_char_id = generate_char_id(dynasty_prefix, self.dynasty_char_counters)
-            spouse_name = self.name_loader.load_names(character.culture, "male" if character.sex == "Female" else "female")
-            
-            # Ensure lowborn is human and fertile
-            spouse = Character(
-                char_id=spouse_char_id,
-                name=spouse_name,
-                sex="Male" if character.sex == "Female" else "Female",
-                birth_year=year-random.randint(18, 26),
-                dynasty=None,  # Lowborns do not have a dynasty
-                is_house=False,
-                culture=character.culture,
-                religion=character.religion,
-                gender_law=character.gender_law,
-                sexuality_distribution=self.config['skills_and_traits']['sexualityDistribution'],
-                generation=character.generation,
-                is_progenitor=False,
-                birth_order=1
-            )
-            if spouse:
-                self.add_character_to_pool(spouse)
-                self.all_characters.append(spouse)
-                spouse.assign_skills(self.config['skills_and_traits']['skillProbabilities'])
-                spouse.assign_education(self.config['skills_and_traits']['educationProbabilities'])
-                spouse.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
-                # pick from the two that correspond to their education_skill
-                skill = spouse.education_skill or "diplomacy"
-                choices = self.childhood_by_education.get(skill, ["charming","curious"])
-                trait = random.choice(choices)
-                date = f"{spouse.birth_year+3}.{spouse.birth_month:02d}.{spouse.birth_day:02d}"
-                spouse.add_event(date, f"trait = {trait}")
-                # build the date (their real birthday)
-                date = f"{spouse.birth_year+16}.{spouse.birth_month:02d}.{spouse.birth_day:02d}"
-                # collect the three personality traits…
-                detail_lines = [f"trait = {t}" for t in spouse.personality_traits]
-                # join them into one block (each on its own line, indented by 4 spaces)
-                event_detail = "\n    ".join(detail_lines)
-                # emit a single event with all four lines
-                spouse.add_event(date, event_detail)
+        dynasty_prefix = character.dynasty.split('_')[1] if character.dynasty and '_' in character.dynasty else "lowborn"
+        spouse_char_id = generate_char_id(dynasty_prefix, self.dynasty_char_counters)
+        spouse_name = self.name_loader.load_names(character.culture, "male" if character.sex == "Female" else "female")
+        
+        # Ensure lowborn is human and fertile
+        spouse = Character(
+            char_id=spouse_char_id,
+            name=spouse_name,
+            sex="Male" if character.sex == "Female" else "Female",
+            birth_year=year-random.randint(18, 26),
+            dynasty=None,  # Lowborns do not have a dynasty
+            is_house=False,
+            culture=character.culture,
+            religion=character.religion,
+            gender_law=character.gender_law,
+            sexuality_distribution=self.config['skills_and_traits']['sexualityDistribution'],
+            generation=character.generation,
+            is_progenitor=False,
+            birth_order=1
+        )
+        if spouse:
+            self.add_character_to_pool(spouse)
+            self.all_characters.append(spouse)
+            spouse.assign_skills(self.config['skills_and_traits']['skillProbabilities'])
+            spouse.assign_education(self.config['skills_and_traits']['educationProbabilities'])
+            spouse.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
+            # pick from the two that correspond to their education_skill
+            skill = spouse.education_skill or "diplomacy"
+            choices = self.childhood_by_education.get(skill, ["charming","curious"])
+            trait = random.choice(choices)
+            date = f"{spouse.birth_year+3}.{spouse.birth_month:02d}.{spouse.birth_day:02d}"
+            spouse.add_event(date, f"trait = {trait}")
+            # build the date (their real birthday)
+            date = f"{spouse.birth_year+16}.{spouse.birth_month:02d}.{spouse.birth_day:02d}"
+            # collect the three personality traits…
+            detail_lines = [f"trait = {t}" for t in spouse.personality_traits]
+            # join them into one block (each on its own line, indented by 4 spaces)
+            event_detail = "\n    ".join(detail_lines)
+            # emit a single event with all four lines
+            spouse.add_event(date, event_detail)
 
-            spouse_dynasty = character.dynasty  # Noble's dynasty does not transfer
-            self.marry_characters(character, spouse, year, children_dynasty=spouse_dynasty)
-            # print(f'{character.char_id} ({character.birth_year}) and {spouse.char_id} ({spouse.birth_year}) married in {year} desperately with desperation of {desperation_chance}')
-
+        spouse_dynasty = character.dynasty  # Noble's dynasty does not transfer
+        self.marry_characters(character, spouse, year, children_dynasty=spouse_dynasty)
+    
     def character_death_check(self, character):
         age = character.age
         # effective age for mortality = real age minus 20yrs per blood tier
@@ -256,7 +260,11 @@ class Simulation:
                 # print(f"Negative Char Event: {character.negativeEventDeathReason} | Current Age: {age}")
                 # print(type(mortality_event_multipler))
                 # print(f"Mortality Multipler: {mortality_event_multipler} | Current Birth Year: {birth_year} | Event Start Year: {event.get("startYear")} | Event End Year: {event.get("endYear")}")
+        
         random_var = random.random()
+        if self.prioritise_lowborn_marriage.get(character.dynasty, False):
+            random_var *= 0.35
+        
                 
         return (random_var * mortality_event_multipler) < mortality_rate
 
@@ -476,6 +484,13 @@ class Simulation:
         for character in self.all_characters:
             if character.dynasty == child_dynasty and character.alive and is_fertile(character):
                 alive_members_in_dynasy += 1
+                
+        #Artificially decrease fertility for dynasties marrying lowborns more
+        # if father.dynasty == child_dynasty and self.prioritise_lowborn_marriage.get(father.dynasty, False):
+        #     fertilityModifier *= father.fertilityModifier*0.65
+        # elif mother.dynasty == child_dynasty and self.prioritise_lowborn_marriage.get(mother.dynasty, False):
+        #     fertilityModifier *= mother.fertilityModifier*0.65
+            
 
         if alive_members_in_dynasy > 8: #A lot of dynasty members are alive
             if child_sex == "Male":
@@ -629,29 +644,10 @@ class Simulation:
             
             prioritise_lowborn = self.prioritise_lowborn_marriage.get(male.dynasty, False)
             try_lowborn_first = prioritise_lowborn and random.random() < 0.6
-
+            
             if try_lowborn_first:
-                available_lowborn_females = [
-                    f for f in females
-                    if f.alive
-                    and not f.married
-                    and f.can_marry
-                    and f.dynasty is None
-                    and not self.are_siblings(male, f)
-                    and (
-                        self.allow_cousin_marriage.get(male.dynasty, False)
-                        or not self.are_first_cousins(male, f)
-                    )
-                    and abs(f.age - male.age) <= max(
-                        self.max_age_diff_for(male),
-                        self.max_age_diff_for(f)
-                    )
-                ]
-
-                if available_lowborn_females:
-                    female = self.pick_partner_by_blood_preference(male, available_lowborn_females)
-                    self.marry_characters(male, female, year)
-                    continue
+                self.generate_lowborn_and_marry(male, year)
+                continue
 
             # Prioritize marriage for firstborn children
             available_females = [
