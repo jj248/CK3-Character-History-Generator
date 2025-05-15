@@ -96,7 +96,8 @@ def display_dynasty_config():
             reset_to_default()
             # If reset was triggered, reload config and clear flag
             if st.session_state.get("reset_triggered", False):
-                config = load_config("config/initialization.json")
+                config = load_config("config/fallback_config_files/initialization.json")
+                save_config(config, "config/initialization.json")
                 st.success("Configuration reset to default.")
                 st.session_state["reset_triggered"] = False
             else:
