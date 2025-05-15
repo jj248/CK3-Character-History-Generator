@@ -90,7 +90,7 @@ def display_dynasty_config():
     # Disabling condition: Until the config is loaded, set the 'disabled' flag
     disabled = not st.session_state["config_loaded"]
 
-    reset_dynsaties, set_new_dynasties, delete_all_dynasties = st.columns(3)
+    reset_dynsaties, delete_all_dynasties, set_new_dynasties = st.columns(3)
     with reset_dynsaties:
         if st.button("🔄 Reset Dynasties", disabled=disabled):
             reset_to_default()
