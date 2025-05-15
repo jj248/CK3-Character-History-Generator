@@ -90,7 +90,7 @@ def display_dynasty_config():
     # Disabling condition: Until the config is loaded, set the 'disabled' flag
     disabled = not st.session_state["config_loaded"]
 
-    reset_dynsaties, set_new_dynasties = st.columns(2)
+    reset_dynsaties, set_new_dynasties, delete_all_dynasties = st.columns(3)
     with reset_dynsaties:
         if st.button("🔄 Reset Dynasties", disabled=disabled):
             reset_to_default()
@@ -105,6 +105,12 @@ def display_dynasty_config():
         if st.button("🔄 Set New Fallback Dynasties", disabled=disabled):
             set_new_default()
             st.success("New default dynasties set.")
+    with delete_all_dynasties:
+        if st.button("❌ Delete All Dynasties", disabled=disabled):
+            config['dynasties'].clear()
+            save_config(config, "config/initialization.json")
+            st.rerun()
+            st.success("All Dynasties Deleted.")
             
 
     # Split the layout into 3 horizontal columns
