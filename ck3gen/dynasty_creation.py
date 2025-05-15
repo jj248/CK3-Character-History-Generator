@@ -1,6 +1,7 @@
 import json
 import logging
 import os  # Add this import
+from ck3gen.config_loader import LOADED_INFO_FILES
 
 def generate_dynasty_definitions(config_file, output_file="dynasty_definitions.txt"):
     """Generates dynasty definitions from an initialization JSON file."""
@@ -35,8 +36,8 @@ def generate_dynasty_definitions(config_file, output_file="dynasty_definitions.t
             file.write(f"\tculture = \"{culture_id}\"\n")
             file.write(f"\tmotto = dynn_{dynasty_id}_motto\n")
             file.write("}\n\n")
-    
-    logging.info(f"Dynasty definitions exported to {output_path}.")
+    if LOADED_INFO_FILES:
+        logging.info(f"Dynasty definitions exported to {output_path}.")
 
 def generate_dynasty_name_localization(config_file, output_file="lotr_dynasty_names_l_english.yml"):
     """Generates dynasty names from an initialization JSON file."""
@@ -67,8 +68,8 @@ def generate_dynasty_name_localization(config_file, output_file="lotr_dynasty_na
                 continue
         
             file.write(f"dynn_{dynasty_id}: \"{dynasty_name}\"""\n")
-    
-    logging.info(f"Dynasty names exported to {output_path}.")
+    if LOADED_INFO_FILES:
+        logging.info(f"Dynasty names exported to {output_path}.")
 
 def generate_dynasty_motto_localization(config_file, output_file="lotr_mottos_l_english.yml"):
     """Generates dynasty names from an initialization JSON file."""
@@ -100,5 +101,5 @@ def generate_dynasty_motto_localization(config_file, output_file="lotr_mottos_l_
                 continue
         
             file.write(f"dynn_{dynasty_id}_motto: \"{dynastyMotto}\"""\n")
-    
-    logging.info(f"Dynasty Mottos exported to {output_path}.")
+    if LOADED_INFO_FILES:
+        logging.info(f"Dynasty Mottos exported to {output_path}.")

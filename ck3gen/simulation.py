@@ -2,6 +2,7 @@ import os
 import random
 import logging
 import re
+from ck3gen.config_loader import DEBUG_PRINT
 from ck3gen.character import Character
 from utils.utils import generate_random_date, generate_char_id
 from ck3gen.name_loader import NameLoader
@@ -29,6 +30,11 @@ class Simulation:
         # Load dynasty‑level cousin‑marriage rule
         self.allow_cousin_marriage = {
             d['dynastyID']: d.get('allowFirstCousinMarriage', False)
+            for d in config['initialization']['dynasties']
+        }
+        
+        self.prioritise_lowborn_marriage = {
+            d['dynastyID']: d.get('prioritiseLowbornMarraige', False)
             for d in config['initialization']['dynasties']
         }
 
@@ -167,7 +173,8 @@ class Simulation:
         desperation_chance = min (1.0,  base_chance * num_dynasty_members_alive_modifier)
         
         if random.random() < desperation_chance:
-            print(f"Lowborn marriage happened, Char ID: {character.char_id}")
+            if DEBUG_PRINT:
+                print(f"Lowborn marriage happened, Char ID: {character.char_id}")
             # Generate a lowborn spouse
             dynasty_prefix = character.dynasty.split('_')[1] if character.dynasty and '_' in character.dynasty else "lowborn"
             spouse_char_id = generate_char_id(dynasty_prefix, self.dynasty_char_counters)
@@ -258,7 +265,7 @@ class Simulation:
             logging.info(f"Attempted self-marriage for {char1.char_id}. Skipping.")
             return
         
-        if char1.married or char2.married:
+        if (char1.married or char2.married) and DEBUG_PRINT:
             logging.info(f"One of the characters is already married: {char1.char_id}, {char2.char_id}. Skipping.")
             return
         
@@ -620,6 +627,32 @@ class Simulation:
             if not male.alive or male.married or not male.can_marry:
                 continue
             
+            prioritise_lowborn = self.prioritise_lowborn_marriage.get(male.dynasty, False)
+            try_lowborn_first = prioritise_lowborn and random.random() < 0.6
+
+            if try_lowborn_first:
+                available_lowborn_females = [
+                    f for f in females
+                    if f.alive
+                    and not f.married
+                    and f.can_marry
+                    and f.dynasty is None
+                    and not self.are_siblings(male, f)
+                    and (
+                        self.allow_cousin_marriage.get(male.dynasty, False)
+                        or not self.are_first_cousins(male, f)
+                    )
+                    and abs(f.age - male.age) <= max(
+                        self.max_age_diff_for(male),
+                        self.max_age_diff_for(f)
+                    )
+                ]
+
+                if available_lowborn_females:
+                    female = self.pick_partner_by_blood_preference(male, available_lowborn_females)
+                    self.marry_characters(male, female, year)
+                    continue
+
             # Prioritize marriage for firstborn children
             available_females = [
                 f for f in females

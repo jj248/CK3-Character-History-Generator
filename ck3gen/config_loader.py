@@ -2,6 +2,30 @@ import json
 import os
 import logging
 
+###############################
+### Imported to other files ###
+###############################
+# Toggle this to True if you want to print debug statements scattered throughout the code
+# WARNING: There are a LOT of print statements
+DEBUG_PRINT = False
+
+# Toggle this to True if you want to collect & print stats of characters
+STATS_ENABLED = True
+
+# Toggle this to True if you want to collect & print stats of numenorean blood and its inheritance
+NUMENOREAN_BLOOD_STATS = False
+
+# Toggle this to True if you want to print info about titles
+TITLE_INFO_ENABLED = False
+
+# Toggle this to True if you want to print info about which files were loaded and to where they were exported
+LOADED_INFO_FILES = False
+
+# Toggle this to run several simulations. 
+# NB: Does not save each iteration, this is simply used to get an X amount of statistics in one go
+NUM_SIMULATIONS = 10
+###############################
+
 class ConfigLoader:
     def __init__(self, config_folder='config'):
         self.config_folder = config_folder
@@ -24,7 +48,8 @@ class ConfigLoader:
             with open(file_path, 'r', encoding='utf-8') as file:
                 try:
                     self.config[category] = json.load(file)
-                    logging.info(f"Loaded configuration from {filename}.")
+                    if LOADED_INFO_FILES:
+                        logging.info(f"Loaded configuration from {filename}.")
                 except json.JSONDecodeError as e:
                     raise ValueError(f"Error parsing {filename}: {e}")
 
