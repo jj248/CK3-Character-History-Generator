@@ -24,6 +24,9 @@ LOADED_INFO_FILES = False
 # Toggle this to run several simulations. 
 # NB: Does not save each iteration, this is simply used to get an X amount of statistics in one go
 NUM_SIMULATIONS = 1
+
+# Toggle this to generate images
+GENERATE_IMAGE_BOOL = True
 ###############################
 
 class ConfigLoader:

@@ -6,6 +6,7 @@ from ck3gen.config_loader import STATS_ENABLED
 from ck3gen.config_loader import NUMENOREAN_BLOOD_STATS
 from ck3gen.config_loader import TITLE_INFO_ENABLED
 from ck3gen.config_loader import NUM_SIMULATIONS
+from ck3gen.config_loader import GENERATE_IMAGE_BOOL
 from ck3gen.config_loader import ConfigLoader
 from ck3gen.family_tree import FamilyTree
 from ck3gen.name_loader import NameLoader
@@ -381,9 +382,10 @@ def run_main():
 
     titles.write_title_histories_to_file()
 
-    tree = FamilyTree("Character and Title files/family_history.txt", "Character and Title files/title_history.txt", config_loader.config)  # Ensure both files exist
-    tree.build_trees()
-    tree.render_trees()
+    if GENERATE_IMAGE_BOOL:
+        tree = FamilyTree("Character and Title files/family_history.txt", "Character and Title files/title_history.txt", config_loader.config)  # Ensure both files exist
+        tree.build_trees()
+        tree.render_trees()
 
 if __name__ == "__main__":
     run_main()

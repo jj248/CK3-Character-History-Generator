@@ -258,15 +258,15 @@
         },
 		"fickle": {
             "weight": 1,
-            "excludes": ["stubborn"]
+            "excludes": ["stubborn", "eccentric"]
         },
         "stubborn": {
             "weight": 1,
-            "excludes": ["fickle"]
+            "excludes": ["fickle", "eccentric"]
         },
         "eccentric": {
             "weight": 1,
-            "excludes": []
+            "excludes": ["stubborn", "fickle"]
         },
         "totalTraitsPerCharacter": 3
 	}
