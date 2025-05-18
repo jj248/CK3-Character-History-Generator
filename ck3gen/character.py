@@ -60,7 +60,8 @@ class Character:
         is_bastard=False,
         birth_order=1,  # Add birth_order as an argument
         negativeEventDeathReason=None,
-        fertilityModifier=1
+        fertilityModifier=1,
+        numenorean_blood_tier=None
     ):
         self.is_bastard = is_bastard
         self.char_id = char_id
