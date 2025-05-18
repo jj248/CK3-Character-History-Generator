@@ -233,7 +233,7 @@
     "initialCharID": 1,
     "minYear": 4700,
     "maxYear": 5480,
-    "generationMax": 6,
+    "generationMax": 100,
     "treeGeneration": "TB",
     "spouseVisible": "no",
     "numenorInheritance": {
