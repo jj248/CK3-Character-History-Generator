@@ -184,23 +184,41 @@ class Simulation:
         dynasty_prefix = character.dynasty.split('_')[1] if character.dynasty and '_' in character.dynasty else "lowborn"
         spouse_char_id = generate_char_id(dynasty_prefix, self.dynasty_char_counters)
         spouse_name = self.name_loader.load_names(character.culture, "male" if character.sex == "Female" else "female")
-        
-        # Ensure lowborn is human and fertile
-        spouse = Character(
-            char_id=spouse_char_id,
-            name=spouse_name,
-            sex="Male" if character.sex == "Female" else "Female",
-            birth_year=year-random.randint(18, 26),
-            dynasty=None,  # Lowborns do not have a dynasty
-            is_house=False,
-            culture=character.culture,
-            religion=character.religion,
-            gender_law=character.gender_law,
-            sexuality_distribution=self.config['skills_and_traits']['sexualityDistribution'],
-            generation=character.generation,
-            is_progenitor=False,
-            birth_order=1
-        )
+        if character.numenorean_blood_tier:
+            # Ensure lowborn is human and fertile
+            spouse = Character(
+                char_id=spouse_char_id,
+                name=spouse_name,
+                sex="Male" if character.sex == "Female" else "Female",
+                birth_year=year-random.randint(18, 26),
+                dynasty=None,  # Lowborns do not have a dynasty
+                is_house=False,
+                culture=character.culture,
+                religion=character.religion,
+                gender_law=character.gender_law,
+                sexuality_distribution=self.config['skills_and_traits']['sexualityDistribution'],
+                generation=character.generation,
+                is_progenitor=False,
+                birth_order=1,
+                numenorean_blood_tier=character.numenorean_blood_tier
+            )
+        else:
+            # Ensure lowborn is human and fertile
+            spouse = Character(
+                char_id=spouse_char_id,
+                name=spouse_name,
+                sex="Male" if character.sex == "Female" else "Female",
+                birth_year=year-random.randint(18, 26),
+                dynasty=None,  # Lowborns do not have a dynasty
+                is_house=False,
+                culture=character.culture,
+                religion=character.religion,
+                gender_law=character.gender_law,
+                sexuality_distribution=self.config['skills_and_traits']['sexualityDistribution'],
+                generation=character.generation,
+                is_progenitor=False,
+                birth_order=1
+            )
         if spouse:
             self.add_character_to_pool(spouse)
             self.all_characters.append(spouse)
