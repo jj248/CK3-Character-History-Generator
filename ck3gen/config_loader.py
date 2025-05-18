@@ -26,7 +26,7 @@ LOADED_INFO_FILES = False
 NUM_SIMULATIONS = 1
 
 # Toggle this to generate images
-GENERATE_IMAGE_BOOL = True
+GENERATE_IMAGE_BOOL = False
 ###############################
 
 class ConfigLoader:

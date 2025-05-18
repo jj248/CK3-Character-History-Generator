@@ -51,11 +51,11 @@ def save_config(config_data, config_path):
         json.dump(config_data, f, indent=4)
 
 # Reset config to default
-def reset_to_default():
-    dyn_config_path = get_resource_path("config/initialization.json")
+def reset_to_default(config_path, fallback_config_path):
+    dyn_config_path = get_resource_path(fallback_config_path)
     with open(dyn_config_path) as f:
         default_data = json.load(f)
-    save_config(default_data, dyn_config_path)
+    save_config(default_data, config_path)
     st.session_state["reset_triggered"] = True
 
 
@@ -93,7 +93,7 @@ def display_dynasty_config():
     reset_dynsaties, delete_all_dynasties, set_new_dynasties = st.columns(3)
     with reset_dynsaties:
         if st.button("🔄 Reset Dynasties", disabled=disabled):
-            reset_to_default()
+            reset_to_default("config/initialization.json", "config/fallback_config_files/initialization.json")
             # If reset was triggered, reload config and clear flag
             if st.session_state.get("reset_triggered", False):
                 config = load_config("config/fallback_config_files/initialization.json")
@@ -352,7 +352,7 @@ def display_event_config():
     disabled = not st.session_state["config_loaded"]
 
     if st.button("🔄 Reset Events", disabled=disabled):
-        reset_to_default()
+        reset_to_default("config/initialization.json", "config/fallback_config_files/initialization.json")
         
     # If reset was triggered, reload config and clear flag
     if st.session_state.get("reset_triggered", False):
@@ -436,7 +436,7 @@ def display_life_stage_config():
     disabled = not st.session_state["config_loaded"]
 
     if st.button("🔄 Reset Life Cycle Modifiers", disabled=disabled):
-        reset_to_default()
+        reset_to_default("config/life_stages.json", "config/fallback_config_files/life_stages.json")
         
     # If reset was triggered, reload config and clear flag
     if st.session_state.get("reset_triggered", False):
