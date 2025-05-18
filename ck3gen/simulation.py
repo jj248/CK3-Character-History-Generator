@@ -364,7 +364,7 @@ class Simulation:
         # both grand-parents found – recurse
         return self.elder_of(gpa, gpb)
 
-    def create_child(self, mother, father, birth_year):
+    def create_child(self, mother, father, birth_year) -> Character:
 
         #print(f"Father Age:",{father.age},"Father Fertility:",{self.config['life_stages']['fertilityRates']['Female'][father.age]},"Mother Age:",{mother.age},"Mother Fertility:",{self.config['life_stages']['fertilityRates']['Female'][mother.age]})
 
@@ -380,10 +380,6 @@ class Simulation:
 
         if last_birth_year is not None and birth_year < (last_birth_year + min_years):
             return None
-
-        # Use fertilityRates to determine if a child is produced
-        female_age = mother.age
-        fertility_rate = self.config['life_stages']['fertilityRates']['Female'][female_age]
         
         # Proceed with child creation
         self.character_count += 1
@@ -561,7 +557,7 @@ class Simulation:
         if not current_dynasty:
             logging.warning(f"Dynasty {child_dynasty} not found. Assigning random name.")
             assigned_name = self.name_loader.load_names(mother.culture, child_sex.lower())
-            return self.ensure_unique_name(assigned_name, mother, father, child_sex.lower())
+            return self.ensure_unique_name(mother, father, child_sex.lower())
 
         # Get name inheritance chances
         inheritance_chances = current_dynasty['nameInheritance']
@@ -585,18 +581,18 @@ class Simulation:
                 assigned_name = grandmother.name if grandmother else None
             
             if assigned_name:
-                return self.ensure_unique_name(assigned_name, mother, father, child_sex.lower())
+                return self.ensure_unique_name(mother, father, child_sex.lower())
 
         # Try to assign a parent's name
         if chosen_method == 'parent':
             assigned_name = father.name if child_sex == "Male" else mother.name
-            return self.ensure_unique_name(assigned_name, mother, father, child_sex.lower())
+            return self.ensure_unique_name(mother, father, child_sex.lower())
 
         # Assign a random name from the name list
         assigned_name = self.name_loader.load_names(mother.culture, child_sex.lower())
-        return self.ensure_unique_name(assigned_name, mother, father, child_sex.lower())
+        return self.ensure_unique_name(mother, father, child_sex.lower())
 	
-    def ensure_unique_name(self, proposed_name, mother, father, child_gender):
+    def ensure_unique_name(self, mother, father, child_gender):
         """Ensures every child receives a name, even if it's a duplicate."""
         existing_names = {child.name for child in mother.children + father.children if child.alive}
 
@@ -701,10 +697,10 @@ class Simulation:
                 female = self.pick_partner_by_blood_preference(male, available_females)
                 self.marry_characters(male, female, year)
 
-    def are_siblings(self, char1, char2):
+    def are_siblings(self, char1, char2) -> Character:
         return char2 in char1.siblings()
     
-    def are_first_cousins(self, char1, char2):
+    def are_first_cousins(self, char1, char2) -> bool:
         for p1 in (char1.father, char1.mother):
             for p2 in (char2.father, char2.mother):
                 if p1 and p2 and self.are_siblings(p1, p2):

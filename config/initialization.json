@@ -1,490 +1,213 @@
 {
     "dynasties": [
         {
-            "dynastyName": "Adarfiruzen",
-            "dynastyMotto": "Our Name Is Our Bond",
+            "dynastyName": "Baramirionath",
+            "dynastyMotto": "PLACEHOLDER",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_adarfiruzen",
+            "dynastyID": "dynasty_baramirionath",
             "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
+            "faithID": "faith_edain",
+            "cultureID": "umbaredain",
             "gender_law": "AGNATIC_COGNATIC",
-            "progenitorMaleBirthYear": 6022,
+            "progenitorMaleBirthYear": 4713,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
             },
             "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
+            "prioritiseLowbornMarraige": false,
+            "numenorBloodTier": 9
         },
         {
-            "dynastyName": "Bahlikaran",
-            "dynastyMotto": "Let None Stand Before Us",
+            "dynastyName": "Elphirion",
+            "dynastyMotto": "PLACEHOLDER",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_bahlikaran",
+            "dynastyID": "dynasty_elphirion",
             "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
+            "faithID": "faith_edain",
+            "cultureID": "umbaredain",
             "gender_law": "AGNATIC_COGNATIC",
-            "progenitorMaleBirthYear": 6024,
+            "progenitorMaleBirthYear": 4714,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
             },
             "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
+            "prioritiseLowbornMarraige": false,
+            "numenorBloodTier": 9
         },
         {
-            "dynastyName": "Bahraman",
-            "dynastyMotto": "Our Wrath Is Written in Flame",
+            "dynastyName": "Eradanionath",
+            "dynastyMotto": "PLACEHOLDER",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_bahraman",
+            "dynastyID": "dynasty_eradanionath",
             "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
+            "faithID": "faith_edain",
+            "cultureID": "umbaredain",
             "gender_law": "AGNATIC_COGNATIC",
-            "progenitorMaleBirthYear": 6050,
+            "progenitorMaleBirthYear": 4713,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
             },
             "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
+            "prioritiseLowbornMarraige": false,
+            "numenorBloodTier": 9
         },
         {
-            "dynastyName": "Caramadran",
-            "dynastyMotto": "Eyes to the Sky, Feet in the Dust",
+            "dynastyName": "Gelmirion",
+            "dynastyMotto": "PLACEHOLDER",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_caramadran",
+            "dynastyID": "dynasty_gelmirion",
             "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
+            "faithID": "faith_edain",
+            "cultureID": "umbaredain",
             "gender_law": "AGNATIC_COGNATIC",
-            "progenitorMaleBirthYear": 6054,
+            "progenitorMaleBirthYear": 4713,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
             },
             "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
+            "prioritiseLowbornMarraige": false,
+            "numenorBloodTier": 9
         },
         {
-            "dynastyName": "Dadfiruzen",
-            "dynastyMotto": "From Fire and Stone, We Rise",
+            "dynastyName": "Harathorionath",
+            "dynastyMotto": "PLACEHOLDER",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_dadfiruzen",
+            "dynastyID": "dynasty_harathorionath",
             "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
+            "faithID": "faith_edain",
+            "cultureID": "umbaredain",
             "gender_law": "AGNATIC_COGNATIC",
-            "progenitorMaleBirthYear": 6020,
+            "progenitorMaleBirthYear": 4713,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
             },
             "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
+            "prioritiseLowbornMarraige": false,
+            "numenorBloodTier": 9
         },
         {
-            "dynastyName": "Dahmard",
-            "dynastyMotto": "One Roar, One Blade, One Blood",
+            "dynastyName": "Hirluinionath",
+            "dynastyMotto": "PLACEHOLDER",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_dahmard",
+            "dynastyID": "dynasty_hirluinionath",
             "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
+            "faithID": "faith_edain",
+            "cultureID": "umbaredain",
             "gender_law": "AGNATIC_COGNATIC",
-            "progenitorMaleBirthYear": 6048,
+            "progenitorMaleBirthYear": 4713,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
             },
             "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
+            "prioritiseLowbornMarraige": false,
+            "numenorBloodTier": 9
         },
         {
-            "dynastyName": "Esrecarzen",
-            "dynastyMotto": "Guided by Flame, Guarded by Fate",
+            "dynastyName": "Mirlongionath",
+            "dynastyMotto": "PLACEHOLDER",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_esrecarzen",
+            "dynastyID": "dynasty_mirlongionath",
             "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
+            "faithID": "faith_edain",
+            "cultureID": "umbaredain",
             "gender_law": "AGNATIC_COGNATIC",
-            "progenitorMaleBirthYear": 6028,
+            "progenitorMaleBirthYear": 4713,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
             },
             "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
+            "prioritiseLowbornMarraige": false,
+            "numenorBloodTier": 9
         },
         {
-            "dynastyName": "Farshidzen",
-            "dynastyMotto": "Ancient Roots, Unyielding Branches",
+            "dynastyName": "Olumirion",
+            "dynastyMotto": "PLACEHOLDER",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_farshidzen",
+            "dynastyID": "dynasty_olumirion",
             "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
+            "faithID": "faith_edain",
+            "cultureID": "umbaredain",
             "gender_law": "AGNATIC_COGNATIC",
-            "progenitorMaleBirthYear": 6044,
+            "progenitorMaleBirthYear": 4713,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
             },
             "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
+            "prioritiseLowbornMarraige": false,
+            "numenorBloodTier": 9
         },
         {
-            "dynastyName": "Garozen",
-            "dynastyMotto": "Bound by Oath, Freed by Glory",
+            "dynastyName": "Ragnirion",
+            "dynastyMotto": "PLACEHOLDER",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_garozen",
+            "dynastyID": "dynasty_ragnirion",
             "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
+            "faithID": "faith_edain",
+            "cultureID": "umbaredain",
+            "gender_law": "ABSOLUTE_COGNATIC",
+            "progenitorMaleBirthYear": 4713,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "allowFirstCousinMarriage": false,
+            "prioritiseLowbornMarraige": false,
+            "numenorBloodTier": 9
+        },
+        {
+            "dynastyName": "Suldorionath",
+            "dynastyMotto": "PLACEHOLDER",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_suldorionath",
+            "isHouse": false,
+            "faithID": "faith_edain",
+            "cultureID": "umbaredain",
             "gender_law": "AGNATIC_COGNATIC",
-            "progenitorMaleBirthYear": 6056,
+            "progenitorMaleBirthYear": 4713,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
             },
             "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
+            "prioritiseLowbornMarraige": false,
+            "numenorBloodTier": 9
         },
         {
-            "dynastyName": "Homazen",
-            "dynastyMotto": "The Line Endures Like the Mountain",
+            "dynastyName": "Thorondirionath",
+            "dynastyMotto": "PLACEHOLDER",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_homazen",
+            "dynastyID": "dynasty_thorondirionath",
             "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
+            "faithID": "faith_edain",
+            "cultureID": "umbaredain",
             "gender_law": "AGNATIC_COGNATIC",
-            "progenitorMaleBirthYear": 6058,
+            "progenitorMaleBirthYear": 4714,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
             },
             "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
-        },
-        {
-            "dynastyName": "Imez",
-            "dynastyMotto": "The Horn Is Sounded, the Flame Awakens",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_imez",
-            "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6230,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
-        },
-        {
-            "dynastyName": "Jamo",
-            "dynastyMotto": "Though Few, We Are Fearless",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_jamo",
-            "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6232,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
-        },
-        {
-            "dynastyName": "Kerhamez",
-            "dynastyMotto": "Unbroken Through Wind and War",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_kerhamez",
-            "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6234,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
-        },
-        {
-            "dynastyName": "Khudaradmen",
-            "dynastyMotto": "We Are the Storm Upon the Hill",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_khudaradmen",
-            "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6226,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
-        },
-        {
-            "dynastyName": "Lamarzen",
-            "dynastyMotto": "The Falcon Sees All, The Stag Remembers",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_lamarzen",
-            "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6224,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
-        },
-        {
-            "dynastyName": "Mentarez",
-            "dynastyMotto": "We Strike from Shadow and Sunrise",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_mentarez",
-            "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6238,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
-        },
-        {
-            "dynastyName": "Namdarez",
-            "dynastyMotto": "Steel in Hand, Fire in Heart",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_namdarez",
-            "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6236,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
-        },
-        {
-            "dynastyName": "Naymardan",
-            "dynastyMotto": "We Dream in Sapphire and Smoke",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_naymardan",
-            "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6240,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
-        },
-        {
-            "dynastyName": "Osard",
-            "dynastyMotto": "What Is Written in the Stars, We Make Real",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_osard",
-            "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6436,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
-        },
-        {
-            "dynastyName": "Pamaran",
-            "dynastyMotto": "Clan of Stars, Kin of Kings",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_pamaran",
-            "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6448,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
-        },
-        {
-            "dynastyName": "Qudoz",
-            "dynastyMotto": "We Speak with the Voice of Ancestors",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_qudoz",
-            "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6410,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
-        },
-        {
-            "dynastyName": "Ramazen",
-            "dynastyMotto": "First to Rise, Last to Fall",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_ramazen",
-            "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6422,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
-        },
-        {
-            "dynastyName": "Shirzadeh",
-            "dynastyMotto": "Echoes of the Sacred Forge",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_shirzadeh",
-            "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6442,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
-        },
-        {
-            "dynastyName": "Tarimez",
-            "dynastyMotto": "The Moon Knows Our True Name",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_tarimez",
-            "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6430,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
-        },
-        {
-            "dynastyName": "Umoza",
-            "dynastyMotto": "We Ride with Thunder",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_umoza",
-            "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6474,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
-        },
-        {
-            "dynastyName": "Vahramzen",
-            "dynastyMotto": "Honour Wrought in Gold and Iron",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_vahramzen",
-            "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6446,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
-        },
-        {
-            "dynastyName": "Visnarmaken",
-            "dynastyMotto": "By the Blood of the Highlands and the Flame of the East",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_visnarmaken",
-            "isHouse": false,
-            "faithID": "faith_tilanik",
-            "cultureID": "clyan",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6432,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": false
+            "prioritiseLowbornMarraige": false,
+            "numenorBloodTier": 9
         }
     ],
     "events": [
@@ -508,9 +231,9 @@
         }
     ],
     "initialCharID": 1,
-    "minYear": 6000,
-    "maxYear": 7033,
-    "generationMax": 100,
+    "minYear": 4700,
+    "maxYear": 5480,
+    "generationMax": 6,
     "treeGeneration": "TB",
     "spouseVisible": "no",
     "numenorInheritance": {

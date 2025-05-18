@@ -7,7 +7,7 @@ import logging
 ###############################
 # Toggle this to True if you want to print debug statements scattered throughout the code
 # WARNING: There are a LOT of print statements
-DEBUG_PRINT = False
+DEBUG_PRINT = True
 
 # Toggle this to True if you want to collect & print stats of characters
 STATS_ENABLED = True
@@ -26,7 +26,7 @@ LOADED_INFO_FILES = False
 NUM_SIMULATIONS = 1
 
 # Toggle this to generate images
-GENERATE_IMAGE_BOOL = False
+GENERATE_IMAGE_BOOL = True
 ###############################
 
 class ConfigLoader:
