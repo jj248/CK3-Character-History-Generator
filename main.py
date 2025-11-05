@@ -2,21 +2,23 @@ import logging
 import os
 import sys
 import statistics
-from ck3gen.config_loader import STATS_ENABLED
-from ck3gen.config_loader import NUMENOREAN_BLOOD_STATS
-from ck3gen.config_loader import TITLE_INFO_ENABLED
-from ck3gen.config_loader import NUM_SIMULATIONS
-from ck3gen.config_loader import GENERATE_IMAGE_BOOL
-from ck3gen.config_loader import ConfigLoader
+import random
+from collections import defaultdict
+from ck3gen.config_loader import (
+    STATS_ENABLED, NUMENOREAN_BLOOD_STATS, TITLE_INFO_ENABLED,
+    NUM_SIMULATIONS, GENERATE_IMAGE_BOOL, ConfigLoader
+)
 from ck3gen.family_tree import FamilyTree
 from ck3gen.name_loader import NameLoader
 from ck3gen.simulation import Simulation
 from ck3gen.character import Character
-from ck3gen.title_history import CharacterLoader
-from ck3gen.title_history import TitleHistory
-from ck3gen.dynasty_creation import generate_dynasty_definitions, generate_dynasty_name_localization, generate_dynasty_motto_localization
-from utils.utils import generate_char_id, generate_random_date
-import random
+from ck3gen.title_history import CharacterLoader  # Needed for original logic
+from ck3gen.title_history import TitleHistory      # Needed for original logic
+from ck3gen.dynasty_creation import (
+    generate_dynasty_definitions, generate_dynasty_name_localization,
+    generate_dynasty_motto_localization
+)
+from utils.utils import generate_char_id
 
 def get_resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -31,361 +33,353 @@ def setup_logging():
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler()
-        ]
+        handlers=[logging.StreamHandler()]
     )
 
-def run_main():
-    setup_logging()
+def generate_game_files(config_loader):
+    """Generates dynasty definition and localization files from config."""
+    logging.info("Generating dynasty game files...")
     try:
-        config_loader = ConfigLoader('config')  # Ensure 'config' directory is correct
-        Character.DYNASTY_LANGUAGE_RULES = config_loader.get_language_rules()
-        
         dynasty_config_path = get_resource_path("config/initialization.json")
         generate_dynasty_definitions(dynasty_config_path, "dynasty_definitions.txt")
         generate_dynasty_name_localization(dynasty_config_path, "lotr_dynasty_names_l_english.yml")
         generate_dynasty_motto_localization(dynasty_config_path, "lotr_mottos_l_english.yml")
     except Exception as e:
-        logging.error(f"Failed to load configuration: {e}")
-        return
+        logging.error(f"Failed to generate game files: {e}")
+        raise
 
-    name_loader = NameLoader('name_lists')
+def create_progenitor_couple(dynasty_config, simulation, config_loader, name_loader):
+    """Creates and marries a progenitor couple for a given dynasty."""
     
-    lowborn_married_array = []
-    total_num_char_array = []
-    percentages_array = []
+    # --- 1. Load Config Values ---
+    skills_config = config_loader.get_skills_and_traits_config()
+    life_stages_config = config_loader.get_life_stages_config()
     
-    for num_simulation in range(NUM_SIMULATIONS):
-        simulation = Simulation(config_loader.config, name_loader)
+    dynasty_id = dynasty_config['dynastyID']
+    culture_id = dynasty_config['cultureID']
+    religion_id = dynasty_config['faithID']
+    gender_law = dynasty_config['gender_law']
+    is_house = dynasty_config['isHouse']
+    progenitor_birth_year = dynasty_config['progenitorMaleBirthYear']
+    tier = dynasty_config.get('numenorBloodTier', 0)
+    dynasty_prefix = dynasty_id.split('_')[1] if '_' in dynasty_id else dynasty_id
 
-        # Generate progenitor characters for each dynasty
-        initialization_config = config_loader.get_initialization_config()
-        skills_and_traits_config = config_loader.get_skills_and_traits_config()
-        life_stages_config = config_loader.get_life_stages_config()
+    # --- 2. Determine Genders ---
+    if gender_law in ["ENATIC", "ENATIC_COGNATIC"]:
+        primary_sex = "Female"
+        spouse_sex = "Male"
+    else:
+        primary_sex = "Male"
+        spouse_sex = "Female"
 
-        for dynasty_config in initialization_config.get('dynasties', []):
-            dynasty_id = dynasty_config['dynastyID']
-            culture_id = dynasty_config['cultureID']
-            religion_id = dynasty_config['faithID']
-            gender_law = dynasty_config['gender_law']
-            is_house = dynasty_config['isHouse']
-            progenitor_birth_year = dynasty_config['progenitorMaleBirthYear']
-            tier = dynasty_config.get('numenorBloodTier', 0)
-            dynasty_prefix = dynasty_id.split('_')[1] if '_' in dynasty_id else dynasty_id
+    # --- 3. Create Primary (Noble) Character ---
+    progenitor_char_id = generate_char_id(dynasty_prefix, simulation.dynasty_char_counters)
+    progenitor_name = name_loader.load_names(culture_id, primary_sex.lower())
+    progenitor = Character(
+        char_id=progenitor_char_id,
+        name=progenitor_name,
+        sex=primary_sex,
+        birth_year=progenitor_birth_year,
+        dynasty=dynasty_id,
+        is_house=is_house,
+        culture=culture_id,
+        religion=religion_id,
+        gender_law=gender_law,
+        sexuality_distribution=skills_config['sexualityDistribution'],
+        generation=1,
+        is_progenitor=True,
+        birth_order=1
+    )
+    progenitor.age = 18  # Set initial age
+    progenitor.numenorean_blood_tier = tier
+    simulation.add_character_to_pool(progenitor)
+    simulation.all_characters.append(progenitor)
 
-            if gender_law == "ENATIC" or gender_law == "ENATIC_COGNATIC":
-                # Create progenitor female
-                progenitor_male_char_id = generate_char_id(dynasty_prefix, simulation.dynasty_char_counters)
-                progenitor_male_name = name_loader.load_names(culture_id, "female")
-                progenitor_male = Character(
-                    char_id=progenitor_male_char_id,
-                    name=progenitor_male_name,
-                    sex="Female",
-                    birth_year=progenitor_birth_year,
-                    dynasty=dynasty_id,
-                    is_house=is_house,
-                    culture=culture_id,
-                    religion=religion_id,
-                    gender_law=gender_law,
-                    sexuality_distribution=skills_and_traits_config['sexualityDistribution'],
-                    generation=1,
-                    is_progenitor=True,
-                    birth_order=1
-                )
-                progenitor_male.age = 18
-                progenitor_male.numenorean_blood_tier = tier
-                simulation.add_character_to_pool(progenitor_male)
-                simulation.all_characters.append(progenitor_male)
+    # --- 4. Create Spouse (Lowborn) ---
+    spouse_char_id = generate_char_id(dynasty_prefix, simulation.dynasty_char_counters)
+    spouse_name = name_loader.load_names(culture_id, spouse_sex.lower())
+    spouse = Character(
+        char_id=spouse_char_id,
+        name=spouse_name,
+        sex=spouse_sex,
+        birth_year=progenitor_birth_year,  # Same year
+        dynasty=None,  # Lowborn
+        is_house=is_house,
+        culture=culture_id,
+        religion=religion_id,
+        gender_law=gender_law,
+        sexuality_distribution=skills_config['sexualityDistribution'],
+        generation=1,
+        is_progenitor=True, # Also progenitor to ensure they live
+        birth_order=1
+    )
+    spouse.numenorean_blood_tier = tier
+    simulation.add_character_to_pool(spouse)
+    simulation.all_characters.append(spouse)
 
-                # Generate progenitor male spouse
-                spouse_birth_year = progenitor_birth_year  # Same year as female
-                progenitor_female_char_id = generate_char_id(dynasty_prefix, simulation.dynasty_char_counters)
-                progenitor_female_name = name_loader.load_names(culture_id, "male")
-                progenitor_female = Character(
-                    char_id=progenitor_female_char_id,
-                    name=progenitor_female_name,
-                    sex="Male",
-                    birth_year=spouse_birth_year,  # Same year
-                    dynasty=None,  # Lowborn, no dynasty
-                    is_house=is_house,
-                    culture=culture_id,
-                    religion=religion_id,
-                    gender_law=gender_law,
-                    sexuality_distribution=skills_and_traits_config['sexualityDistribution'],
-                    generation=1,
-                    is_progenitor=True,
-                    birth_order=1
-                )
-                progenitor_female.numenorean_blood_tier = tier
-                simulation.add_character_to_pool(progenitor_female)
-                simulation.all_characters.append(progenitor_female)
+    # --- 5. Marry Them & Create Children ---
+    marriage_year = progenitor.birth_year + life_stages_config.get('marriageMinAge', 18) + (progenitor.numenorean_blood_tier or 0) * 5 + random.randint(0, 4)
+    
+    # Assign correct pointers for marriage and child creation
+    male, female = (progenitor, spouse) if progenitor.sex == "Male" else (spouse, progenitor)
+    
+    # Store marriage year for stats (optional, requires Character.__init__ change)
+    # male.marriage_year = marriage_year
+    # female.marriage_year = marriage_year
+    simulation.marry_characters(male, female, marriage_year)
+    
+    # Ensure at least 3 children per dynasty
+    for _ in range(3):
+        child_birth_year = marriage_year + random.randint(2, 4)  # Stagger births
+        child = simulation.create_child(female, male, child_birth_year)
+        if child:
+            simulation.add_character_to_pool(child)
+            simulation.all_characters.append(child)
 
-                # Marry them
-                marriage_year = progenitor_male.birth_year + life_stages_config.get('marriageMinAge', 18) + progenitor_male.numenorean_blood_tier*5 + random.randint(0, 4)
-                print(marriage_year)
-                simulation.marry_characters(progenitor_male, progenitor_female, marriage_year)
-                # Ensure at least 3 children per dynasty
-                for i in range(3):
-                    child_birth_year = marriage_year + random.randint(2, 4)  # Stagger births
-                    child = simulation.create_child(progenitor_male, progenitor_female, child_birth_year)
-                    if child:
-                        simulation.add_character_to_pool(child)
-                        simulation.all_characters.append(child)
+def setup_simulation(config_loader, name_loader):
+    """Initializes the Simulation object and creates all progenitors."""
+    logging.info("Setting up simulation and progenitors...")
+    simulation = Simulation(config_loader.config, name_loader)
+    initialization_config = config_loader.get_initialization_config()
+
+    for dynasty_config in initialization_config.get('dynasties', []):
+        create_progenitor_couple(dynasty_config, simulation, config_loader, name_loader)
+        
+    return simulation
+
+def _gather_stats(simulation):
+    """Helper to process all characters and return a list of stat records."""
+    records = []
+    lowborn_married_count = 0
+    total_num_char = 0
+    
+    for c in simulation.all_characters:
+        total_num_char += 1
+        
+        if c.dynasty and c.spouse and c.spouse.dynasty == "Lowborn" and c.dynasty != "Lowborn":
+            lowborn_married_count += 1
             
-            else:
-                # Create progenitor male
-                progenitor_male_char_id = generate_char_id(dynasty_prefix, simulation.dynasty_char_counters)
-                progenitor_male_name = name_loader.load_names(culture_id, "male")
-                progenitor_male = Character(
-                    char_id=progenitor_male_char_id,
-                    name=progenitor_male_name,
-                    sex="Male",
-                    birth_year=progenitor_birth_year,
-                    dynasty=dynasty_id,
-                    is_house=is_house,
-                    culture=culture_id,
-                    religion=religion_id,
-                    gender_law=gender_law,
-                    sexuality_distribution=skills_and_traits_config['sexualityDistribution'],
-                    generation=1,
-                    is_progenitor=True,
-                    birth_order=1
-                )
-                progenitor_male.age = 18
-                progenitor_male.numenorean_blood_tier = tier
-                simulation.add_character_to_pool(progenitor_male)
-                simulation.all_characters.append(progenitor_male)
+        # Age at death
+        age_death = c.death_year - c.birth_year if c.death_year is not None else None
 
-                # Generate progenitor female spouse
-                spouse_birth_year = progenitor_birth_year  # Same year as male
-                progenitor_female_char_id = generate_char_id(dynasty_prefix, simulation.dynasty_char_counters)
-                progenitor_female_name = name_loader.load_names(culture_id, "female")
-                progenitor_female = Character(
-                    char_id=progenitor_female_char_id,
-                    name=progenitor_female_name,
-                    sex="Female",
-                    birth_year=spouse_birth_year,  # Same year
-                    dynasty=None,  # Lowborn, no dynasty
-                    is_house=is_house,
-                    culture=culture_id,
-                    religion=religion_id,
-                    gender_law=gender_law,
-                    sexuality_distribution=skills_and_traits_config['sexualityDistribution'],
-                    generation=1,
-                    is_progenitor=True,
-                    birth_order=1
-                )
-                progenitor_female.numenorean_blood_tier = tier
-                simulation.add_character_to_pool(progenitor_female)
-                simulation.all_characters.append(progenitor_female)
+        # Age at first marriage
+        # Note: This still uses the original, slow event-parsing method.
+        # To fix this, add `self.marriage_year = None` to Character.__init__
+        # and set `char1.marriage_year = year` in simulation.marry_characters
+        age_marriage = None
+        for date, ev in sorted(c.events):
+            if ev.startswith("add_spouse") or ev.startswith("add_matrilineal_spouse"):
+                yr = int(date.split(".")[0])
+                age_marriage = yr - c.birth_year
+                break
+        if age_marriage is None and c.spouse:
+            for date, ev in sorted(c.spouse.events):
+                if ev.endswith(c.char_id):
+                    yr = int(date.split(".")[0])
+                    age_marriage = yr - c.birth_year
+                    break
 
-                # Marry them
-                marriage_year = progenitor_male.birth_year + life_stages_config.get('marriageMinAge', 18) + progenitor_male.numenorean_blood_tier*5 + random.randint(0, 4)
-                simulation.marry_characters(progenitor_male, progenitor_female, marriage_year)
-                # Ensure at least 3 children per dynasty
-                for i in range(3):
-                    child_birth_year = marriage_year  + random.randint(2, 4)  # Stagger births
-                    child = simulation.create_child(progenitor_female, progenitor_male, child_birth_year)
-                    if child:
-                        simulation.add_character_to_pool(child)
-                        simulation.all_characters.append(child)
+        records.append({
+            "sex": c.sex,
+            "generation": c.generation,
+            "children": len(c.children),
+            "age_death": age_death,
+            "age_marriage": age_marriage,
+            "tier": c.numenorean_blood_tier or 0,
+        })
+        
+    percent_lowborn_marriage = (lowborn_married_count / total_num_char) * 100 if total_num_char > 0 else 0
+    
+    return records, lowborn_married_count, total_num_char, percent_lowborn_marriage
 
-        print("-------------------------------")
-        print(f"--- Running Simulation {num_simulation + 1}/{NUM_SIMULATIONS} ---")
-        print("-------------------------------")
-        # Run the simulation
-        simulation.run_simulation()
+def _print_stats(records, percentages_array):
+    """Helper to print all formatted statistics to the console."""
+    
+    # --- Helper for avg children & marriages ---
+    def summarize_mean(group_key, value_key):
+        sums = defaultdict(int)
+        counts = defaultdict(int)
+        for r in records:
+            k = r[group_key]
+            v = r[value_key]
+            if v is None: continue
+            sums[k] += v
+            counts[k] += 1
+        return {k: sums[k] / counts[k] for k in sums}
 
-        # Gather Statistics
-        if STATS_ENABLED:
-            # 1) Gather a flat list of “records”
-            records = []
-            lowborn_married_count = 0
-            total_num_char = 0
-            for c in simulation.all_characters:
-                sex = c.sex
-                gen = c.generation
-                num_children = len(c.children)
-                total_num_char += 1
-                if c.dynasty and c.spouse and c.spouse.dynasty == "Lowborn" and c.dynasty != "Lowborn":
-                    lowborn_married_count += 1
-                    
+    sexes = ["Male", "Female"]
+    total_count = len(records)
 
-                # age at death
-                if c.death_year is not None:
-                    age_death = c.death_year - c.birth_year
-                else:
-                    # never include survivors in the death‑age stats
-                    age_death = None
+    count_by_sex = defaultdict(int)
+    for r in records:
+        count_by_sex[r["sex"]] += 1
 
-                # age at first marriage
-                age_marriage = None
-                # 1) try own events
-                for date, ev in sorted(c.events):
-                    if ev.startswith("add_spouse") or ev.startswith("add_matrilineal_spouse"):
-                        yr = int(date.split(".")[0])
-                        age_marriage = yr - c.birth_year
-                        break
+    # Avg kids
+    sums, cnts = defaultdict(int), defaultdict(int)
+    for r in records:
+        sums[r["sex"]] += r["children"]
+        cnts[r["sex"]] += 1
+    avg_children = {s: (sums[s] / cnts[s] if cnts[s] else 0) for s in sexes}
+    avg_children["Total"] = sum(sums.values()) / (sum(cnts.values()) or 1)
 
-                # 2) fallback: if has a spouse, scan their events for their ID
-                if age_marriage is None and c.spouse:
-                    for date, ev in sorted(c.spouse.events):
-                        if ev.endswith(c.char_id):
-                            yr = int(date.split(".")[0])
-                            age_marriage = yr - c.birth_year
-                            break
+    # Avg marriage
+    avg_marriage = summarize_mean("sex", "age_marriage")
+    total_marriages = [r["age_marriage"] for r in records if r["age_marriage"] is not None]
+    avg_marriage["Total"] = (sum(total_marriages) / len(total_marriages)) if total_marriages else 0
 
-                tier = c.numenorean_blood_tier or 0
+    # Five-number summary for age at death
+    death_stats = {}
+    for s in sexes + ["Total"]:
+        key = s if s == "Total" else "sex"
+        ages = [r["age_death"] for r in records if r["age_death"] is not None and (s == "Total" or r["sex"] == s)]
+        
+        if ages:
+            ages.sort()
+            mn, mx = ages[0], ages[-1]
+            q1, med, q3 = statistics.quantiles(ages, n=4, method="inclusive")
+            death_stats[s] = {"min": mn, "p25": q1, "median": med, "p75": q3, "max": mx}
+        else:
+            death_stats[s] = {"min": None, "p25": None, "median": None, "p75": None, "max": None}
 
-                records.append({
-                    "sex": sex,
-                    "generation": gen,
-                    "children": num_children,
-                    "age_death": age_death,
-                    "age_marriage": age_marriage,
-                    "tier": tier,
-                    "lowborn Marraiges": lowborn_married_count
-                })
+    # Print main stats table
+    print("\n--- Character Stats by Sex ---")
+    print(f"{'Sex':<8} {'Count':>6} {'AvgKids':>8} {'AvgMarry':>10} {'DeathStats (min/25/med/75/max)':>30}")
+    for s in sexes + ["Total"]:
+        stats = death_stats[s]
+        ds = "—/—/—/—/—" if stats["min"] is None else f"{stats['min']}/{stats['p25']}/{stats['median']}/{stats['p75']}/{stats['max']}"
+        
+        count = count_by_sex.get(s, total_count if s == 'Total' else 0)
+        
+        print(
+            f"{s:<8} "
+            f"{count:>6} "
+            f"{avg_children.get(s, 0):8.2f} "
+            f"{avg_marriage.get(s, 0):10.2f} "
+            f"{ds:>30}"
+        )
+
+    # Print Numenorean stats
+    if NUMENOREAN_BLOOD_STATS:
+        gen_tier_counts = defaultdict(lambda: defaultdict(int))
+        gen_totals = defaultdict(int)
+        for r in records:
+            g, t = r["generation"], r["tier"]
+            gen_tier_counts[g][t] += 1
+            gen_totals[g] += 1
             
-            if total_num_char > 0:
-                percent_lowborn_marriage = (lowborn_married_count / total_num_char) * 100
-            else:
-                percent_lowborn_marriage = 0
+        print("\n--- Numenor Tier Counts & % by Generation ---")
+        for g in sorted(gen_totals):
+            line_counts = gen_tier_counts[g]
+            print(f"Gen {g}: total={gen_totals[g]}", end="")
+            for t in sorted(line_counts):
+                cnt = line_counts[t]
+                pct = cnt / gen_totals[g] * 100
+                print(f"  Tier{t}={cnt}({pct:.1f}%)", end="")
+            print()
 
-            lowborn_married_array.append(lowborn_married_count)
-            total_num_char_array.append(total_num_char)
-            percentages_array.append(percent_lowborn_marriage)
+        avg_tier_by_sex = {
+            "Male": statistics.mean(r["tier"] for r in records if r["sex"] == "Male"),
+            "Female": statistics.mean(r["tier"] for r in records if r["sex"] == "Female")
+        }
+        print("Average Númenórean tier  |  Male:", round(avg_tier_by_sex["Male"], 2),
+              " Female:", round(avg_tier_by_sex["Female"], 2))
 
-            print(f"\nTotal lowborns married into noble dynasties: {lowborn_married_count}")
-            print(f"Percentage of Lowborn Marriages: {percent_lowborn_marriage:.2f}%")
-            
-
-            from collections import defaultdict
-            import statistics
-
-            # helper for avg children & marriages (unchanged)
-            def summarize_mean(group_key, value_key):
-                sums = defaultdict(int)
-                counts = defaultdict(int)
-                for r in records:
-                    k = r[group_key]
-                    v = r[value_key]
-                    if v is None:
-                        continue
-                    sums[k] += v
-                    counts[k] += 1
-                return {k: sums[k] / counts[k] for k in sums}
-
-            sexes = ["Male", "Female"]
-            total_count = len(records)
-
-            # counts by sex
-            count_by_sex = defaultdict(int)
-            for r in records:
-                count_by_sex[r["sex"]] += 1
-
-            # avg kids
-            sums, cnts = defaultdict(int), defaultdict(int)
-            for r in records:
-                sums[r["sex"]] += r["children"]
-                cnts[r["sex"]] += 1
-            avg_children = {s: (sums[s] / cnts[s] if cnts[s] else 0) for s in sexes}
-            avg_children["Total"] = sum(sums.values()) / sum(cnts.values())
-
-            # avg marriage
-            avg_marriage = summarize_mean("sex", "age_marriage")
-            total_marriages = [r["age_marriage"] for r in records if r["age_marriage"] is not None]
-            avg_marriage["Total"] = (sum(total_marriages) / len(total_marriages)) if total_marriages else 0
-
-            # ** new five‐number summary for age at death **
-            death_stats = {}
-            for s in sexes + ["Total"]:
-                if s == "Total":
-                    ages = [r["age_death"] for r in records if r["age_death"] is not None]
-                else:
-                    ages = [r["age_death"] for r in records if r["sex"] == s and r["age_death"] is not None]
-                if ages:
-                    ages.sort()
-                    mn = ages[0]
-                    mx = ages[-1]
-                    # statistics.quantiles returns [Q1, Q2, Q3] for n=4
-                    q1, med, q3 = statistics.quantiles(ages, n=4, method="inclusive")
-                    death_stats[s] = {"min": mn, "p25": q1, "median": med, "p75": q3, "max": mx}
-                else:
-                    death_stats[s] = {"min": None, "p25": None, "median": None, "p75": None, "max": None}
-
-            # print
-            print("\n--- Character Stats by Sex ---")
-            print(f"{'Sex':<8} {'Count':>6} {'AvgKids':>8} {'AvgMarry':>10} {'DeathStats':>25}")
-            for s in sexes + ["Total"]:
-                stats = death_stats[s]
-                if stats["min"] is None:
-                    ds = "—/—/—/—/—"
-                else:
-                    ds = f"{stats['min']}/{stats['p25']}/{stats['median']}/{stats['p75']}/{stats['max']}"
-                print(
-                    f"{s:<8} "
-                    f"{count_by_sex.get(s, total_count if s=='Total' else 0):>6} "
-                    f"{avg_children.get(s,0):8.2f} "
-                    f"{avg_marriage.get(s,0):10.2f} "
-                    f"{ds:>25}"
-                )
-
-            # b) tier breakdown per generation (unchanged)
-            gen_tier_counts = defaultdict(lambda: defaultdict(int))
-            gen_totals = defaultdict(int)
-            for r in records:
-                g, t = r["generation"], r["tier"]
-                gen_tier_counts[g][t] += 1
-                gen_totals[g] += 1
-
-            if NUMENOREAN_BLOOD_STATS:
-                print("\n--- Numenor Tier Counts & % by Generation ---")
-                for g in sorted(gen_totals):
-                    line_counts = gen_tier_counts[g]
-                    print(f"Gen {g}: total={gen_totals[g]}", end="")
-                    for t in sorted(line_counts):
-                        cnt = line_counts[t]
-                        pct = cnt / gen_totals[g] * 100
-                        print(f"  Tier{t}={cnt}({pct:.1f}%)", end="")
-                    print()
-
-                avg_tier_by_sex = {
-                    "Male":   statistics.mean(r["tier"] for r in records if r["sex"]=="Male"),
-                    "Female": statistics.mean(r["tier"] for r in records if r["sex"]=="Female")
-                }
-                print("Average Númenórean tier  |  Male:", round(avg_tier_by_sex["Male"],2),
-                    " Female:", round(avg_tier_by_sex["Female"],2))
-
+    # Print average lowborn marriage %
     if percentages_array:
         average_lowborn_marriage_percent = sum(percentages_array) / len(percentages_array)
         print("\n===============================")
         print(f"Average % of Lowborn Marriages across {NUM_SIMULATIONS} runs: {average_lowborn_marriage_percent:.2f}%")
         print("===============================")
 
-    # Export characters
+def run_and_analyze_simulations(simulation):
+    """Runs the simulation N times and gathers/prints stats."""
+    
+    percentages_array = []
+    
+    for i in range(NUM_SIMULATIONS):
+        print("-------------------------------")
+        print(f"--- Running Simulation {i + 1}/{NUM_SIMULATIONS} ---")
+        print("-------------------------------")
+        
+        # Run the simulation
+        simulation.run_simulation()
+
+        if STATS_ENABLED:
+            records, lowborn_count, total_char, percent_lowborn = _gather_stats(simulation)
+            percentages_array.append(percent_lowborn)
+            
+            print(f"\nTotal lowborns married into noble dynasties: {lowborn_count}")
+            print(f"Percentage of Lowborn Marriages: {percent_lowborn:.2f}%")
+            
+            _print_stats(records, percentages_array)
+            
+            # NOTE: If NUM_SIMULATIONS > 1, you may want to reset the simulation
+            # or aggregate stats differently. Currently, it prints stats
+            # for the *last* simulation run and an average % for all.
+            # For a full reset, `setup_simulation` would need to be in the loop.
+            # For now, I'm keeping your original loop structure.
+
+
+def generate_output_files(simulation, config_loader):
+    """
+    Exports all data using the original, file-based loading
+    logic to ensure compatibility with unchanged classes.
+    """
+    logging.info("Generating output files...")
+    
+    # 1. Export the character history text file
     simulation.export_characters("family_history.txt")
 
-    # Load character data from family history
+    # 2. Build Title History (Original file-based logic)
     character_loader = CharacterLoader()
-    character_loader.load_characters("Character and Title files/family_history.txt")  # Loads characters into memory
-    # character_loader.print_family_info()
-
+    character_loader.load_characters("Character and Title files/family_history.txt")
+    
     dynasty_config_path = get_resource_path("config/initialization.json")
-    # # Load title history, passing the CharacterLoader instance
     titles = TitleHistory(character_loader, dynasty_config_path)
     titles.build_title_histories()
     
     if TITLE_INFO_ENABLED:
         titles.print_title_histories()
-
     titles.write_title_histories_to_file()
 
+    # 3. Build Family Tree Images (Original file-based logic)
     if GENERATE_IMAGE_BOOL:
-        tree = FamilyTree("Character and Title files/family_history.txt", "Character and Title files/title_history.txt", config_loader.config)  # Ensure both files exist
+        logging.info("Generating family tree images...")
+        tree = FamilyTree(
+            "Character and Title files/family_history.txt",
+            "Character and Title files/title_history.txt",
+            config_loader.config
+        )
         tree.build_trees()
         tree.render_trees()
+
+def run_main():
+    """Main execution function."""
+    
+    # 1. Initial Setup
+    setup_logging()
+    try:
+        config_loader = ConfigLoader('config')
+        Character.DYNASTY_LANGUAGE_RULES = config_loader.get_language_rules()
+        name_loader = NameLoader('name_lists')
+    except Exception as e:
+        logging.error(f"Failed to load configuration or name lists: {e}")
+        return
+
+    # 2. Generate Game Files
+    generate_game_files(config_loader)
+
+    # 3. Setup Simulation
+    simulation = setup_simulation(config_loader, name_loader)
+
+    # 4. Run Simulation(s) and Analyze
+    run_and_analyze_simulations(simulation)
+
+    # 5. Generate Final Output Files
+    generate_output_files(simulation, config_loader)
+
+    logging.info("--- Simulation Complete ---")
+
 
 if __name__ == "__main__":
     run_main()

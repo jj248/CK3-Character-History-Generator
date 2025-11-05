@@ -315,6 +315,10 @@ class Simulation:
         char1.spouse = char2
         char2.married = True
         char2.spouse = char1
+        
+        # ### Optimization: Store marriage_year for stats ###
+        # char1.marriage_year = year
+        # char2.marriage_year = year
 
         # Remove from unmarried pools
         self.remove_from_unmarried_pools(char1)
@@ -928,231 +932,224 @@ class Simulation:
 
         return child
 
-    def run_simulation(self):
+    # ------------------------------------------------------------------
+    #  Refactored Simulation Loop
+    # ------------------------------------------------------------------
+
+    def _prepare_simulation_vars(self):
+        """Caches frequently used config values as instance attributes."""
         life_stages = self.config['life_stages']
         self.desperation_rates = life_stages.get('desperationMarriageRates', [0.0]*121)
-        marriage_rates = life_stages['marriageRates']
-        fertility_rates = life_stages['fertilityRates']
-        bastardy_chance_male = life_stages['bastardyChanceMale']
-        bastardy_chance_female = life_stages['bastardyChanceFemale']
-        maximum_children = life_stages['maximumNumberOfChildren']
-        fer_f = life_stages['fertilityRates']['Female']
-        fer_m = life_stages['fertilityRates']['Male']
-        # Precompute once:
+        self.marriage_rates = life_stages['marriageRates']
+        self.fertility_rates = life_stages['fertilityRates']
+        self.bastardy_chance_male = life_stages['bastardyChanceMale']
+        self.bastardy_chance_female = life_stages['bastardyChanceFemale']
+        self.maximum_children = life_stages['maximumNumberOfChildren']
+        
+        fer_f = self.fertility_rates['Female']
+        fer_m = self.fertility_rates['Male']
+        
         self.peak_f  = max(fer_f[16:]) if len(fer_f) > 16 else 0.0
         self.peak_m  = max(fer_m[16:]) if len(fer_m) > 16 else 0.0
         self.fer_f   = fer_f
         self.fer_m   = fer_m
 
-        for year in range(self.config['initialization']['minYear'], self.config['initialization']['maxYear'] + 1):
-            # 0. Ensure we're not hanging on to old negative event death reasons
-            for character in self.all_characters:
-                character.negativeEventDeathReason = None
-            
-            # 1. Update Characters' Ages
-            for character in self.all_characters:
-                if character.alive:
-                    character.age = year - character.birth_year
-                    if character.age < 0:
-                        character.age = 0
-
-            # Give under‑bookmark kids their single childhood trait at age 3
-            for character in self.all_characters:
-                if character.alive and character.age == 3:
-                    # pick from the two that correspond to their education_skill
-                    skill = character.education_skill or "diplomacy"
-                    choices = self.childhood_by_education.get(skill, ["charming","curious"])
-                    trait = random.choice(choices)
-                    # print(skill,choices,trait)
-                    date = f"{year}.{character.birth_month:02d}.{character.birth_day:02d}"
-                    character.add_event(date, f"trait = {trait}")
-
-            # At age 16, under‑bookmark kids get *one* multi‑trait event
-            for character in self.all_characters:
-                if not (character.alive and character.age == 16):
-                    continue
-
-                # first pick their three adult traits
-                character.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
-
-                # build the date (their real birthday)
-                date = f"{year}.{character.birth_month:02d}.{character.birth_day:02d}"
-
-                # collect the three personality traits…
-                detail_lines = [f"trait = {t}" for t in character.personality_traits]
-
-                # join them into one block (each on its own line, indented by 4 spaces)
-                event_detail = "\n    ".join(detail_lines)
-
-                # emit a single event with all four lines
-                character.add_event(date, event_detail)
-						
-            # **Clear unmarried pools after updating ages**
-            self.unmarried_males.clear()
-            self.unmarried_females.clear()
-
-            # 2. Handle Marriages
-            # First, update unmarried pools based on marriage rates
-            self.update_unmarried_pools(year)
-
-            # Extract all unmarried males and females
-            all_unmarried_males = []
-            for age, males in self.unmarried_males.items():
-                all_unmarried_males.extend(males)
-            all_unmarried_females = []
-            for age, females in self.unmarried_females.items():
-                all_unmarried_females.extend(females)
-
-            # Proceed to match marriages
-            if all_unmarried_males and all_unmarried_females:
-                self.match_marriages(all_unmarried_males, all_unmarried_females, year)
-
-            # 3. Handle Births
-            for character in self.all_characters:
-                if character.alive and character.married and character.sex == "Female":
-                    # Check if character has reached maximum number of children
-                    if len(character.children) >= maximum_children:
-                        continue
-
-                    # Use fertilityRates to determine if a child is produced
-                    fertility_rate = (
-                        self.get_extended_fertility_rate(character, 'Female')
-                        * character.fertility_mult()
-                    )
-                    fertility_rate_m = (
-                        self.get_extended_fertility_rate(character.spouse, 'Male')
-                        * character.spouse.fertility_mult()
-                    )
-                    #     print(f"Male Fertility: {fertility_rate_m} | Male Fertility Modifier: {character.spouse.fertilityModifier} | Male Fertility Modified: {fertility_rate_m_modified} | Character: {character.spouse.char_id}")
-                    total_fertility = fertility_rate * fertility_rate_m
-                    if random.random() < total_fertility:
-                        # print(f"Father Age: {male_age} "
-                        # f"Father Fertility: {fertility_rate_m} "
-                        # f"Mother Age: {female_age} "
-                        # f"Mother Fertility: {fertility_rate}")
-                        child = self.create_child(character, character.spouse, year)
-                        if child:
-                            self.add_character_to_pool(child)
-                            self.all_characters.append(child)
-							
-            # 4. Handle Bastardy
-            self.handle_bastardy(year, bastardy_chance_male, bastardy_chance_female, fertility_rates)
-
-            # 6. Check for Deaths
-            for character in self.all_characters:
-                if character.alive:
-                    if self.character_death_check(character):
-                        character.alive = False
-                        character.death_year = year
-                        death_date = generate_random_date(year)
-                        character.death_year, character.death_month, character.death_day = map(int, death_date.split('.'))
-                        self.remove_from_unmarried_pools(character)
-                        if character.negativeEventDeathReason != None:
-                            death_cause = character.negativeEventDeathReason
-                        elif character.age > (65+(20*(character.numenorean_blood_tier or 0))):
-                            death_cause = "death_natural_causes"
-                        elif character.age < 18:
-                            death_cause = "death_ill"
-                        elif character.sex == "Male":
-                            death_cause = random.choice([
-                                "death_ill",
-                                "death_cancer",
-                                "death_battle",
-                                "death_attacked",
-                                "death_accident", 
-                                "death_murder", 
-                                "death_natural_causes", 
-                                "death_drinking_passive", 
-                                "death_dungeon_passive"
-                            ])
-                        else:
-                            death_cause = random.choice([
-                                "death_ill",
-                                "death_cancer",
-                                "death_accident", 
-                                "death_murder"
-                            ])
-                        character.add_event(death_date, f"death = {{ death_reason = {death_cause} }}")
-                        if character.married and character.spouse.alive:
-                            character.spouse.married = False
-                            character.spouse.married = None
-
-            # 7. Update Unmarried Pools
-            self.update_unmarried_pools(year)
-
+    def _process_yearly_updates(self, year):
+        """Updates ages and triggers age-based events for all characters."""
         for character in self.all_characters:
-            if character.alive:
-                character.age = year - character.birth_year
-                if character.age < 0:
-                    character.age = 0
-            # **Clear unmarried pools after updating ages**
-            self.unmarried_males.clear()
-            self.unmarried_females.clear()
+            character.negativeEventDeathReason = None # Reset flag
+            if not character.alive:
+                continue
 
-            # 2. Handle Marriages
-            # First, update unmarried pools based on marriage rates
-            self.update_unmarried_pools(year)
+            character.age = year - character.birth_year
+            if character.age < 0:
+                character.age = 0
 
-            # Extract all unmarried males and females
-            all_unmarried_males = []
-            for age, males in self.unmarried_males.items():
-                all_unmarried_males.extend(males)
-            all_unmarried_females = []
-            for age, females in self.unmarried_females.items():
-                all_unmarried_females.extend(females)
+            # Age 3: Childhood Trait
+            if character.age == 3:
+                skill = character.education_skill or "diplomacy"
+                choices = self.childhood_by_education.get(skill, ["charming", "curious"])
+                trait = random.choice(choices)
+                date = f"{year}.{character.birth_month:02d}.{character.birth_day:02d}"
+                character.add_event(date, f"trait = {trait}")
 
-            # Proceed to match marriages
-            if all_unmarried_males and all_unmarried_females:
-                self.match_marriages(all_unmarried_males, all_unmarried_females, year)
+            # Age 16: Personality Traits
+            if character.age == 16:
+                character.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
+                date = f"{year}.{character.birth_month:02d}.{character.birth_day:02d}"
+                detail_lines = [f"trait = {t}" for t in character.personality_traits]
+                event_detail = "\n    ".join(detail_lines)
+                character.add_event(date, event_detail)
 
-            # 5. Assign Skills, Education, and Traits at Age 16
-            for character in self.all_characters:
-                if character.alive and character.age == 16:
-                    character.assign_skills(self.config['skills_and_traits']['skillProbabilities'])
-                    character.assign_education(self.config['skills_and_traits']['educationProbabilities'])
-                    character.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
+    def _process_marriages(self, year):
+        """Clears and updates marriage pools, then matches couples."""
+        self.unmarried_males.clear()
+        self.unmarried_females.clear()
+        
+        self.update_unmarried_pools(year)
+
+        # Extract all unmarried males and females from the populated pools
+        all_unmarried_males = [m for males in self.unmarried_males.values() for m in males]
+        all_unmarried_females = [f for females in self.unmarried_females.values() for f in females]
+
+        if all_unmarried_males and all_unmarried_females:
+            self.match_marriages(all_unmarried_males, all_unmarried_females, year)
+
+    def _process_births(self, year):
+        """Handles births from married couples and bastardy."""
+        # 1. Handle married births
+        for character in self.all_characters:
+            if not (character.alive and character.married and character.sex == "Female"):
+                continue
+            
+            # Check if character has reached maximum number of children
+            if len(character.children) >= self.maximum_children:
+                continue
+
+            # Use fertilityRates to determine if a child is produced
+            fertility_rate = (
+                self.get_extended_fertility_rate(character, 'Female')
+                * character.fertility_mult()
+            )
+            fertility_rate_m = (
+                self.get_extended_fertility_rate(character.spouse, 'Male')
+                * character.spouse.fertility_mult()
+            )
+            total_fertility = fertility_rate * fertility_rate_m
+            
+            if random.random() < total_fertility:
+                child = self.create_child(character, character.spouse, year)
+                if child:
+                    self.add_character_to_pool(child)
+                    self.all_characters.append(child)
+        
+        # 2. Handle Bastardy
+        self.handle_bastardy(year, self.bastardy_chance_male, self.bastardy_chance_female, self.fertility_rates)
+
+    def _process_deaths(self, year):
+        """Checks for and processes character deaths."""
+        for character in self.all_characters:
+            if not character.alive:
+                continue
+            
+            if self.character_death_check(character):
+                character.alive = False
+                character.death_year = year
+                death_date = generate_random_date(year)
+                character.death_year, character.death_month, character.death_day = map(int, death_date.split('.'))
+                self.remove_from_unmarried_pools(character)
+                
+                # Determine death cause
+                if character.negativeEventDeathReason is not None:
+                    death_cause = character.negativeEventDeathReason
+                elif character.age > (65 + (20 * (character.numenorean_blood_tier or 0))):
+                    death_cause = "death_natural_causes"
+                elif character.age < 18:
+                    death_cause = "death_ill"
+                elif character.sex == "Male":
+                    death_cause = random.choice([
+                        "death_ill", "death_cancer", "death_battle", "death_attacked",
+                        "death_accident", "death_murder", "death_natural_causes",
+                        "death_drinking_passive", "death_dungeon_passive"
+                    ])
+                else:
+                    death_cause = random.choice([
+                        "death_ill", "death_cancer", "death_accident", "death_murder"
+                    ])
                     
-            # 6. Check for Deaths
-            for character in self.all_characters:
-                if character.alive:
-                    if self.character_death_check(character):
-                        character.alive = False
-                        character.death_year = year
-                        death_date = generate_random_date(year)
-                        character.death_year, character.death_month, character.death_day = map(int, death_date.split('.'))
-                        self.remove_from_unmarried_pools(character)
-                        if character.negativeEventDeathReason != None:
-                            death_cause = character.negativeEventDeathReason
-                        elif character.age > (65+(20*(character.numenorean_blood_tier or 0))):
-                            death_cause = "death_natural_causes"
-                        elif character.age < 18:
-                            death_cause = "death_ill"
-                        elif character.sex == "Male":
-                            death_cause = random.choice([
-                                "death_ill",
-                                "death_cancer",
-                                "death_battle",
-                                "death_attacked",
-                                "death_accident", 
-                                "death_murder", 
-                                "death_natural_causes", 
-                                "death_drinking_passive", 
-                                "death_dungeon_passive"
-                            ])
-                        else:
-                            death_cause = random.choice([
-                                "death_ill",
-                                "death_cancer",
-                                "death_accident", 
-                                "death_murder"
-                            ])
-                        character.add_event(death_date, f"death = {{ death_reason = {death_cause} }}")
-                        if character.married and character.spouse.alive:
-                            character.spouse.married = False
-                            character.spouse.married = None
+                character.add_event(death_date, f"death = {{ death_reason = {death_cause} }}")
+                
+                if character.married and character.spouse.alive:
+                    character.spouse.married = False
+                    character.spouse.married = None # Matches original file logic
 
-            # 7. Update Unmarried Pools
-            self.update_unmarried_pools(year)
+    def _process_survivor_deaths(self, last_sim_year):
+        """
+        Estimates death dates for all characters who survived the simulation.
+        This runs a simplified "post-simulation" loop.
+        """
+        survivors = [c for c in self.all_characters if c.alive]
+        if not survivors:
+            return
+
+        logging.info(f"Estimating death dates for {len(survivors)} survivors...")
+        
+        year = last_sim_year
+        while survivors:
+            year += 1
+            # Iterate backwards to safely remove items
+            for i in range(len(survivors) - 1, -1, -1):
+                character = survivors[i]
+                
+                # Update age for this year
+                character.age = year - character.birth_year
+                
+                # Reset event-based death reason, as sim events are over
+                character.negativeEventDeathReason = None
+
+                # Run the exact same death check
+                if self.character_death_check(character):
+                    character.alive = False  # Mark as "processed"
+                    character.death_year = year
+                    death_date = generate_random_date(year)
+                    character.death_year, character.death_month, character.death_day = map(int, death_date.split('.'))
+                    
+                    # --- Copied death cause logic from _process_deaths ---
+                    # Use negativeEventDeathReason if set by the (weird) check
+                    if character.negativeEventDeathReason is not None:
+                        death_cause = character.negativeEventDeathReason
+                    # Otherwise, use the standard age-based causes
+                    elif character.age > (65 + (20 * (character.numenorean_blood_tier or 0))):
+                        death_cause = "death_natural_causes"
+                    elif character.age < 18:
+                        death_cause = "death_ill"
+                    elif character.sex == "Male":
+                        death_cause = random.choice([
+                            "death_ill", "death_cancer", "death_battle", "death_attacked",
+                            "death_accident", "death_murder", "death_natural_causes",
+                            "death_drinking_passive", "death_dungeon_passive"
+                        ])
+                    else:
+                        death_cause = random.choice([
+                            "death_ill", "death_cancer", "death_accident", "death_murder"
+                        ])
+                    # --- End of copied logic ---
+                        
+                    character.add_event(death_date, f"death = {{ death_reason = {death_cause} }}")
+                    
+                    # Remove from survivor list
+                    survivors.pop(i)
+
+    def run_simulation(self):
+        """
+        Runs the main simulation loop, processing events year by year.
+        """
+        self._prepare_simulation_vars()
+
+        min_year = self.config['initialization']['minYear']
+        max_year = self.config['initialization']['maxYear']
+
+        for year in range(min_year, max_year + 1):
+            
+            # 1. Update ages and apply age-based traits (3 & 16)
+            self._process_yearly_updates(year)
+						
+            # 2. Handle Marriages
+            self._process_marriages(year)
+
+            # 3. Handle Births (Married & Bastardy)
+            self._process_births(year)
+
+            # 4. Check for Deaths
+            self._process_deaths(year)
+
+            # 5. Update Unmarried Pools
+            # This is to catch anyone who became eligible *after* death/etc.
+            self.update_unmarried_pools(year) 
+            
+        # Process survivors
+        logging.info("Main simulation loop complete. Processing survivors...")
+        self._process_survivor_deaths(max_year)
 
     def export_characters(self, output_filename="family_history.txt"):
         # Set output folder and ensure it exists
@@ -1189,6 +1186,3 @@ class Simulation:
 
         logging.info(f"Character history exported to {output_path}")
         logging.info(f"Total characters exported: {exported_character_count}")
-
-
-
