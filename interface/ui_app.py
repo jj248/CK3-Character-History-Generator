@@ -180,6 +180,15 @@ def render_dynasty_fields(dynasty_data, key_prefix, disabled=False):
         key=f"{key_prefix}_prioritise_lowborn_marriage",
         disabled=disabled
     )
+    
+    # --- NEW: isTribal Checkbox ---
+    data['isTribal'] = st.checkbox(
+        label="Is Tribal?",
+        value=get_val("isTribal", False),
+        help="Tribal dynasties get a vitality bonus (harder to kill) and may have different marriage logic.",
+        key=f"{key_prefix}_is_tribal",
+        disabled=disabled
+    )
 
     # --- Numenor Blood Tier Editing ---
     st.markdown("**Numenor Blood Tier**", help="Set ***value to 0*** if you do ***NOT*** want a dynasty to have numenorean blood")
@@ -541,6 +550,36 @@ def display_life_stage_config(config):
     
     CONFIG_PATH = "config/life_stages.json"
     FALLBACK_PATH = "config/fallback_config_files/life_stages.json"
+    
+    # --- NEW: Load base config for sliders ---
+    if 'base_life_config' not in st.session_state:
+        try:
+            st.session_state.base_life_config = load_config(FALLBACK_PATH)
+        except Exception as e:
+            st.error(f"Failed to load base life config: {e}")
+            st.session_state.base_life_config = {} # Set empty dict to avoid errors
+
+    # --- NEW: Callback functions ---
+    def _update_rates(slider_key, config_key, sex_key=None):
+        """Generic callback to update config from a slider."""
+        try:
+            multiplier = st.session_state[slider_key]
+            base_config = st.session_state.base_life_config
+            
+            if sex_key:
+                # e.g., mortalityRates -> Male
+                base_rates = base_config.get(config_key, {}).get(sex_key, [0]*121)
+                adjustedRates = [min(rate * multiplier, 1.0) for rate in base_rates]
+                st.session_state.life_config[config_key][sex_key] = adjustedRates
+            else:
+                # e.g., desperationMarriageRates
+                base_rates = base_config.get(config_key, [0]*121)
+                adjustedRates = [min(rate * multiplier, 1.0) for rate in base_rates]
+                st.session_state.life_config[config_key] = adjustedRates
+        except Exception as e:
+            st.warning(f"Error applying multiplier: {e}")
+
+    # --- End Callbacks ---
 
     st.button(
         "🔄 Reset Life Cycle Modifiers",
@@ -550,6 +589,8 @@ def display_life_stage_config(config):
     )
 
     # --- Simple Modifiers ---
+    # These already modify the 'config' object in-place, which is 
+    # st.session_state.life_config, so they work with the save button.
     config['marriageMaxAgeDifference'] = st.number_input(
         label="Maximum Difference in Age Between Spouses",
         min_value=0, max_value=30,
@@ -596,38 +637,43 @@ def display_life_stage_config(config):
     )
         
     if st.button("💾 Save Life Cycle Modifier Changes", disabled=disabled):
+        # This now saves the simple inputs AND the slider-modified lists
         save_config(config, CONFIG_PATH)
         st.success("Life cycle modifiers saved.")
     
     # --- Plotting Sections ---
     # Pass the config dict to the plotting functions
-    display_desperation_marriage_rates(config)
-    display_mortality_rates(config)
-    display_marriage_rates(config)
-    display_fertility_rates(config)
+    # Also pass the callback functions
+    display_desperation_marriage_rates(config, _update_rates)
+    display_mortality_rates(config, _update_rates)
+    display_marriage_rates(config, _update_rates)
+    display_fertility_rates(config, _update_rates)
 
 ############################
 # Plotting Functions
 ############################
 
-def display_desperation_marriage_rates(config):
+def display_desperation_marriage_rates(config, callback):
     st.subheader("Desperation Marriage Rates")
+    
+    # The config now holds the *adjusted* rates. We plot them directly.
     desperationMarriageRates = config.get('desperationMarriageRates', [0]*121)
 
-    Multiplier = st.slider(
+    st.slider(
         "Adjust Desperation Marriage Rate Multiplier",
         min_value=0.0, max_value=2.0, value=1.0, step=0.01,
-        key="desperation_slider"
+        key="desperation_slider",
+        on_change=callback,
+        args=("desperation_slider", "desperationMarriageRates")
     )
     
     ages = list(range(len(desperationMarriageRates)))
-    adjustedRates = [min(rate * Multiplier, 1.0) for rate in desperationMarriageRates] # Cap at 1.0
-
-    # --- NEW: Column Wrapper ---
+    
+    # --- Column Wrapper ---
     _fig_col, fig_col, _fig_col = st.columns([1, 4, 1])
     with fig_col:
-        plt.figure(figsize=(10, 5)) # Kept smaller figsize
-        plt.plot(ages, adjustedRates, label='Desperation Marriage Rate', color='red')
+        plt.figure(figsize=(10, 5))
+        plt.plot(ages, desperationMarriageRates, label='Desperation Marriage Rate', color='red') # Plot directly
         plt.ylim(0.0, 1.0)
         plt.xlabel('Age')
         plt.ylabel('Rate')
@@ -637,24 +683,25 @@ def display_desperation_marriage_rates(config):
         st.pyplot(plt.gcf())
         plt.clf()
     
-def display_mortality_rates(config):
+def display_mortality_rates(config, callback):
     st.subheader("Mortality Rates for Male/Female")
     mortalityRates = config.get('mortalityRates', {})
     maleMortalityRates = mortalityRates.get('Male', [0]*121)
     femaleMortalityRates = mortalityRates.get('Female', [0]*121)
 
-    maleMultiplier = st.slider(
+    st.slider(
         "Adjust Male Mortality Rate Multiplier",
         min_value=0.0, max_value=2.0, value=1.0, step=0.01,
-        key="male_mortality_slider"
+        key="male_mortality_slider",
+        on_change=callback,
+        args=("male_mortality_slider", "mortalityRates", "Male")
     )
-    adjustedMaleRates = [min(rate * maleMultiplier, 1.0) for rate in maleMortalityRates]
-
-    # --- NEW: Column Wrapper ---
+    
+    # --- Column Wrapper ---
     _fig_col, fig_col, _fig_col = st.columns([1, 4, 1])
     with fig_col:
         plt.figure(figsize=(10, 5))
-        plt.plot(range(len(adjustedMaleRates)), adjustedMaleRates, label='Male Mortality Rates', color='blue')
+        plt.plot(range(len(maleMortalityRates)), maleMortalityRates, label='Male Mortality Rates', color='blue')
         plt.ylim(0.0, 1.0)
         plt.xlabel('Age')
         plt.ylabel('Rate')
@@ -664,18 +711,19 @@ def display_mortality_rates(config):
         st.pyplot(plt.gcf())
         plt.clf()
     
-    femaleMultiplier = st.slider(
+    st.slider(
         "Adjust Female Mortality Rate Multiplier",
         min_value=0.0, max_value=2.0, value=1.0, step=0.01,
-        key="female_mortality_slider"
+        key="female_mortality_slider",
+        on_change=callback,
+        args=("female_mortality_slider", "mortalityRates", "Female")
     )
-    adjustedFemaleRates = [min(rate * femaleMultiplier, 1.0) for rate in femaleMortalityRates]
     
-    # --- NEW: Column Wrapper ---
+    # --- Column Wrapper ---
     _fig_col, fig_col, _fig_col = st.columns([1, 4, 1])
     with fig_col:
         plt.figure(figsize=(10, 5))
-        plt.plot(range(len(adjustedFemaleRates)), adjustedFemaleRates, label='Female Mortality Rate', color='red')
+        plt.plot(range(len(femaleMortalityRates)), femaleMortalityRates, label='Female Mortality Rate', color='red')
         plt.ylim(0.0, 1.0)
         plt.xlabel('Age')
         plt.ylabel('Rate')
@@ -685,24 +733,25 @@ def display_mortality_rates(config):
         st.pyplot(plt.gcf())
         plt.clf()
 
-def display_marriage_rates(config):
+def display_marriage_rates(config, callback):
     st.subheader("Marriage Rates for Male/Female")
     marriageRates = config.get('marriageRates', {})
     maleMarriageRates = marriageRates.get('Male', [0]*121)
     femaleMarriageRates = marriageRates.get('Female', [0]*121)
 
-    maleMultiplier = st.slider(
+    st.slider(
         "Adjust Male Marriage Rate Multiplier",
         min_value=0.0, max_value=2.0, value=1.0, step=0.01,
-        key="male_marriage_slider"
+        key="male_marriage_slider",
+        on_change=callback,
+        args=("male_marriage_slider", "marriageRates", "Male")
     )
-    adjustedMaleRates = [min(rate * maleMultiplier, 1.0) for rate in maleMarriageRates]
 
-    # --- NEW: Column Wrapper ---
+    # --- Column Wrapper ---
     _fig_col, fig_col, _fig_col = st.columns([1, 4, 1])
     with fig_col:
         plt.figure(figsize=(10, 5))
-        plt.plot(range(len(adjustedMaleRates)), adjustedMaleRates, label='Male marriage Rates', color='blue')
+        plt.plot(range(len(maleMarriageRates)), maleMarriageRates, label='Male marriage Rates', color='blue')
         plt.ylim(0.0, 1.0)
         plt.xlabel('Age')
         plt.ylabel('Rate')
@@ -712,18 +761,19 @@ def display_marriage_rates(config):
         st.pyplot(plt.gcf())
         plt.clf()
     
-    femaleMultiplier = st.slider(
+    st.slider(
         "Adjust Female Marriage Rate Multiplier",
         min_value=0.0, max_value=2.0, value=1.0, step=0.01,
-        key="female_marriage_slider"
+        key="female_marriage_slider",
+        on_change=callback,
+        args=("female_marriage_slider", "marriageRates", "Female")
     )
-    adjustedFemaleRates = [min(rate * femaleMultiplier, 1.0) for rate in femaleMarriageRates]
 
-    # --- NEW: Column Wrapper ---
+    # --- Column Wrapper ---
     _fig_col, fig_col, _fig_col = st.columns([1, 4, 1])
     with fig_col:
         plt.figure(figsize=(10, 5))
-        plt.plot(range(len(adjustedFemaleRates)), adjustedFemaleRates, label='Female marriage Rate', color='red')
+        plt.plot(range(len(femaleMarriageRates)), femaleMarriageRates, label='Female marriage Rate', color='red')
         plt.ylim(0.0, 1.0)
         plt.xlabel('Age')
         plt.ylabel('Rate')
@@ -733,24 +783,25 @@ def display_marriage_rates(config):
         st.pyplot(plt.gcf())
         plt.clf()
 
-def display_fertility_rates(config):
+def display_fertility_rates(config, callback):
     st.subheader("Fertility Rates for Male/Female")
     fertilityRates = config.get('fertilityRates', {})
     maleFertilityRates = fertilityRates.get('Male', [0]*121)
     femaleFertilityRates = fertilityRates.get('Female', [0]*121)
 
-    maleMultiplier = st.slider(
+    st.slider(
         "Adjust Male Fertility Rate Multiplier",
         min_value=0.0, max_value=2.0, value=1.0, step=0.01,
-        key="male_fertility_slider"
+        key="male_fertility_slider",
+        on_change=callback,
+        args=("male_fertility_slider", "fertilityRates", "Male")
     )
-    adjustedMaleRates = [min(rate * maleMultiplier, 1.0) for rate in maleFertilityRates]
 
-    # --- NEW: Column Wrapper ---
+    # --- Column Wrapper ---
     _fig_col, fig_col, _fig_col = st.columns([1, 4, 1])
     with fig_col:
         plt.figure(figsize=(10, 5))
-        plt.plot(range(len(adjustedMaleRates)), adjustedMaleRates, label='Male fertility Rates', color='blue')
+        plt.plot(range(len(maleFertilityRates)), maleFertilityRates, label='Male fertility Rates', color='blue')
         plt.ylim(0.0, 1.0)
         plt.xlabel('Age')
         plt.ylabel('Rate')
@@ -760,18 +811,19 @@ def display_fertility_rates(config):
         st.pyplot(plt.gcf())
         plt.clf()
     
-    femaleMultiplier = st.slider(
+    st.slider(
         "Adjust Female Fertility Rate Multiplier",
         min_value=0.0, max_value=2.0, value=1.0, step=0.01,
-        key="female_fertility_slider"
+        key="female_fertility_slider",
+        on_change=callback,
+        args=("female_fertility_slider", "fertilityRates", "Female")
     )
-    adjustedFemaleRates = [min(rate * femaleMultiplier, 1.0) for rate in femaleFertilityRates]
 
-    # --- NEW: Column Wrapper ---
+    # --- Column Wrapper ---
     _fig_col, fig_col, _fig_col = st.columns([1, 4, 1])
     with fig_col:
         plt.figure(figsize=(10, 5))
-        plt.plot(range(len(adjustedFemaleRates)), adjustedFemaleRates, label='Female fertility Rate', color='red')
+        plt.plot(range(len(femaleFertilityRates)), femaleFertilityRates, label='Female fertility Rate', color='red')
         plt.ylim(0.0, 1.0)
         plt.xlabel('Age')
         plt.ylabel('Rate')
@@ -831,6 +883,10 @@ def main():
         try:
             st.session_state.init_config = load_config("config/initialization.json")
             st.session_state.life_config = load_config("config/life_stages.json")
+            
+            # --- NEW: Load base config for sliders ---
+            st.session_state.base_life_config = load_config("config/fallback_config_files/life_stages.json")
+            
             st.session_state.configs_loaded = True
         except Exception as e:
             st.error(f"FATAL: Could not load configuration files. {e}")
