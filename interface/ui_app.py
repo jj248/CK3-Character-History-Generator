@@ -180,15 +180,6 @@ def render_dynasty_fields(dynasty_data, key_prefix, disabled=False):
         key=f"{key_prefix}_prioritise_lowborn_marriage",
         disabled=disabled
     )
-    
-    # --- NEW: isTribal Checkbox ---
-    data['isTribal'] = st.checkbox(
-        label="Is Tribal?",
-        value=get_val("isTribal", False),
-        help="Tribal dynasties get a vitality bonus (harder to kill) and may have different marriage logic.",
-        key=f"{key_prefix}_is_tribal",
-        disabled=disabled
-    )
 
     # --- Numenor Blood Tier Editing ---
     st.markdown("**Numenor Blood Tier**", help="Set ***value to 0*** if you do ***NOT*** want a dynasty to have numenorean blood")
