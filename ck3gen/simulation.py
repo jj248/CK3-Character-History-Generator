@@ -20,6 +20,12 @@ class Simulation:
         self.unmarried_males = {}
         self.unmarried_females = {}
         self.couple_last_child_year = {}  # Tracks last child year for each couple
+        
+        # Dynasty Relations
+        self.dynasty_relations = {} # (dyn_a, dyn_b) -> relation_value
+        self.ALLIANCE_THRESHOLD = 50
+        self.FEUD_THRESHOLD = -50
+        
         self.marriage_max_age_diff = self.config['life_stages'].get('marriageMaxAgeDifference', 5)
         self.desperation_rates = self.config['life_stages'].get('desperationMarriageRates', {})
         self.marriage_min_age = 16
@@ -35,6 +41,12 @@ class Simulation:
         
         self.prioritise_lowborn_marriage = {
             d['dynastyID']: d.get('prioritiseLowbornMarraige', False)
+            for d in config['initialization']['dynasties']
+        }
+        
+        # Explicit flag for tribal vitality bonus
+        self.is_tribal = {
+            d['dynastyID']: d.get('isTribal', False)
             for d in config['initialization']['dynasties']
         }
 
@@ -280,11 +292,34 @@ class Simulation:
                 # print(f"Mortality Multipler: {mortality_event_multipler} | Current Birth Year: {birth_year} | Event Start Year: {event.get("startYear")} | Event End Year: {event.get("endYear")}")
         
         random_var = random.random()
-        if self.prioritise_lowborn_marriage.get(character.dynasty, False):
-            random_var *= 0.35
         
+        # Check for tribal vitality bonus
+        if self.is_tribal.get(character.dynasty, False):
+            random_var *= 0.35
                 
         return (random_var * mortality_event_multipler) < mortality_rate
+
+    def _update_dynasty_relation(self, dyn_a, dyn_b, value):
+        """Updates the relation value between two dynasties."""
+        if not dyn_a or not dyn_b or dyn_a == "Lowborn" or dyn_b == "Lowborn" or dyn_a == dyn_b:
+            return
+        
+        # Ensure consistent key order
+        key = tuple(sorted((dyn_a, dyn_b)))
+        
+        current_relation = self.dynasty_relations.get(key, 0)
+        new_relation = current_relation + value
+        
+        # Clamp relation score
+        new_relation = max(-100, min(100, new_relation))
+        
+        self.dynasty_relations[key] = new_relation
+        
+        # Log feud/alliance changes
+        if new_relation >= self.ALLIANCE_THRESHOLD and current_relation < self.ALLIANCE_THRESHOLD:
+            logging.info(f"RELATION: {dyn_a} and {dyn_b} have formed an ALLIANCE.")
+        elif new_relation <= self.FEUD_THRESHOLD and current_relation > self.FEUD_THRESHOLD:
+            logging.info(f"RELATION: {dyn_a} and {dyn_b} have begun a FEUD.")
 
     def marry_characters(self, char1, char2, year, marriage_type=None, children_dynasty=None):
         if char1.char_id == char2.char_id:
@@ -297,6 +332,15 @@ class Simulation:
         
         if not char1.alive or not char2.alive:
             return
+
+        # Update Relations on Marriage
+        if char1.dynasty and char2.dynasty:
+            # Positive relation boost for marriage, or brings them out of a feud
+            current_relation = self.dynasty_relations.get(tuple(sorted((char1.dynasty, char2.dynasty))), 0)
+            if current_relation < 0:
+                self._update_dynasty_relation(char1.dynasty, char2.dynasty, 75) # Big boost to end feud
+            else:
+                self._update_dynasty_relation(char1.dynasty, char2.dynasty, 25) # Standard alliance boost
 
         # Assign default marriage type if not already set
         if not marriage_type:
@@ -316,10 +360,6 @@ class Simulation:
         char2.married = True
         char2.spouse = char1
         
-        # ### Optimization: Store marriage_year for stats ###
-        # char1.marriage_year = year
-        # char2.marriage_year = year
-
         # Remove from unmarried pools
         self.remove_from_unmarried_pools(char1)
         self.remove_from_unmarried_pools(char2)
@@ -683,6 +723,8 @@ class Simulation:
                     self.max_age_diff_for(male),
                     self.max_age_diff_for(f)
                 )
+                # Check for Feuds
+                and self.dynasty_relations.get(tuple(sorted((male.dynasty, f.dynasty))), 0) > self.FEUD_THRESHOLD
             ]
             
             if available_females:
@@ -739,7 +781,7 @@ class Simulation:
         if not candidates:
             return None
 
-        # current tiers (0 == no blood)
+        # current tiers (0 ==d 'no blood)
         t_seek = seeker.numenorean_blood_tier or 0
         if t_seek > 0:
             # --- blooded seeker ---------------------------------------
@@ -1011,6 +1053,10 @@ class Simulation:
                 self.get_extended_fertility_rate(character, 'Female')
                 * character.fertility_mult()
             )
+            # Ensure spouse exists before accessing attributes
+            if not character.spouse:
+                continue
+                
             fertility_rate_m = (
                 self.get_extended_fertility_rate(character.spouse, 'Male')
                 * character.spouse.fertility_mult()
@@ -1031,7 +1077,29 @@ class Simulation:
         for character in self.all_characters:
             if not character.alive:
                 continue
+
+            # Find the most recent death event, if any
+            death_event = None
+            for event_date, event_detail in reversed(character.events):
+                if event_detail.startswith("death ="):
+                    death_event = event_detail
+                    break
             
+            # If a death event was manually added (e.g., by murder), skip normal death check
+            if death_event:
+                # Check for a discovered murder to trigger a feud
+                if "death_murder" in death_event:
+                    # Extract the killer ID
+                    killer_match = re.search(r"killer = (\w+)", event_detail)
+                    if killer_match:
+                        killer_id = killer_match.group(1)
+                        killer = next((c for c in self.all_characters if c.char_id == killer_id), None)
+                        if killer and killer.dynasty != character.dynasty:
+                            logging.warning(f"MURDER DISCOVERED: {character.char_id} ({character.dynasty}) was murdered by {killer.char_id} ({killer.dynasty})!")
+                            self._update_dynasty_relation(character.dynasty, killer.dynasty, -75) # Heavy relation loss
+                continue # Skip death processing this year
+            
+            # Standard death check
             if self.character_death_check(character):
                 character.alive = False
                 character.death_year = year
@@ -1049,19 +1117,19 @@ class Simulation:
                 elif character.sex == "Male":
                     death_cause = random.choice([
                         "death_ill", "death_cancer", "death_battle", "death_attacked",
-                        "death_accident", "death_murder", "death_natural_causes",
+                        "death_accident", "death_natural_causes", # Removed death_murder
                         "death_drinking_passive", "death_dungeon_passive"
                     ])
                 else:
                     death_cause = random.choice([
-                        "death_ill", "death_cancer", "death_accident", "death_murder"
+                        "death_ill", "death_cancer", "death_accident" # Removed death_murder
                     ])
-                    
+                                    
                 character.add_event(death_date, f"death = {{ death_reason = {death_cause} }}")
                 
-                if character.married and character.spouse.alive:
+                if character.married and character.spouse and character.spouse.alive:
                     character.spouse.married = False
-                    character.spouse.married = None # Matches original file logic
+                    character.spouse.spouse = None # Corrected from 'married'
 
     def _process_survivor_deaths(self, last_sim_year):
         """
@@ -1095,10 +1163,8 @@ class Simulation:
                     character.death_year, character.death_month, character.death_day = map(int, death_date.split('.'))
                     
                     # --- Copied death cause logic from _process_deaths ---
-                    # Use negativeEventDeathReason if set by the (weird) check
                     if character.negativeEventDeathReason is not None:
                         death_cause = character.negativeEventDeathReason
-                    # Otherwise, use the standard age-based causes
                     elif character.age > (65 + (20 * (character.numenorean_blood_tier or 0))):
                         death_cause = "death_natural_causes"
                     elif character.age < 18:
@@ -1106,12 +1172,12 @@ class Simulation:
                     elif character.sex == "Male":
                         death_cause = random.choice([
                             "death_ill", "death_cancer", "death_battle", "death_attacked",
-                            "death_accident", "death_murder", "death_natural_causes",
+                            "death_accident", "death_natural_causes",
                             "death_drinking_passive", "death_dungeon_passive"
                         ])
                     else:
                         death_cause = random.choice([
-                            "death_ill", "death_cancer", "death_accident", "death_murder"
+                            "death_ill", "death_cancer", "death_accident"
                         ])
                     # --- End of copied logic ---
                         
@@ -1119,6 +1185,100 @@ class Simulation:
                     
                     # Remove from survivor list
                     survivors.pop(i)
+
+    # Character Actions & Intrigue
+    def _process_character_actions(self, year):
+        """Run yearly checks for characters to perform trait-based actions."""
+        for character in self.all_characters:
+            if not character.alive or character.age < 16:
+                continue
+
+            # Check for Ambitious + (Deceitful or Wrathful or Sadistic)
+            traits = character.personality_traits
+            is_ambitious = 'ambitious' in traits
+            is_schemer = 'deceitful' in traits or 'wrathful' in traits or 'sadistic' in traits
+
+            if is_ambitious and is_schemer:
+                # 50% chance per year to attempt a murder - Seems like a high chance, but the chance that someone gets the correct trait is fairly low
+                if random.random() < 0.50:
+                    self._attempt_murder(character, year)
+
+    def _attempt_murder(self, murderer, year):
+        """A character attempts to murder a rival, with a chance of discovery."""
+        
+        target = None
+        
+        # 50% chance to target a sibling, 50% to target a dynastic rival
+        if random.random() < 0.5:
+            # Priority 1: Any living sibling (older or younger)
+            all_siblings = []
+            if murderer.father:
+                all_siblings.extend([s for s in murderer.father.children if s.alive and s.char_id != murderer.char_id])
+            if murderer.mother:
+                all_siblings.extend([s for s in murderer.mother.children if s.alive and s.char_id != murderer.char_id and s.char_id not in [sib.char_id for sib in all_siblings]])
+            
+            if all_siblings:
+                target = random.choice(all_siblings)
+        
+        if not target:
+            # Priority 2: Member of a feuding dynasty
+            my_dynasty = murderer.dynasty
+            feuding_dynasties = []
+            for (dyn_a, dyn_b), value in self.dynasty_relations.items():
+                if value <= self.FEUD_THRESHOLD:
+                    if dyn_a == my_dynasty:
+                        feuding_dynasties.append(dyn_b)
+                    elif dyn_b == my_dynasty:
+                        feuding_dynasties.append(dyn_a)
+            
+            if feuding_dynasties:
+                target_dynasty = random.choice(feuding_dynasties)
+                potential_targets = [
+                    c for c in self.all_characters 
+                    if c.dynasty == target_dynasty and c.alive
+                ]
+                if potential_targets:
+                    target = random.choice(potential_targets)
+
+        if not target:
+            return # No good target found
+
+        # --- Murder is Successful ---
+        logging.warning(
+            f"INTRIGUE: {murderer.char_id} ({murderer.name}) "
+            f"is murdering {target.char_id} ({target.name})!"
+        )
+
+        # 1. Kill the target
+        target.alive = False
+        target.death_year = year
+        death_date = generate_random_date(year)
+        target.death_year, target.death_month, target.death_day = map(int, death_date.split('.'))
+        
+        # 2. Determine if the murder is discovered (25% chance)
+        if random.random() < 0.25:
+            # DISCOVERED
+            logging.warning(f"INTRIGUE: The murder of {target.char_id} was discovered!")
+            
+            # Add discovered death event to target (per your syntax)
+            death_event = f"death = {{ death_reason = death_murder killer = {murderer.char_id} }}"
+            target.add_event(death_date, death_event)
+            
+            # Add 'murderer' trait to the murderer
+            murderer.add_trait("murderer")
+            
+        else:
+            # SECRET
+            logging.info(f"INTRIGGE: {murderer.char_id} got away with it.")
+            
+            # Add "fake" death event to target (per your syntax)
+            death_event = f"death = {{ death_reason = death_accident killer = {murderer.char_id} }}"
+            target.add_event(death_date, death_event)
+
+            # Add secret to murderer (per your syntax)
+            secret_event = f"effect = {{ add_secret = {{ type = secret_murder target = character:{target.char_id} }} }}"
+            murderer.add_event(death_date, secret_event)
+
 
     def run_simulation(self):
         """
@@ -1133,6 +1293,9 @@ class Simulation:
             
             # 1. Update ages and apply age-based traits (3 & 16)
             self._process_yearly_updates(year)
+            
+            # Process character actions (like murder)
+            self._process_character_actions(year)
 						
             # 2. Handle Marriages
             self._process_marriages(year)
@@ -1152,37 +1315,38 @@ class Simulation:
         self._process_survivor_deaths(max_year)
 
     def export_characters(self, output_filename="family_history.txt"):
-        # Set output folder and ensure it exists
-        output_folder = "Character and Title files"
-        os.makedirs(output_folder, exist_ok=True)
+            # Set output folder and ensure it exists
+            output_folder = "Character and Title files"
+            os.makedirs(output_folder, exist_ok=True)
 
-        # Full path to the output file
-        output_path = os.path.join(output_folder, output_filename)
+            # Full path to the output file
+            output_path = os.path.join(output_folder, output_filename)
 
-        dynasty_groups = {}
-        exported_character_count = 0
+            dynasty_groups = {}
+            exported_character_count = 0
 
-        for character in self.all_characters:
-            if character.dynasty:  # Only group characters with a valid dynasty
-                if character.spouse and character.dynasty == "Lowborn":
-                    dynasty = character.spouse.dynasty if character.spouse.dynasty != "Lowborn" else character.dynasty
-                else:
-                    dynasty = character.dynasty
+            for character in self.all_characters:
+                if character.dynasty:  # Only group characters with a valid dynasty
+                    if character.spouse and character.dynasty == "Lowborn":
+                        dynasty = character.spouse.dynasty if character.spouse.dynasty != "Lowborn" else character.dynasty
+                    else:
+                        dynasty = character.dynasty
 
-                if dynasty not in dynasty_groups:
-                    dynasty_groups[dynasty] = []
-                dynasty_groups[dynasty].append(character)
+                    if dynasty not in dynasty_groups:
+                        dynasty_groups[dynasty] = []
+                    dynasty_groups[dynasty].append(character)
 
-        with open(output_path, 'w', encoding='utf-8') as file:
-            for dynasty, characters in sorted(dynasty_groups.items(), key=lambda x: x[0]):
-                file.write("################\n")
-                file.write(f"### Dynasty {dynasty}\n")
-                file.write("################\n\n")
+            with open(output_path, 'w', encoding='utf-8') as file:
+                # Corrected lambda syntax
+                for dynasty, characters in sorted(dynasty_groups.items(), key=lambda x: x[0]):
+                    file.write("################\n")
+                    file.write(f"### Dynasty {dynasty}\n")
+                    file.write("################\n\n")
 
-                for character in sorted(characters, key=lambda c: int(re.sub(r'\D', '', c.char_id))):
-                    file.write(character.format_for_export())
-                    file.write("\n")
-                    exported_character_count += 1
+                    for character in sorted(characters, key=lambda c: int(re.sub(r'\D', '', c.char_id))):
+                        file.write(character.format_for_export())
+                        file.write("\n")
+                        exported_character_count += 1
 
-        logging.info(f"Character history exported to {output_path}")
-        logging.info(f"Total characters exported: {exported_character_count}")
+            logging.info(f"Character history exported to {output_path}")
+            logging.info(f"Total characters exported: {exported_character_count}")

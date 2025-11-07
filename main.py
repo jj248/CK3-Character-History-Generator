@@ -192,7 +192,8 @@ def _gather_stats(simulation):
     
     return records, lowborn_married_count, total_num_char, percent_lowborn_marriage
 
-def _print_stats(records, percentages_array):
+# --- MODIFIED: Added 'simulation' parameter ---
+def _print_stats(simulation, records, percentages_array):
     """Helper to print all formatted statistics to the console."""
     
     # --- Helper for avg children & marriages ---
@@ -284,6 +285,33 @@ def _print_stats(records, percentages_array):
         print("Average Númenórean tier  |  Male:", round(avg_tier_by_sex["Male"], 2),
               " Female:", round(avg_tier_by_sex["Female"], 2))
 
+    # Prints Dynastic Relationships
+    if STATS_ENABLED and hasattr(simulation, 'dynasty_relations'):
+        alliances = []
+        feuds = []
+        for (dyn_a, dyn_b), value in simulation.dynasty_relations.items():
+            if value >= simulation.ALLIANCE_THRESHOLD:
+                alliances.append((dyn_a, dyn_b, value))
+            elif value <= simulation.FEUD_THRESHOLD:
+                feuds.append((dyn_a, dyn_b, value))
+        
+        print("\n--- Dynastic Relations ---")
+        if alliances:
+            print("Major Alliances:")
+            alliances.sort(key=lambda x: x[2], reverse=True)
+            for dyn_a, dyn_b, value in alliances:
+                print(f"  - {dyn_a} & {dyn_b} (Value: {value})")
+        else:
+            print("Major Alliances: None")
+            
+        if feuds:
+            print("\nActive Feuds:")
+            feuds.sort(key=lambda x: x[2])
+            for dyn_a, dyn_b, value in feuds:
+                print(f"  - {dyn_a} & {dyn_b} (Value: {value})")
+        else:
+            print("\nActive Feuds: None")
+
     # Print average lowborn marriage %
     if percentages_array:
         average_lowborn_marriage_percent = sum(percentages_array) / len(percentages_array)
@@ -311,7 +339,8 @@ def run_and_analyze_simulations(simulation):
             print(f"\nTotal lowborns married into noble dynasties: {lowborn_count}")
             print(f"Percentage of Lowborn Marriages: {percent_lowborn:.2f}%")
             
-            _print_stats(records, percentages_array)
+            # Pass the simulation object to print stats
+            _print_stats(simulation, records, percentages_array)
             
             # NOTE: If NUM_SIMULATIONS > 1, you may want to reset the simulation
             # or aggregate stats differently. Currently, it prints stats
@@ -345,13 +374,19 @@ def generate_output_files(simulation, config_loader):
     # 3. Build Family Tree Images (Original file-based logic)
     if GENERATE_IMAGE_BOOL:
         logging.info("Generating family tree images...")
+        
+        # Pass the simulation object to the FamilyTree constructor
         tree = FamilyTree(
             "Character and Title files/family_history.txt",
             "Character and Title files/title_history.txt",
-            config_loader.config
+            config_loader.config,
+            simulation  # Pass the simulation object here
         )
         tree.build_trees()
-        tree.render_trees()
+        
+        # --- THIS IS THE CORRECTED LINE ---
+        # The simulation object is already in tree.simulation
+        tree.render_trees() 
 
 def run_main():
     """Main execution function."""

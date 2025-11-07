@@ -20,10 +20,11 @@ class FamilyTree:
         6: "VI", 7: "VII",8: "VIII",9: "IX",  10: "X"
     }
     
-    def __init__(self, character_file, title_file, config):
+    def __init__(self, character_file, title_file, config, simulation):
         self.characters = {}
         self.dynasties = defaultdict(list)  # Stores characters by dynasty
         self.title_holders = {}  # Store characters who inherited the title
+        self.simulation = simulation # Store the simulation object
         self.load_characters(character_file)
         self.load_titles(title_file)
         self.graphs = {}  # Stores Graphviz objects for each dynasty
@@ -32,8 +33,12 @@ class FamilyTree:
 
     def load_characters(self, filename):
         """Parse the .txt file to extract character details."""
-        with open(filename, "r", encoding="utf-8") as f:  # Ensure UTF-8 encoding
-            data = f.read()
+        try:
+            with open(filename, "r", encoding="utf-8") as f:  # Ensure UTF-8 encoding
+                data = f.read()
+        except FileNotFoundError:
+            print(f"Error: Character file not found at {filename}")
+            return
 
         def convert_to_ingame_date(year):
             """Convert the year into T.A. or S.A. format."""
@@ -52,7 +57,9 @@ class FamilyTree:
             char_data = {"id": identifier}
 
             # Extracting values
-            char_data["name"] = self.extract_value(r"name\s*=\s*(\w+)", content)
+            # --- THIS IS THE CORRECTED REGEX ---
+            char_data["name"] = self.extract_value(r'name\s*=\s*"([^"]*)"', content) # Correctly handles quotes
+            
             char_data["father"] = self.extract_value(r"father\s*=\s*(\w+)", content, default=None)
             char_data["mother"] = self.extract_value(r"mother\s*=\s*(\w+)", content, default=None)
             char_data["dynasty"] = self.extract_value(r"dynasty\s*=\s*(\w+)", content, default="Lowborn")
@@ -68,9 +75,6 @@ class FamilyTree:
             # Check for blood of numenor trait
             blood_match = re.search(r"\btrait\s*=\s*blood_of_numenor_(\d+)\b", content)
             char_data["numenor_tier"] = int(blood_match.group(1)) if blood_match else None
-
-            # Debugging output
-            # print(f"Is Female: {is_female_match}, Is Bastard: {char_data['is_bastard']}")
 
             # Extract birth and death years
             birth_match = re.search(
@@ -96,9 +100,6 @@ class FamilyTree:
             # Store character data
             self.characters[identifier] = char_data
             self.dynasties[char_data["dynasty"]].append(identifier)  # Group by dynasty
-
-        # Debugging Output: Ensure Characters Are Loaded
-        # print("Characters Loaded:", list(self.characters.keys()))  # <-- Debugging line
 
     def load_titles(self, filename):
         """Parse title history to find characters who held a title and track their ruling dates."""
@@ -144,9 +145,6 @@ class FamilyTree:
             if previous_holder and previous_holder != "0" and self.title_holders[previous_holder]["end_date"] is None:
                 self.title_holders[previous_holder]["end_date"] = "Present"  # Or any appropriate term for ongoing reign
 
-        # Debug print to check the data
-        # print("Title Holders with Start and End Dates:", self.title_holders)
-
     def extract_value(self, pattern, text, default=""):
         """Helper function to extract values from a text block."""
         match = re.search(pattern, text)
@@ -173,7 +171,10 @@ class FamilyTree:
             ruler_count = sum(1 for char_id in members if char_id in self.title_holders)
 
             # Find the oldest and youngest birth years
-            birth_years = [self.characters[char_id]["birth_year"] for char_id in members]
+            birth_years = [self.characters[char_id]["birth_year"] for char_id in members if self.characters[char_id]["birth_year"]]
+            if not birth_years: # Handle case where dynasty has no characters with birth years (e.g., Lowborn)
+                continue
+                
             oldest_birth_year = min(birth_years)
             youngest_birth_year = max(birth_years)
 
@@ -206,8 +207,12 @@ class FamilyTree:
                 death_date = char["death_year"]
                 age_suffix = ""
                 if birth_date.isdigit() and death_date.isdigit():
-                    age = int(death_date) - int(birth_date)
-                    age_suffix = f" ({age})"
+                    try:
+                        age = int(death_date) - int(birth_date)
+                        age_suffix = f" ({age})"
+                    except ValueError:
+                        age_suffix = "" # Handle non-integer dates if they slip through
+                        
                 start_date = self.title_holders.get(char_id, {}).get("start_date", "N/A")
                 end_date = self.title_holders.get(char_id, {}).get("end_date", "N/A")
                 
@@ -230,7 +235,9 @@ class FamilyTree:
                 if start_year and start_year != "N/A" and end_year and end_year != "N/A":
                     ruled_label = f" Ruled: {start_year} - {end_year}"
 
-                label = f'< <b>{char["name"]}</b><br/>{char["id"]}<br/>{birth_date} - {death_date}{age_suffix}{blood_label}<br/>{ruled_label} >'
+                # Ensure name is not empty before creating label
+                char_name = char["name"] if char["name"] else f"UNKNOWN ({char['id']})"
+                label = f'< <b>{char_name}</b><br/>{char["id"]}<br/>{birth_date} - {death_date}{age_suffix}{blood_label}<br/>{ruled_label} >'
 
                 border_color = "blue"  # Default for males
                 if char.get("female") == "yes":
@@ -270,10 +277,12 @@ class FamilyTree:
                         elif self.config.get('initialization', {}).get('spouseVisible', []) == "yes":
                             external_node_id = f"external_{parent_id}"
                             if external_node_id not in external_nodes:
+                                parent_char = self.characters[parent_id]
+                                parent_name = parent_char["name"] if parent_char["name"] else f"UNKNOWN ({parent_char['id']})"
                                 external_label = (
-                                    f'< <b>{self.characters[parent_id]["name"]}</b><br/>' 
-                                    f'{self.characters[parent_id]["birth_year"]} - '
-                                    f'{self.characters[parent_id]["death_year"]} >'
+                                    f'< <b>{parent_name}</b><br/>' 
+                                    f'{parent_char["birth_year"]} - '
+                                    f'{parent_char["death_year"]} >'
                                 )
                                 graph.node(external_node_id, label=external_label,
                                         shape="ellipse", style="dashed")
@@ -303,18 +312,86 @@ class FamilyTree:
 
             self.graphs[dynasty] = graph  # Store graph for later rendering
 
-    def render_trees(self):
+    def build_political_map(self):
+        """Generates a graphviz map of inter-dynastic relations."""
+        if not hasattr(self.simulation, 'dynasty_relations'):
+            return # Skip if the simulation object doesn't have the relations dict
+
+        # Use 'fdp' layout engine for better node spacing, and add attributes
+        graph = graphviz.Graph(comment="Political Map", 
+                               engine='fdp',
+                               graph_attr={
+                                   "bgcolor": "#A0C878",
+                                   "overlap": "scale", # Prevents node overlap
+                                   "splines": "true", # Allows for curved edges
+                                   "sep": "+15", # Increase separation
+                                   "nodesep": "1.0" # Increase node separation
+                               })
+        
+        all_dynasties = set()
+        relations_to_draw = []
+
+        # Collect all dynasties and filter relations
+        for (dyn_a, dyn_b), value in self.simulation.dynasty_relations.items():
+            all_dynasties.add(dyn_a)
+            all_dynasties.add(dyn_b)
+            
+            if value >= self.simulation.ALLIANCE_THRESHOLD:
+                relations_to_draw.append((dyn_a, dyn_b, "alliance"))
+            elif value <= self.simulation.FEUD_THRESHOLD:
+                relations_to_draw.append((dyn_a, dyn_b, "feud"))
+
+        # Add nodes for all dynasties
+        for dynasty in all_dynasties:
+            if dynasty == "Lowborn": continue
+            graph.node(dynasty, label=dynasty.replace("dynasty_", "").capitalize(), 
+                       style="filled", fillcolor="white", shape="box", penwidth="2")
+
+        # Add edges for relations
+        for dyn_a, dyn_b, type in relations_to_draw:
+            if type == "alliance":
+                graph.edge(dyn_a, dyn_b, color="green", style="bold", penwidth="3", label="Alliance")
+            elif type == "feud":
+                graph.edge(dyn_a, dyn_b, color="red", style="dashed", penwidth="2", label="Feud")
+        
+        # Store this graph for rendering
+        self.graphs["_political_map"] = graph
+
+
+    def render_trees(self, simulation=None): # Keep default None for compatibility
         """Render the family trees to files in 'Dynasty Preview' folder."""
+        # Use the stored simulation object
+        
         output_folder = "Dynasty Preview"
         os.makedirs(output_folder, exist_ok=True)  # Create the folder if it doesn't exist
+        
+        # Build the political map first
+        self.build_political_map()
 
         for dynasty, graph in self.graphs.items():
-            filename = os.path.join(output_folder, f"family_tree_{dynasty}")
-            graph.render(filename, format="png", cleanup=True)
-            print(f"Family tree for {dynasty} saved as {filename}.png")
+            if dynasty == "_political_map":
+                filename = os.path.join(output_folder, "political_map")
+                try:
+                    graph.render(filename, format="png", cleanup=True)
+                    print(f"Political map saved as {filename}.png")
+                except Exception as e:
+                    print(f"Error rendering political map (is Graphviz installed?): {e}")
+            else:
+                filename = os.path.join(output_folder, f"family_tree_{dynasty}")
+                try:
+                    graph.render(filename, format="png", cleanup=True)
+                    print(f"Family tree for {dynasty} saved as {filename}.png")
+                except Exception as e:
+                    print(f"Error rendering family tree for {dynasty} (is Graphviz installed?): {e}")
+
 
 if __name__ == "__main__":
     config_loader = ConfigLoader('config')  # Ensure 'config' directory is correct
-    tree = FamilyTree("family_history.txt", "title_history.txt", config_loader.config)  # Ensure both files exist
-    tree.build_trees()
-    tree.render_trees()
+    
+    # This main block will fail as it doesn't pass the simulation object.
+    # The application must now be run from `main.py`
+    
+    # tree = FamilyTree("family_history.txt", "title_history.txt", config_loader.config)  # Ensure both files exist
+    # tree.build_trees()
+    # tree.render_trees()
+    print("This file must be run from main.py to have access to the simulation object.")

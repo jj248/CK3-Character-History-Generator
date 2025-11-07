@@ -43,6 +43,8 @@ def _parent_trait_idx(parent: "Character", category: str) -> int | None:
 
 
 class Character:
+    # (All class functions from __init__ to add_trait remain unchanged)
+    # ... (content from line 46 to 341 is identical) ...
     def __init__(
         self, 
         char_id, 
@@ -393,6 +395,43 @@ class Character:
 
     def format_for_export(self):
         """Format the character's data and events into CK3 history file format."""
+        
+        def _format_nested_block(detail_string, initial_indent_level):
+            """
+            Formats a string with nested braces for CK3 output.
+            Handles newlines as separate lines.
+            """
+            lines = []
+            base_indent = "\t" * initial_indent_level
+            current_indent = base_indent
+            buffer = ""
+
+            for line in detail_string.splitlines():
+                for char in line:
+                    if char == '{':
+                        # --- THIS IS THE CORRECTED LINE ---
+                        # Removed the extra " = "
+                        lines.append(current_indent + buffer.strip() + " {")
+                        current_indent += "\t"
+                        buffer = ""
+                    elif char == '}':
+                        if buffer.strip():
+                            lines.append(current_indent + buffer.strip())
+                        current_indent = current_indent[:-1]
+                        lines.append(current_indent + "}")
+                        buffer = ""
+                    else:
+                        buffer += char
+                
+                # After a line (or at the end), add the buffer's content
+                if buffer.strip():
+                    lines.append(current_indent + buffer.strip())
+                buffer = ""
+                # Reset indent to base for the next newline
+                current_indent = base_indent
+
+            return lines
+
         lines = [f"{self.char_id} = {{"]
         lines.append(f"\tname = {self.name}")
         if self.sex == 'Female':
@@ -491,31 +530,33 @@ class Character:
                 event_lines = []
                 if event_detail == "birth = yes":
                     event_lines.append(f"\t{event_date} = {{")
-                    event_lines.append(f"\t    {event_detail}")
+                    event_lines.append(f"\t\tbirth = yes") # Indent level 2
 
                     lang_effects = []
                     for lang, start, end in self.DYNASTY_LANGUAGE_RULES.get(self.dynasty, []):
                         if start <= self.birth_year <= end:
                             lang_effects.append(lang)
                     if lang_effects:
-                        event_lines.append(f"\t    effect = {{")
+                        event_lines.append(f"\t\teffect = {{") # Indent level 2
                         for l in lang_effects:
-                            event_lines.append(f"\t        learn_language = {l}")
-                        event_lines.append(f"\t    }}")
+                            event_lines.append(f"\t\t\tlearn_language = {l}") # Indent level 3
+                        event_lines.append(f"\t\t}}")
                     event_lines.append(f"\t}}")
                 else:
                     if event_detail.startswith("add_spouse") or event_detail.startswith("add_matrilineal_spouse"):
                         event_desc = f"# Married at age {age}"
-                    elif event_detail.startswith("trait"):
-                        event_desc = ""
                     elif event_detail.startswith("death"):
                         event_desc = f"# Died at age {age}"
                     else:
                         event_desc = f"# Event at age {age}"
 
                     event_lines.append(f"\t{event_date} = {{  {event_desc}")
-                    for detail_line in event_detail.strip().splitlines():
-                        event_lines.append(f"\t    {detail_line.strip()}")
+                    
+                    # Use the new nested formatter, starting at indent level 2
+                    formatted_details = _format_nested_block(event_detail, 2)
+                    for line in formatted_details:
+                        event_lines.append(line)
+                    
                     event_lines.append(f"\t}}")
 
                 processed_events.append((event_date, event_lines))
