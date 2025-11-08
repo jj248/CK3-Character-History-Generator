@@ -1,15 +1,15 @@
 {
     "dynasties": [
         {
-            "dynastyName": "Luumanai",
-            "dynastyMotto": "From Duty Comes Glory",
+            "dynastyName": "Enakynim",
+            "dynastyMotto": "The Spirit of the Horse Grants Us Trust",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_luumanai",
+            "dynastyID": "dynasty_enakynim",
             "isHouse": false,
-            "faithID": "faith_indur",
-            "cultureID": "tuktani",
+            "faithID": "faith_uvag",
+            "cultureID": "drenim",
             "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6900,
+            "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,
             "prioritiseLowbornMarraige": true,
             "nameInheritance": {
@@ -20,15 +20,15 @@
             "languages": []
         },
         {
-            "dynastyName": "Manaamburi",
-            "dynastyMotto": "We Carry the Burden Proudly",
+            "dynastyName": "Haayaarim",
+            "dynastyMotto": "Delight, Pleasure and Dread",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_manaamburi",
+            "dynastyID": "dynasty_haayaarim",
             "isHouse": false,
-            "faithID": "faith_indur",
-            "cultureID": "tuktani",
+            "faithID": "faith_uvag",
+            "cultureID": "drenim",
             "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6900,
+            "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,
             "prioritiseLowbornMarraige": true,
             "nameInheritance": {
@@ -39,15 +39,15 @@
             "languages": []
         },
         {
-            "dynastyName": "Mavali",
-            "dynastyMotto": "Our Strength Guides the Many",
+            "dynastyName": "Lokalim",
+            "dynastyMotto": "Dare to be Loyal",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_mavali",
+            "dynastyID": "dynasty_lokalim",
             "isHouse": false,
-            "faithID": "faith_indur",
-            "cultureID": "tuktani",
+            "faithID": "faith_gan",
+            "cultureID": "drenim",
             "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6900,
+            "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,
             "prioritiseLowbornMarraige": true,
             "nameInheritance": {
@@ -58,15 +58,15 @@
             "languages": []
         },
         {
-            "dynastyName": "Dunojonuri",
-            "dynastyMotto": "We Rise to Defend",
+            "dynastyName": "Mbuumamim",
+            "dynastyMotto": "By Bow and Axe",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_dunojonuri",
+            "dynastyID": "dynasty_mbuumamim",
             "isHouse": false,
-            "faithID": "faith_indur",
-            "cultureID": "tuktani",
+            "faithID": "faith_gan",
+            "cultureID": "drenim",
             "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6900,
+            "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,
             "prioritiseLowbornMarraige": true,
             "nameInheritance": {
@@ -77,15 +77,15 @@
             "languages": []
         },
         {
-            "dynastyName": "Boliduri",
-            "dynastyMotto": "One Voice, One Will",
+            "dynastyName": "Uyarazandim",
+            "dynastyMotto": "By Fidelity and Trust",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_boliduri",
+            "dynastyID": "dynasty_uyarazandim",
             "isHouse": false,
-            "faithID": "faith_indur",
-            "cultureID": "tuktani",
+            "faithID": "faith_gan",
+            "cultureID": "drenim",
             "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6900,
+            "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,
             "prioritiseLowbornMarraige": true,
             "nameInheritance": {
@@ -117,7 +117,7 @@
         }
     ],
     "initialCharID": 1,
-    "minYear": 6000,
+    "minYear": 6800,
     "maxYear": 7033,
     "generationMax": 100,
     "treeGeneration": "TB",
