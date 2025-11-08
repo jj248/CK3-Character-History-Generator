@@ -409,8 +409,8 @@ class Character:
             for line in detail_string.splitlines():
                 for char in line:
                     if char == '{':
-                        # --- THIS IS THE CORRECTED LINE ---
-                        # Removed the extra " = "
+                        # This line was buggy. It added an extra " = ".
+                        # This is the corrected line:
                         lines.append(current_indent + buffer.strip() + " {")
                         current_indent += "\t"
                         buffer = ""
@@ -533,9 +533,11 @@ class Character:
                     event_lines.append(f"\t\tbirth = yes") # Indent level 2
 
                     lang_effects = []
-                    for lang, start, end in self.DYNASTY_LANGUAGE_RULES.get(self.dynasty, []):
-                        if start <= self.birth_year <= end:
-                            lang_effects.append(lang)
+                    # Check for class attribute before accessing it
+                    if hasattr(Character, 'DYNASTY_LANGUAGE_RULES'):
+                        for lang, start, end in Character.DYNASTY_LANGUAGE_RULES.get(self.dynasty, []):
+                            if start <= self.birth_year <= end:
+                                lang_effects.append(lang)
                     if lang_effects:
                         event_lines.append(f"\t\teffect = {{") # Indent level 2
                         for l in lang_effects:
@@ -543,12 +545,16 @@ class Character:
                         event_lines.append(f"\t\t}}")
                     event_lines.append(f"\t}}")
                 else:
+                    # --- THIS IS THE CORRECTED LOGIC ---
                     if event_detail.startswith("add_spouse") or event_detail.startswith("add_matrilineal_spouse"):
                         event_desc = f"# Married at age {age}"
                     elif event_detail.startswith("death"):
                         event_desc = f"# Died at age {age}"
+                    elif event_detail.startswith("effect"):
+                        event_desc = f"# Acquired Secret at age {age}"
                     else:
-                        event_desc = f"# Event at age {age}"
+                        event_desc = f"# Event at age {age}" # This handles personality traits
+                    # --- END CORRECTION ---
 
                     event_lines.append(f"\t{event_date} = {{  {event_desc}")
                     

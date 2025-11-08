@@ -834,12 +834,34 @@ def display_generated_images(image_folder: str):
 
     # Get all image files
     img_folder_path = get_resource_path(image_folder)
+    
+    # Get both family trees and the political map
     image_paths = sorted(Path(img_folder_path).glob("family_tree_*.png"))
+    political_map = get_resource_path(os.path.join(image_folder, "political_map.png"))
+    
+    if os.path.exists(political_map):
+        st.subheader("Political Map")
+        try:
+            with open(political_map, "rb") as f:
+                image_base64 = base64.b64encode(f.read()).decode()
+            image_html = f"""
+                <div style="overflow-x:auto; text-align: center; border: 2px solid #ccc; padding: 10px; border-radius: 5px;">
+                    <img src="data:image/png;base64,{image_base64}" 
+                         style="max-width: 80%; height: auto; margin: auto; display: block; transition: transform 0.2s; cursor: zoom-in;" 
+                         onmouseover="this.style.transform='scale(1.1)'" 
+                         onmouseout="this.style.transform='scale(1)'"/>
+                </div>
+            """
+            st.markdown(image_html, unsafe_allow_html=True)
+        except Exception as e:
+            st.error(f"Could not load political map image: {e}")
+        st.divider()
 
     if not image_paths:
         st.info("No dynasty tree images found. Run the simulation first.")
         return
 
+    st.subheader("Family Trees")
     for image_path in image_paths:
         dynasty_id = image_path.stem.replace("family_tree_", "")
         with st.expander(f"Tree for Dynasty: {dynasty_id}", expanded=False):
@@ -863,6 +885,92 @@ def display_generated_images(image_folder: str):
                 st.error(f"Could not load image for {dynasty_id}: {e}")
 
 ############################
+# NEW: Secret Config Tab
+############################
+def display_secret_config(config):
+    """Renders the 'Intrigue & Secrets' tab."""
+    st.title("CK3 Character History Generator")
+    st.subheader("🤫 Intrigue & Secret Probabilities")
+    
+    disabled = not st.session_state.get("configs_loaded", False)
+    
+    CONFIG_PATH = "config/skills_and_traits.json"
+    FALLBACK_PATH = "config/fallback_config_files/skills_and_traits.json" # Assuming you have this
+
+    st.button(
+        "🔄 Reset Secrets Config",
+        on_click=reset_config,
+        args=("skills_config", CONFIG_PATH, FALLBACK_PATH),
+        disabled=disabled
+    )
+
+    st.markdown("Edit the probabilities for characters to acquire secrets.")
+    
+    secret_probs = config.get("secretProbabilities", {})
+    if not secret_probs:
+        st.warning("No `secretProbabilities` block found in skills_and_traits.json.")
+        return
+
+    for secret_id, settings in secret_probs.items():
+        with st.expander(f"Edit Secret: {secret_id}"):
+            
+            # Edit Base Chance
+            new_base_chance = st.number_input(
+                "Base Chance (per year)",
+                min_value=0.0, max_value=1.0,
+                value=settings.get("base_chance", 0.0),
+                step=0.0001,
+                format="%.4f",
+                key=f"base_chance_{secret_id}",
+                disabled=disabled
+            )
+            settings["base_chance"] = new_base_chance # Update in-place
+
+            st.markdown("---")
+            st.markdown("**Trigger Traits** (Multipliers)")
+            
+            trigger_traits = settings.get("trigger_traits", {})
+            
+            # Edit existing triggers
+            traits_to_remove = []
+            for i, (trait, multiplier) in enumerate(trigger_traits.items()):
+                cols = st.columns([3, 2, 1])
+                new_trait = cols[0].text_input("Trait/Skill", value=trait, key=f"trait_name_{secret_id}_{i}", disabled=disabled)
+                new_multiplier = cols[1].number_input("Multiplier", value=multiplier, min_value=1.0, step=0.5, key=f"trait_multi_{secret_id}_{i}", disabled=disabled)
+                
+                if cols[2].button("❌", key=f"trait_del_{secret_id}_{i}", help="Remove this trigger", disabled=disabled):
+                    traits_to_remove.append(trait)
+                
+                if new_trait != trait: # Handle trait rename
+                    traits_to_remove.append(trait)
+                    trigger_traits[new_trait] = new_multiplier
+                else:
+                    trigger_traits[trait] = new_multiplier
+
+            for trait in traits_to_remove:
+                trigger_traits.pop(trait, None)
+            
+            # Add new trigger
+            with st.form(key=f"add_trigger_{secret_id}_form"):
+                st.markdown("**Add New Trigger**")
+                add_cols = st.columns(2)
+                new_trait_name = add_cols[0].text_input("Trait/Skill Name", key=f"add_trait_name_{secret_id}", disabled=disabled)
+                new_trait_multi = add_cols[1].number_input("Multiplier", value=5.0, min_value=1.0, step=0.5, key=f"add_trait_multi_{secret_id}", disabled=disabled)
+                
+                if st.form_submit_button("➕ Add Trigger", disabled=disabled):
+                    if new_trait_name and new_trait_name not in trigger_traits:
+                        trigger_traits[new_trait_name] = new_trait_multi
+                        st.rerun()
+                    elif not new_trait_name:
+                        st.warning("Trait name cannot be empty.")
+                    else:
+                        st.warning(f"Trait '{new_trait_name}' already exists.")
+
+    if st.button("💾 Save Secret Changes", disabled=disabled):
+        save_config(config, CONFIG_PATH)
+        st.success("Secret probabilities saved.")
+
+############################
 # Main Application
 ############################
         
@@ -874,8 +982,9 @@ def main():
         try:
             st.session_state.init_config = load_config("config/initialization.json")
             st.session_state.life_config = load_config("config/life_stages.json")
+            st.session_state.skills_config = load_config("config/skills_and_traits.json") # Load skills config
             
-            # --- NEW: Load base config for sliders ---
+            # Load base config for sliders
             st.session_state.base_life_config = load_config("config/fallback_config_files/life_stages.json")
             
             st.session_state.configs_loaded = True
@@ -884,11 +993,12 @@ def main():
             logging.exception("Failed to load initial configs")
             st.stop()
 
-    tab1, tab2, tab3, tab4 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "🏛️ Dynasty Settings", 
         "🌳 Dynasty Trees", 
         "📜 Negative Events", 
-        "💉 Life Cycle Modifiers"
+        "💉 Life Cycle Modifiers",
+        "🤫 Intrigue & Secrets"
     ])
 
     with tab1:
@@ -903,6 +1013,9 @@ def main():
     
     with tab4:
         display_life_stage_config(st.session_state.life_config)
+
+    with tab5:
+        display_secret_config(st.session_state.skills_config)
 
 if __name__ == "__main__":
     main()

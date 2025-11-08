@@ -57,8 +57,8 @@ class FamilyTree:
             char_data = {"id": identifier}
 
             # Extracting values
-            # --- THIS IS THE CORRECTED REGEX ---
-            char_data["name"] = self.extract_value(r'name\s*=\s*"([^"]*)"', content) # Correctly handles quotes
+            # --- CHANGE 1: Reverted to the original regex that handles non-quoted names ---
+            char_data["name"] = self.extract_value(r"name\s*=\s*(\w+)", content)
             
             char_data["father"] = self.extract_value(r"father\s*=\s*(\w+)", content, default=None)
             char_data["mother"] = self.extract_value(r"mother\s*=\s*(\w+)", content, default=None)
@@ -235,9 +235,8 @@ class FamilyTree:
                 if start_year and start_year != "N/A" and end_year and end_year != "N/A":
                     ruled_label = f" Ruled: {start_year} - {end_year}"
 
-                # Ensure name is not empty before creating label
-                char_name = char["name"] if char["name"] else f"UNKNOWN ({char['id']})"
-                label = f'< <b>{char_name}</b><br/>{char["id"]}<br/>{birth_date} - {death_date}{age_suffix}{blood_label}<br/>{ruled_label} >'
+                # --- CHANGE 2: Removed the name from the label as requested ---
+                label = f'< {char["id"]}<br/>{birth_date} - {death_date}{age_suffix}{blood_label}<br/>{ruled_label} >'
 
                 border_color = "blue"  # Default for males
                 if char.get("female") == "yes":
@@ -278,13 +277,13 @@ class FamilyTree:
                             external_node_id = f"external_{parent_id}"
                             if external_node_id not in external_nodes:
                                 parent_char = self.characters[parent_id]
-                                parent_name = parent_char["name"] if parent_char["name"] else f"UNKNOWN ({parent_char['id']})"
-                                external_label = (
-                                    f'< <b>{parent_name}</b><br/>' 
+                                # Also remove name from external nodes
+                                parent_label = (
+                                    f'< {parent_char["id"]}<br/>' 
                                     f'{parent_char["birth_year"]} - '
                                     f'{parent_char["death_year"]} >'
                                 )
-                                graph.node(external_node_id, label=external_label,
+                                graph.node(external_node_id, label=parent_label,
                                         shape="ellipse", style="dashed")
                                 external_nodes[external_node_id] = external_label
 

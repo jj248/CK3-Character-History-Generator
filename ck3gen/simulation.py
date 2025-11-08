@@ -50,6 +50,9 @@ class Simulation:
             for d in config['initialization']['dynasties']
         }
 
+        # Load secret probabilities
+        self.secret_probabilities = self.config.get('skills_and_traits', {}).get('secretProbabilities', {})
+
         # Map each education skill to its two possible childhood traits
         self.childhood_by_education = {
             "diplomacy":    ["charming", "curious"],
@@ -1199,9 +1202,13 @@ class Simulation:
             is_schemer = 'deceitful' in traits or 'wrathful' in traits or 'sadistic' in traits
 
             if is_ambitious and is_schemer:
-                # 50% chance per year to attempt a murder - Seems like a high chance, but the chance that someone gets the correct trait is fairly low
-                if random.random() < 0.50:
+                # 1% chance per year to attempt a murder (upped from 0.1%)
+                if random.random() < 0.01:
                     self._attempt_murder(character, year)
+            
+            # Check for other secrets
+            self._acquire_secrets(character, year)
+
 
     def _attempt_murder(self, murderer, year):
         """A character attempts to murder a rival, with a chance of discovery."""
@@ -1269,7 +1276,7 @@ class Simulation:
             
         else:
             # SECRET
-            logging.info(f"INTRIGGE: {murderer.char_id} got away with it.")
+            logging.info(f"INTRIGUE: {murderer.char_id} got away with it.")
             
             # Add "fake" death event to target (per your syntax)
             death_event = f"death = {{ death_reason = death_accident killer = {murderer.char_id} }}"
@@ -1278,6 +1285,52 @@ class Simulation:
             # Add secret to murderer (per your syntax)
             secret_event = f"effect = {{ add_secret = {{ type = secret_murder target = character:{target.char_id} }} }}"
             murderer.add_event(death_date, secret_event)
+
+    def _acquire_secrets(self, character, year):
+        """Check if a character acquires new secrets based on config probabilities."""
+        
+        for secret_type, config in self.secret_probabilities.items():
+            base_chance = config.get('base_chance', 0)
+            multiplier = 1.0
+            
+            # Check for trigger traits
+            for trait, multi in config.get('trigger_traits', {}).items():
+                if trait in character.personality_traits:
+                    multiplier *= multi
+                # Also check education
+                if trait == character.education_skill:
+                    multiplier *= multi
+
+            final_chance = base_chance * multiplier
+            
+            if random.random() < final_chance:
+                # Character acquires the secret
+                date = generate_random_date(year)
+                
+                if secret_type == "secret_lover":
+                    # This secret requires a target
+                    potential_lovers = [
+                        c for c in self.all_characters 
+                        if c.alive and c.age >= 16 and c.char_id != character.char_id 
+                        and not c.married # Simple logic: only unmarried lovers for now
+                    ]
+                    if potential_lovers:
+                        lover = random.choice(potential_lovers)
+                        
+                        # Add secret and relation to both characters
+                        secret_event = f"effect = {{ add_secret = {{ type = secret_lover target = character:{lover.char_id} }} set_relation_lover = character:{lover.char_id} }}"
+                        character.add_event(date, secret_event)
+                        
+                        secret_event_lover = f"effect = {{ add_secret = {{ type = secret_lover target = character:{character.char_id} }} set_relation_lover = character:{character.char_id} }}"
+                        lover.add_event(date, secret_event_lover)
+                        
+                        logging.info(f"INTRIGUE: {character.char_id} and {lover.char_id} have become secret lovers.")
+
+                else:
+                    # Simple secret (witch, cannibal, non-believer)
+                    secret_event = f"effect = {{ add_secret = {{ type = {secret_type} }} }}"
+                    character.add_event(date, secret_event)
+                    logging.info(f"INTRIGUE: {character.char_id} has acquired secret: {secret_type}")
 
 
     def run_simulation(self):

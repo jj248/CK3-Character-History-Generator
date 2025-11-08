@@ -1,51 +1,13 @@
 {
     "dynasties": [
         {
-            "dynastyName": "Enakynim",
-            "dynastyMotto": "The Spirit of the Horse Grants Us Trust",
+            "dynastyName": "Emeeliramim",
+            "dynastyMotto": "We Come From a Good Life",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_enakynim",
-            "isHouse": false,
-            "faithID": "faith_uvag",
-            "cultureID": "drenim",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6850,
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": true,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "languages": []
-        },
-        {
-            "dynastyName": "Haayaarim",
-            "dynastyMotto": "Delight, Pleasure and Dread",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_haayaarim",
-            "isHouse": false,
-            "faithID": "faith_uvag",
-            "cultureID": "drenim",
-            "gender_law": "AGNATIC",
-            "progenitorMaleBirthYear": 6850,
-            "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": true,
-            "nameInheritance": {
-                "grandparentNameInheritanceChance": 0.05,
-                "parentNameInheritanceChance": 0.05,
-                "noNameInheritanceChance": 0.9
-            },
-            "languages": []
-        },
-        {
-            "dynastyName": "Lokalim",
-            "dynastyMotto": "Dare to be Loyal",
-            "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_lokalim",
+            "dynastyID": "dynasty_emeeliramim",
             "isHouse": false,
             "faithID": "faith_gan",
-            "cultureID": "drenim",
+            "cultureID": "sekak",
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,
@@ -58,13 +20,13 @@
             "languages": []
         },
         {
-            "dynastyName": "Mbuumamim",
-            "dynastyMotto": "By Bow and Axe",
+            "dynastyName": "Marakhaymim",
+            "dynastyMotto": "With the Axe I Bless the Triumphant",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_mbuumamim",
+            "dynastyID": "dynasty_marakhaymim",
             "isHouse": false,
             "faithID": "faith_gan",
-            "cultureID": "drenim",
+            "cultureID": "sekak",
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,
@@ -77,13 +39,70 @@
             "languages": []
         },
         {
-            "dynastyName": "Uyarazandim",
-            "dynastyMotto": "By Fidelity and Trust",
+            "dynastyName": "Neevetheim",
+            "dynastyMotto": "He who Conquers, Endures",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_uyarazandim",
+            "dynastyID": "dynasty_neevetheim",
             "isHouse": false,
             "faithID": "faith_gan",
-            "cultureID": "drenim",
+            "cultureID": "sekak",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6850,
+            "allowFirstCousinMarriage": false,
+            "prioritiseLowbornMarraige": true,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "languages": []
+        },
+        {
+            "dynastyName": "Ovenarim",
+            "dynastyMotto": "May Boldness Join my Coat of Arms",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_ovenarim",
+            "isHouse": false,
+            "faithID": "faith_gan",
+            "cultureID": "sekak",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6850,
+            "allowFirstCousinMarriage": false,
+            "prioritiseLowbornMarraige": true,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "languages": []
+        },
+        {
+            "dynastyName": "Oyahaymim",
+            "dynastyMotto": "Son and Daughters of the Wind",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_oyahaymim",
+            "isHouse": false,
+            "faithID": "faith_gan",
+            "cultureID": "sekak",
+            "gender_law": "AGNATIC",
+            "progenitorMaleBirthYear": 6850,
+            "allowFirstCousinMarriage": false,
+            "prioritiseLowbornMarraige": true,
+            "nameInheritance": {
+                "grandparentNameInheritanceChance": 0.05,
+                "parentNameInheritanceChance": 0.05,
+                "noNameInheritanceChance": 0.9
+            },
+            "languages": []
+        },
+        {
+            "dynastyName": "Rokoohyrim",
+            "dynastyMotto": "Bother not the Fox",
+            "succession": "PRIMOGENITURE",
+            "dynastyID": "dynasty_rokoohyrim",
+            "isHouse": false,
+            "faithID": "faith_gan",
+            "cultureID": "sekak",
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,

@@ -1,85 +1,85 @@
 {
-  "educationWeightExponent": 4,
-  "sexualityDistribution": {
+    "educationWeightExponent": 4,
+    "sexualityDistribution": {
         "heterosexual": 0.96,
         "homosexual": 0.02,
         "asexual": 0.02
     },
-  "skillProbabilities": {
+    "skillProbabilities": {
         "diplomacy": {
             "1": 0.06,
             "2": 0.12,
             "3": 0.18,
-            "4": 0.20,
+            "4": 0.2,
             "5": 0.18,
             "6": 0.12,
             "7": 0.06,
-			"8": 0.03,
-			"9": 0.01,
-			"10": 0.01
+            "8": 0.03,
+            "9": 0.01,
+            "10": 0.01
         },
         "martial": {
             "1": 0.06,
             "2": 0.12,
             "3": 0.18,
-            "4": 0.20,
+            "4": 0.2,
             "5": 0.18,
             "6": 0.12,
             "7": 0.06,
-			"8": 0.03,
-			"9": 0.01,
-			"10": 0.01
+            "8": 0.03,
+            "9": 0.01,
+            "10": 0.01
         },
         "stewardship": {
             "1": 0.06,
             "2": 0.12,
             "3": 0.18,
-            "4": 0.20,
+            "4": 0.2,
             "5": 0.18,
             "6": 0.12,
             "7": 0.06,
-			"8": 0.03,
-			"9": 0.01,
-			"10": 0.01
+            "8": 0.03,
+            "9": 0.01,
+            "10": 0.01
         },
         "intrigue": {
             "1": 0.06,
             "2": 0.12,
             "3": 0.18,
-            "4": 0.20,
+            "4": 0.2,
             "5": 0.18,
             "6": 0.12,
             "7": 0.06,
-			"8": 0.03,
-			"9": 0.01,
-			"10": 0.01
+            "8": 0.03,
+            "9": 0.01,
+            "10": 0.01
         },
         "learning": {
             "1": 0.06,
             "2": 0.12,
             "3": 0.18,
-            "4": 0.20,
+            "4": 0.2,
             "5": 0.18,
             "6": 0.12,
             "7": 0.06,
-			"8": 0.03,
-			"9": 0.01,
-			"10": 0.01
+            "8": 0.03,
+            "9": 0.01,
+            "10": 0.01
         },
         "prowess": {
             "1": 0.06,
             "2": 0.12,
             "3": 0.18,
-            "4": 0.20,
+            "4": 0.2,
             "5": 0.18,
             "6": 0.12,
             "7": 0.06,
-			"8": 0.03,
-			"9": 0.01,
-			"10": 0.01
+            "8": 0.03,
+            "9": 0.01,
+            "10": 0.01
         }
     },
-  "educationProbabilities": {
+    "educationProbabilities": {
         "diplomacy": {
             "1": 0.15,
             "2": 0.35,
@@ -123,151 +123,260 @@
             "5": 0.0
         }
     },
-  "personalityTraits": {
+    "personalityTraits": {
         "brave": {
             "weight": 1,
-            "excludes": ["craven"]
+            "excludes": [
+                "craven"
+            ]
         },
         "craven": {
             "weight": 1,
-            "excludes": ["brave"]
+            "excludes": [
+                "brave"
+            ]
         },
-		"calm": {
+        "calm": {
             "weight": 1,
-            "excludes": ["wrathful"]
+            "excludes": [
+                "wrathful"
+            ]
         },
         "wrathful": {
             "weight": 1,
-            "excludes": ["calm"]
+            "excludes": [
+                "calm"
+            ]
         },
-		"chaste": {
+        "chaste": {
             "weight": 1,
-            "excludes": ["lustful"]
+            "excludes": [
+                "lustful"
+            ]
         },
         "lustful": {
             "weight": 1,
-            "excludes": ["chaste"]
+            "excludes": [
+                "chaste"
+            ]
         },
-		"content": {
+        "content": {
             "weight": 1,
-            "excludes": ["ambitious"]
+            "excludes": [
+                "ambitious"
+            ]
         },
         "ambitious": {
             "weight": 1,
-            "excludes": ["content"]
+            "excludes": [
+                "content"
+            ]
         },
-		"diligent": {
+        "diligent": {
             "weight": 1,
-            "excludes": ["lazy"]
+            "excludes": [
+                "lazy"
+            ]
         },
         "lazy": {
             "weight": 1,
-            "excludes": ["diligent"]
+            "excludes": [
+                "diligent"
+            ]
         },
-		"forgiving": {
+        "forgiving": {
             "weight": 1,
-            "excludes": ["vengeful"]
+            "excludes": [
+                "vengeful"
+            ]
         },
         "vengeful": {
             "weight": 1,
-            "excludes": ["forgiving"]
+            "excludes": [
+                "forgiving"
+            ]
         },
-		"generous": {
+        "generous": {
             "weight": 1,
-            "excludes": ["greedy"]
+            "excludes": [
+                "greedy"
+            ]
         },
         "greedy": {
             "weight": 1,
-            "excludes": ["generous"]
+            "excludes": [
+                "generous"
+            ]
         },
-		"gregarious": {
+        "gregarious": {
             "weight": 1,
-            "excludes": ["shy"]
+            "excludes": [
+                "shy"
+            ]
         },
         "shy": {
             "weight": 1,
-            "excludes": ["gregarious"]
+            "excludes": [
+                "gregarious"
+            ]
         },
-		"honest": {
+        "honest": {
             "weight": 1,
-            "excludes": ["deceitful"]
+            "excludes": [
+                "deceitful"
+            ]
         },
         "deceitful": {
             "weight": 1,
-            "excludes": ["honest"]
+            "excludes": [
+                "honest"
+            ]
         },
-		"humble": {
+        "humble": {
             "weight": 1,
-            "excludes": ["arrogant"]
+            "excludes": [
+                "arrogant"
+            ]
         },
         "arrogant": {
             "weight": 1,
-            "excludes": ["humble"]
+            "excludes": [
+                "humble"
+            ]
         },
         "just": {
             "weight": 1,
-            "excludes": ["arbitrary"]
+            "excludes": [
+                "arbitrary"
+            ]
         },
         "arbitrary": {
             "weight": 1,
-            "excludes": ["just"]
+            "excludes": [
+                "just"
+            ]
         },
-		"patient": {
+        "patient": {
             "weight": 1,
-            "excludes": ["impatient"]
+            "excludes": [
+                "impatient"
+            ]
         },
         "impatient": {
             "weight": 1,
-            "excludes": ["patient"]
+            "excludes": [
+                "patient"
+            ]
         },
-		"temperate": {
+        "temperate": {
             "weight": 1,
-            "excludes": ["gluttonous"]
+            "excludes": [
+                "gluttonous"
+            ]
         },
         "gluttonous": {
             "weight": 1,
-            "excludes": ["temperate"]
+            "excludes": [
+                "temperate"
+            ]
         },
-		"trusting": {
+        "trusting": {
             "weight": 1,
-            "excludes": ["paranoid"]
+            "excludes": [
+                "paranoid"
+            ]
         },
         "paranoid": {
             "weight": 1,
-            "excludes": ["trusting"]
+            "excludes": [
+                "trusting"
+            ]
         },
-		"zealous": {
+        "zealous": {
             "weight": 1,
-            "excludes": ["cynical"]
+            "excludes": [
+                "cynical"
+            ]
         },
         "cynical": {
             "weight": 1,
-            "excludes": ["zealous"]
+            "excludes": [
+                "zealous"
+            ]
         },
         "compassionate": {
             "weight": 1,
-            "excludes": ["callous", "sadistic"]
+            "excludes": [
+                "callous",
+                "sadistic"
+            ]
         },
         "callous": {
             "weight": 1,
-            "excludes": ["compassionate", "sadistic"]
+            "excludes": [
+                "compassionate",
+                "sadistic"
+            ]
         },
         "sadistic": {
             "weight": 1,
-            "excludes": ["compassionate", "callous"]
+            "excludes": [
+                "compassionate",
+                "callous"
+            ]
         },
-		"fickle": {
+        "fickle": {
             "weight": 1,
-            "excludes": ["stubborn", "eccentric"]
+            "excludes": [
+                "stubborn",
+                "eccentric"
+            ]
         },
         "stubborn": {
             "weight": 1,
-            "excludes": ["fickle", "eccentric"]
+            "excludes": [
+                "fickle",
+                "eccentric"
+            ]
         },
         "eccentric": {
             "weight": 1,
-            "excludes": ["stubborn", "fickle"]
+            "excludes": [
+                "stubborn",
+                "fickle"
+            ]
         },
         "totalTraitsPerCharacter": 3
-	}
+    },
+    "secretProbabilities": {
+        "secret_witch": {
+            "base_chance": 0.0005,
+            "trigger_traits": {
+                "eccentric": 10.0,
+                "learning": 5.0
+            }
+        },
+        "secret_cannibal": {
+            "base_chance": 0.0001,
+            "trigger_traits": {
+                "sadistic": 20.0,
+                "gluttonous": 10.0,
+                "wrathful": 5.0
+            }
+        },
+        "secret_non_believer": {
+            "base_chance": 0.001,
+            "trigger_traits": {
+                "cynical": 15.0,
+                "arbitrary": 5.0
+            }
+        },
+        "secret_deviant": {
+            "base_chance": 0.0005000000000000002,
+            "trigger_traits": {
+                "lustful": 9.0,
+                "eccentric": 4.0
+            }
+        }
+    }
 }
