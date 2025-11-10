@@ -25,6 +25,7 @@ class Simulation:
         self.dynasty_relations = {} # (dyn_a, dyn_b) -> relation_value
         self.ALLIANCE_THRESHOLD = 50
         self.FEUD_THRESHOLD = -50
+        self.discovered_affairs = set() # Track discovered affairs
         
         self.marriage_max_age_diff = self.config['life_stages'].get('marriageMaxAgeDifference', 5)
         self.desperation_rates = self.config['life_stages'].get('desperationMarriageRates', {})
@@ -61,6 +62,9 @@ class Simulation:
             "stewardship":  ["pensive", "bossy"],
             "learning":     ["pensive", "curious"],
         }
+        
+        # Store all dynasty IDs for relation checks
+        self.all_dynasty_ids = [d['dynastyID'] for d in self.config['initialization']['dynasties']]
 
     def add_character_to_pool(self, character):
         """ Adjust fertility and mortality based on dynasty rules """
@@ -423,7 +427,7 @@ class Simulation:
             return a
         if gpb and not gpa:
             return b
-        if not gpa and not gpb:
+        if not gpa and not gGpb:
             return a  # both lines exhausted ⇒ deterministic pick
 
         # both grand-parents found – recurse
@@ -1196,6 +1200,42 @@ class Simulation:
             if not character.alive or character.age < 16:
                 continue
 
+            # Check for Discovery of Adultery
+            if character.married and character.spouse and character.spouse.events:
+                spouse = character.spouse
+                for event_date, event_detail in spouse.events:
+                    if "secret_lover" in event_detail:
+                        match = re.search(r"target = character:(\w+)", event_detail)
+                        if match:
+                            lover_id = match.group(1)
+                            if lover_id == character.char_id:
+                                continue # This is the spouse's secret *with* the character, not an affair
+
+                            # This is a confirmed affair with someone else
+                            lover = next((c for c in self.all_characters if c.char_id == lover_id), None)
+                            if not lover:
+                                continue
+
+                            # Check if this specific affair has already been discovered by this character
+                            affair_key = (character.char_id, spouse.char_id, lover.char_id)
+                            if affair_key in self.discovered_affairs:
+                                continue
+                            
+                            # Roll for discovery
+                            discovery_chance = 0.02 # 2% base chance per year
+                            if 'paranoid' in character.personality_traits:
+                                discovery_chance *= 5.0 # 10% chance
+                            
+                            if random.random() < discovery_chance:
+                                logging.warning(
+                                    f"DISCOVERY: {character.char_id} ({character.dynasty}) discovered their spouse "
+                                    f"{spouse.char_id} ({spouse.dynasty}) is having an affair with "
+                                    f"{lover.char_id} ({lover.dynasty})!"
+                                )
+                                self._update_dynasty_relation(character.dynasty, lover.dynasty, -75)
+                                self.discovered_affairs.add(affair_key)
+                                break # Discovered one affair this year, that's enough
+
             # Check for Ambitious + (Deceitful or Wrathful or Sadistic)
             traits = character.personality_traits
             is_ambitious = 'ambitious' in traits
@@ -1205,6 +1245,30 @@ class Simulation:
                 # 1% chance per year to attempt a murder (upped from 0.1%)
                 if random.random() < 0.01:
                     self._attempt_murder(character, year)
+            
+            # Check for Trait-Driven Feuds & Peacemaking
+            # Only allow one random trait action per year
+            acted_on_trait = False
+            
+            # Feud Check
+            if 'wrathful' in traits or 'arbitrary' in traits:
+                if random.random() < 0.01: # 1% chance
+                    target_dynasties = [d for d in self.all_dynasty_ids if d != character.dynasty and d != "Lowborn"]
+                    if target_dynasties:
+                        target_dynasty = random.choice(target_dynasties)
+                        logging.info(f"INTRIGUE: {character.char_id} ({character.dynasty}) insulted {target_dynasty} due to their traits.")
+                        self._update_dynasty_relation(character.dynasty, target_dynasty, -10)
+                        acted_on_trait = True
+
+            # Peacemaking Check
+            if not acted_on_trait and ('gregarious' in traits or 'generous' in traits or 'compassionate' in traits):
+                if random.random() < 0.01: # 1% chance
+                    target_dynasties = [d for d in self.all_dynasty_ids if d != character.dynasty and d != "Lowborn"]
+                    if target_dynasties:
+                        target_dynasty = random.choice(target_dynasties)
+                        logging.info(f"INTRIGUE: {character.char_id} ({character.dynasty}) sent a gift to {target_dynasty} due to their traits.")
+                        self._update_dynasty_relation(character.dynasty, target_dynasty, +10)
+                        acted_on_trait = True
             
             # Check for other secrets
             self._acquire_secrets(character, year)
@@ -1250,41 +1314,63 @@ class Simulation:
         if not target:
             return # No good target found
 
-        # --- Murder is Successful ---
-        logging.warning(
-            f"INTRIGUE: {murderer.char_id} ({murderer.name}) "
-            f"is murdering {target.char_id} ({target.name})!"
-        )
-
-        # 1. Kill the target
-        target.alive = False
-        target.death_year = year
-        death_date = generate_random_date(year)
-        target.death_year, target.death_month, target.death_day = map(int, death_date.split('.'))
+        # --- Murder is Attempted ---
         
-        # 2. Determine if the murder is discovered (25% chance)
-        if random.random() < 0.25:
-            # DISCOVERED
-            logging.warning(f"INTRIGUE: The murder of {target.char_id} was discovered!")
-            
-            # Add discovered death event to target (per your syntax)
-            death_event = f"death = {{ death_reason = death_murder killer = {murderer.char_id} }}"
-            target.add_event(death_date, death_event)
-            
-            # Add 'murderer' trait to the murderer
-            murderer.add_trait("murderer")
-            
-        else:
-            # SECRET
-            logging.info(f"INTRIGUE: {murderer.char_id} got away with it.")
-            
-            # Add "fake" death event to target (per your syntax)
-            death_event = f"death = {{ death_reason = death_accident killer = {murderer.char_id} }}"
-            target.add_event(death_date, death_event)
+        # 75% chance of success, 25% chance of failure
+        if random.random() < 0.75:
+            # SUCCESS
+            logging.warning(
+                f"INTRIGUE: {murderer.char_id} ({murderer.name}) "
+                f"is murdering {target.char_id} ({target.name})!"
+            )
 
-            # Add secret to murderer (per your syntax)
-            secret_event = f"effect = {{ add_secret = {{ type = secret_murder target = character:{target.char_id} }} }}"
-            murderer.add_event(death_date, secret_event)
+            # 1. Kill the target
+            target.alive = False
+            target.death_year = year
+            death_date = generate_random_date(year)
+            target.death_year, target.death_month, target.death_day = map(int, death_date.split('.'))
+            
+            # 2. Determine if the murder is discovered (25% chance)
+            if random.random() < 0.25:
+                # DISCOVERED
+                logging.warning(f"INTRIGUE: The murder of {target.char_id} was discovered!")
+                
+                # Add discovered death event to target (per your syntax)
+                death_event = f"death = {{ death_reason = death_murder killer = {murderer.char_id} }}"
+                target.add_event(death_date, death_event)
+                
+                # Add 'murderer' trait to the murderer
+                murderer.add_trait("murderer")
+                
+            else:
+                # SECRET
+                logging.info(f"INTRIGUE: {murderer.char_id} got away with it.")
+                
+                # Add "fake" death event to target (per your syntax)
+                death_event = f"death = {{ death_reason = death_accident killer = {murderer.char_id} }}"
+                target.add_event(death_date, death_event)
+
+                # Add secret to murderer (per your syntax)
+                secret_event = f"effect = {{ add_secret = {{ type = secret_murder target = character:{target.char_id} }} }}"
+                murderer.add_event(death_date, secret_event)
+        
+        else:
+            # FAILURE
+            # 50% chance to discover the failed attempt
+            if random.random() < 0.50:
+                # FAILED AND DISCOVERED
+                logging.warning(
+                    f"INTRIGUE: {murderer.char_id} ({murderer.dynasty}) FAILED to murder "
+                    f"{target.char_id} ({target.dynasty}) and was DISCOVERED!"
+                )
+                self._update_dynasty_relation(murderer.dynasty, target.dynasty, -100)
+            else:
+                # FAILED AND GOT AWAY
+                logging.info(
+                    f"INTRIGUE: {murderer.char_id} FAILED to murder "
+                    f"{target.char_id} but got away with it."
+                )
+
 
     def _acquire_secrets(self, character, year):
         """Check if a character acquires new secrets based on config probabilities."""
