@@ -61,11 +61,6 @@ class CharacterLoader:
         self.characters = {}
         self.dynasties = defaultdict(list)
 
-    def get_children_in_birth_order(self, parent_id):
-        children = self.parent_to_children[parent_id]
-        # then sort
-        return sorted(children, key=lambda c: (c.birth_year or 0, c.birth_month or 1, c.birth_day or 1))
-
     def load_characters(self, filename):
         """Parse the .txt file to extract character details and store them in memory."""
         with open(filename, "r", encoding="utf-8") as f:

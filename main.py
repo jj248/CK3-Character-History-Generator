@@ -123,9 +123,6 @@ def create_progenitor_couple(dynasty_config, simulation, config_loader, name_loa
     # Assign correct pointers for marriage and child creation
     male, female = (progenitor, spouse) if progenitor.sex == "Male" else (spouse, progenitor)
     
-    # Store marriage year for stats (optional, requires Character.__init__ change)
-    # male.marriage_year = marriage_year
-    # female.marriage_year = marriage_year
     simulation.marry_characters(male, female, marriage_year)
     
     # Ensure at least 3 children per dynasty
@@ -162,22 +159,8 @@ def _gather_stats(simulation):
         # Age at death
         age_death = c.death_year - c.birth_year if c.death_year is not None else None
 
-        # Age at first marriage
-        # Note: This still uses the original, slow event-parsing method.
-        # To fix this, add `self.marriage_year = None` to Character.__init__
-        # and set `char1.marriage_year = year` in simulation.marry_characters
-        age_marriage = None
-        for date, ev in sorted(c.events):
-            if ev.startswith("add_spouse") or ev.startswith("add_matrilineal_spouse"):
-                yr = int(date.split(".")[0])
-                age_marriage = yr - c.birth_year
-                break
-        if age_marriage is None and c.spouse:
-            for date, ev in sorted(c.spouse.events):
-                if ev.endswith(c.char_id):
-                    yr = int(date.split(".")[0])
-                    age_marriage = yr - c.birth_year
-                    break
+        # Age at first marriage — read the attribute set directly in marry_characters
+        age_marriage = (c.marriage_year - c.birth_year) if c.marriage_year is not None else None
 
         records.append({
             "sex": c.sex,
@@ -291,33 +274,30 @@ def _print_stats(records, percentages_array):
         print(f"Average % of Lowborn Marriages across {NUM_SIMULATIONS} runs: {average_lowborn_marriage_percent:.2f}%")
         print("===============================")
 
-def run_and_analyze_simulations(simulation):
-    """Runs the simulation N times and gathers/prints stats."""
-    
+def run_and_analyze_simulations(config_loader, name_loader):
+    """Runs the simulation N times, rebuilding state each run, and returns the final simulation."""
     percentages_array = []
-    
+    simulation = None
+
     for i in range(NUM_SIMULATIONS):
         print("-------------------------------")
         print(f"--- Running Simulation {i + 1}/{NUM_SIMULATIONS} ---")
         print("-------------------------------")
-        
-        # Run the simulation
+
+        # Rebuild from scratch each run so state does not accumulate across iterations
+        simulation = setup_simulation(config_loader, name_loader)
         simulation.run_simulation()
 
         if STATS_ENABLED:
             records, lowborn_count, total_char, percent_lowborn = _gather_stats(simulation)
             percentages_array.append(percent_lowborn)
-            
+
             print(f"\nTotal lowborns married into noble dynasties: {lowborn_count}")
             print(f"Percentage of Lowborn Marriages: {percent_lowborn:.2f}%")
-            
+
             _print_stats(records, percentages_array)
-            
-            # NOTE: If NUM_SIMULATIONS > 1, you may want to reset the simulation
-            # or aggregate stats differently. Currently, it prints stats
-            # for the *last* simulation run and an average % for all.
-            # For a full reset, `setup_simulation` would need to be in the loop.
-            # For now, I'm keeping your original loop structure.
+
+    return simulation
 
 
 def generate_output_files(simulation, config_loader):
@@ -369,11 +349,14 @@ def run_main():
     # 2. Generate Game Files
     generate_game_files(config_loader)
 
-    # 3. Setup Simulation
-    simulation = setup_simulation(config_loader, name_loader)
+    # 3. Setup is now handled inside run_and_analyze_simulations per run
 
-    # 4. Run Simulation(s) and Analyze
-    run_and_analyze_simulations(simulation)
+    # 4. Run Simulation(s) and Analyze — returns the final simulation for output
+    simulation = run_and_analyze_simulations(config_loader, name_loader)
+
+    if simulation is None:
+        logging.error("No simulation was completed. Skipping output generation.")
+        return
 
     # 5. Generate Final Output Files
     generate_output_files(simulation, config_loader)

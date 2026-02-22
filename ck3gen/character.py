@@ -103,8 +103,8 @@ class Character:
         self.fertilityModifier = fertilityModifier
         self.numenorean_blood_tier: int | None = None
         
-        # Set the birth order if provided, otherwise default to 1
         self.birth_order = birth_order
+        self.marriage_year: int | None = None
         
         # Record birth event
         birth_date_str = generate_random_date(self.birth_year)

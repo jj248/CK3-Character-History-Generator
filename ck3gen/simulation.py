@@ -315,10 +315,8 @@ class Simulation:
         char1.spouse = char2
         char2.married = True
         char2.spouse = char1
-        
-        # ### Optimization: Store marriage_year for stats ###
-        # char1.marriage_year = year
-        # char2.marriage_year = year
+        char1.marriage_year = year
+        char2.marriage_year = year
 
         # Remove from unmarried pools
         self.remove_from_unmarried_pools(char1)
@@ -503,22 +501,22 @@ class Simulation:
             if character.dynasty == child_dynasty and character.alive and is_fertile(character):
                 alive_members_in_dynasy += 1
                 
-        #Artificially decrease fertility for dynasties marrying lowborns more
-        # if father.dynasty == child_dynasty and self.prioritise_lowborn_marriage.get(father.dynasty, False):
-        #     fertilityModifier *= father.fertilityModifier*0.65
-        # elif mother.dynasty == child_dynasty and self.prioritise_lowborn_marriage.get(mother.dynasty, False):
-        #     fertilityModifier *= mother.fertilityModifier*0.65
-            
-
-        if alive_members_in_dynasy > 8: #A lot of dynasty members are alive
+        if alive_members_in_dynasy > 8:
             if child_sex == "Male":
                 if father.fertilityModifier != 1:
                     fertilityModifier *= father.fertilityModifier
             else:
                 if mother.fertilityModifier != 1:
                     fertilityModifier *= mother.fertilityModifier
-        elif alive_members_in_dynasy <= 8: #A low number of dynasty members are alive
+        elif alive_members_in_dynasy <= 8:
             fertilityModifier = 1
+
+        # Reduce fertility for dynasties configured to prioritise lowborn marriage.
+        # Applied after the dynasty-size block so it is not overwritten by the reset to 1.
+        if father.dynasty == child_dynasty and self.prioritise_lowborn_marriage.get(father.dynasty, False):
+            fertilityModifier *= father.fertilityModifier * 0.65
+        elif mother.dynasty == child_dynasty and self.prioritise_lowborn_marriage.get(mother.dynasty, False):
+            fertilityModifier *= mother.fertilityModifier * 0.65
 
         child = Character(
             char_id=child_char_id,
@@ -594,24 +592,22 @@ class Simulation:
         
         # Try to assign a grandparent's name
         if chosen_method == 'grandparent':
-            assigned_name = None
             if child_sex == "Male":
                 grandfather = father.father if father else None
                 assigned_name = grandfather.name if grandfather else None
-            elif child_sex == "Female":
+            else:
                 grandmother = mother.mother if mother else None
                 assigned_name = grandmother.name if grandmother else None
             
+            # Return the grandparent name directly when one was found; otherwise fall through to random
             if assigned_name:
-                return self.ensure_unique_name(mother, father, child_sex.lower())
+                return assigned_name
 
         # Try to assign a parent's name
         if chosen_method == 'parent':
-            assigned_name = father.name if child_sex == "Male" else mother.name
-            return self.ensure_unique_name(mother, father, child_sex.lower())
+            return father.name if child_sex == "Male" else mother.name
 
-        # Assign a random name from the name list
-        assigned_name = self.name_loader.load_names(mother.culture, child_sex.lower())
+        # No inheritance — assign a random name from the culture pool
         return self.ensure_unique_name(mother, father, child_sex.lower())
 	
     def ensure_unique_name(self, mother, father, child_gender):
@@ -928,7 +924,20 @@ class Simulation:
         # Assign skills, education, and personality traits
         child.assign_skills(self.config['skills_and_traits']['skillProbabilities'])
         child.assign_education(self.config['skills_and_traits']['educationProbabilities'])
-        # child.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
+        child.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
+
+        # Record the childhood trait event at age 3
+        skill = child.education_skill or "diplomacy"
+        childhood_choices = self.childhood_by_education.get(skill, ["charming", "curious"])
+        childhood_trait = random.choice(childhood_choices)
+        childhood_date = f"{adjusted_birth_year + 3}.{child.birth_month:02d}.{child.birth_day:02d}"
+        child.add_event(childhood_date, f"trait = {childhood_trait}")
+
+        # Record the personality trait event at age 16
+        trait_date = f"{adjusted_birth_year + 16}.{child.birth_month:02d}.{child.birth_day:02d}"
+        detail_lines = [f"trait = {t}" for t in child.personality_traits]
+        event_detail = "\n    ".join(detail_lines)
+        child.add_event(trait_date, event_detail)
 
         return child
 
@@ -974,7 +983,8 @@ class Simulation:
                 character.add_event(date, f"trait = {trait}")
 
             # Age 16: Personality Traits
-            if character.age == 16:
+            # Guard prevents re-assignment for characters who received traits at creation (e.g. bastards)
+            if character.age == 16 and not character.personality_traits:
                 character.assign_personality_traits(self.config['skills_and_traits']['personalityTraits'])
                 date = f"{year}.{character.birth_month:02d}.{character.birth_day:02d}"
                 detail_lines = [f"trait = {t}" for t in character.personality_traits]
