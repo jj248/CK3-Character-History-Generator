@@ -1,3 +1,4 @@
-streamlit>=1.32.0
-matplotlib>=3.8.0
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
 graphviz>=0.20.1
+pyinstaller>=6.6.0

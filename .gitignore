@@ -1,5 +1,34 @@
-Dynasty Preview/
+# ── Python ────────────────────────────────────────────────────────────────────
 __pycache__/
-Character and Title files/
+*.py[cod]
+*.pyo
+*.pyd
+venv/
+.venv/
+*.egg-info/
 dist/
 build/
+*.spec
+
+# ── PyInstaller ───────────────────────────────────────────────────────────────
+# Sidecar binary is built into ui/src-tauri/binaries/ at build time
+ui/src-tauri/binaries/
+
+# ── Node / Tauri frontend ─────────────────────────────────────────────────────
+node_modules/
+ui/node_modules/
+ui/dist/
+
+# ── Rust / Tauri ──────────────────────────────────────────────────────────────
+ui/src-tauri/target/
+
+# ── Simulation outputs (generated at runtime, not source) ─────────────────────
+Dynasty Preview/
+Character and Title files/
+
+# ── OS / editor noise ─────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
