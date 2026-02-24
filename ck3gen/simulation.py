@@ -2,7 +2,7 @@ import os
 import random
 import logging
 import re
-from ck3gen.config_loader import DEBUG_PRINT
+
 from ck3gen.character import Character
 from utils.utils import generate_random_date, generate_char_id
 from ck3gen.name_loader import NameLoader
@@ -178,9 +178,7 @@ class Simulation:
         return min (1.0,  base_chance * num_dynasty_members_alive_modifier)
 
     def generate_lowborn_and_marry(self, character, year):
-        if DEBUG_PRINT:
-            print(f"Lowborn marriage happened, Char ID: {character.char_id}")
-            # Generate a lowborn spouse
+        logging.debug("Lowborn marriage happened, Char ID: %s", character.char_id)
         dynasty_prefix = character.dynasty.split('_')[1] if character.dynasty and '_' in character.dynasty else "lowborn"
         spouse_char_id = generate_char_id(dynasty_prefix, self.dynasty_char_counters)
         spouse_name = self.name_loader.load_names(character.culture, "male" if character.sex == "Female" else "female")
@@ -291,8 +289,11 @@ class Simulation:
             logging.info(f"Attempted self-marriage for {char1.char_id}. Skipping.")
             return
         
-        if (char1.married or char2.married) and DEBUG_PRINT:
-            logging.info(f"One of the characters is already married: {char1.char_id}, {char2.char_id}. Skipping.")
+        if (char1.married or char2.married):
+            logging.debug(
+                "One of the characters is already married: %s, %s. Skipping.",
+                char1.char_id, char2.char_id,
+            )
             return
         
         if not char1.alive or not char2.alive:

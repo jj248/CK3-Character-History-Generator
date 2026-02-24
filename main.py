@@ -21,13 +21,14 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from ck3gen.config_loader import ConfigLoader, NUM_SIMULATIONS
-from ck3gen.name_loader import NameLoader
-from ck3gen.simulation import Simulation
 from ck3gen.dynasty_creation import (
     generate_dynasty_definitions,
     generate_dynasty_name_localization,
     generate_dynasty_motto_localization,
 )
+from ck3gen.name_loader import NameLoader
+from ck3gen.paths import CONFIG_DIR
+from ck3gen.simulation import Simulation
 
 logging.basicConfig(
     level=logging.INFO,
@@ -37,19 +38,20 @@ logging.basicConfig(
 
 def run_main() -> None:
     """Load config, run simulation(s), and write all output files."""
-    config_loader = ConfigLoader(config_folder="config")
+    config_loader = ConfigLoader(config_folder=str(CONFIG_DIR))
     config = config_loader.config
 
     name_loader = NameLoader(config)
 
-    config_file = "config/initialization.json"
+    # Generate dynasty definition and localisation files before simulation.
+    config_file = CONFIG_DIR / "initialization.json"
     generate_dynasty_definitions(config_file)
     generate_dynasty_name_localization(config_file)
     generate_dynasty_motto_localization(config_file)
 
     for i in range(NUM_SIMULATIONS):
         if NUM_SIMULATIONS > 1:
-            logging.info(f"── Simulation {i + 1} / {NUM_SIMULATIONS} ──")
+            logging.info("── Simulation %d / %d ──", i + 1, NUM_SIMULATIONS)
         simulation = Simulation(config, name_loader)
         simulation.run()
 

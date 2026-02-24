@@ -1,8 +1,11 @@
-import os
 import re
+import logging
 import graphviz
 from collections import defaultdict
+from pathlib import Path
+
 from ck3gen.config_loader import ConfigLoader
+from ck3gen.paths import CHARACTER_OUTPUT_DIR, TREE_OUTPUT_DIR
 
 #########################################################
 #   For the graph direction, valid arguments are:       #
@@ -30,9 +33,9 @@ class FamilyTree:
         self.config = config
         self.graphLook = self.config['initialization']['treeGeneration']
 
-    def load_characters(self, filename):
-        """Parse the .txt file to extract character details."""
-        with open(filename, "r", encoding="utf-8") as f:  # Ensure UTF-8 encoding
+    def load_characters(self, filename: Path | str) -> None:
+        """Parse the character history .txt file to extract character details."""
+        with open(filename, encoding="utf-8") as f:
             data = f.read()
 
         def convert_to_ingame_date(year):
@@ -303,18 +306,21 @@ class FamilyTree:
 
             self.graphs[dynasty] = graph  # Store graph for later rendering
 
-    def render_trees(self):
-        """Render the family trees to files in 'Dynasty Preview' folder."""
-        output_folder = "Dynasty Preview"
-        os.makedirs(output_folder, exist_ok=True)  # Create the folder if it doesn't exist
+    def render_trees(self) -> None:
+        """Render each dynasty's family tree to a PNG in TREE_OUTPUT_DIR."""
+        TREE_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
         for dynasty, graph in self.graphs.items():
-            filename = os.path.join(output_folder, f"family_tree_{dynasty}")
-            graph.render(filename, format="png", cleanup=True)
-            print(f"Family tree for {dynasty} saved as {filename}.png")
+            output_path = TREE_OUTPUT_DIR / f"family_tree_{dynasty}"
+            graph.render(str(output_path), format="png", cleanup=True)
+            logging.info("Family tree for %s saved as %s.png", dynasty, output_path)
 
 if __name__ == "__main__":
-    config_loader = ConfigLoader('config')  # Ensure 'config' directory is correct
-    tree = FamilyTree("family_history.txt", "title_history.txt", config_loader.config)  # Ensure both files exist
+    config_loader = ConfigLoader("config")
+    tree = FamilyTree(
+        CHARACTER_OUTPUT_DIR / "family_history.txt",
+        CHARACTER_OUTPUT_DIR / "title_history.txt",
+        config_loader.config,
+    )
     tree.build_trees()
     tree.render_trees()

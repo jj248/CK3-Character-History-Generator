@@ -1,228 +1,248 @@
+"""
+ck3gen/config_loader.py
+~~~~~~~~~~~~~~~~~~~~~~~
+Loads, validates, and provides access to the three JSON configuration files:
+  - config/initialization.json
+  - config/skills_and_traits.json
+  - config/life_stages.json
+
+NUM_SIMULATIONS is read from the ``CK3GEN_NUM_SIMULATIONS`` environment
+variable (default 1), so it can be overridden without touching source code.
+All other formerly hardcoded debug flags have been removed — use the standard
+``logging`` level instead (e.g. ``--log-level DEBUG`` or set
+``logging.basicConfig(level=logging.DEBUG)`` in your entry point).
+"""
+
+from __future__ import annotations
+
 import json
-import os
 import logging
+import os
+from pathlib import Path
 
-###############################
-### Imported to other files ###
-###############################
-# Toggle this to True if you want to print debug statements scattered throughout the code
-# WARNING: There are a LOT of print statements
-DEBUG_PRINT = True
+logger = logging.getLogger(__name__)
 
-# Toggle this to True if you want to collect & print stats of characters
-STATS_ENABLED = True
+# ---------------------------------------------------------------------------
+#  Runtime-configurable settings
+# ---------------------------------------------------------------------------
 
-# Toggle this to True if you want to collect & print stats of numenorean blood and its inheritance
-NUMENOREAN_BLOOD_STATS = False
+# Number of back-to-back simulations to run in a single session.
+# Override via environment variable: CK3GEN_NUM_SIMULATIONS=5
+NUM_SIMULATIONS: int = int(os.environ.get("CK3GEN_NUM_SIMULATIONS", "1"))
 
-# Toggle this to True if you want to print info about titles
-TITLE_INFO_ENABLED = False
 
-# Toggle this to True if you want to print info about which files were loaded and to where they were exported
-LOADED_INFO_FILES = False
+# ---------------------------------------------------------------------------
+#  ConfigLoader
+# ---------------------------------------------------------------------------
 
-# Toggle this to run several simulations. 
-# NB: Does not save each iteration, this is simply used to get an X amount of statistics in one go
-NUM_SIMULATIONS = 1
-
-# Toggle this to generate images
-GENERATE_IMAGE_BOOL = True
-###############################
 
 class ConfigLoader:
-    def __init__(self, config_folder='config'):
-        self.config_folder = config_folder
-        self.config = {}
-        self.load_configs()
-        self.validate_configs()
-        self.build_language_rules()
+    """Loads all configuration files and validates their contents."""
 
-    def load_configs(self):
-        config_files = {
-            'initialization': 'initialization.json',
-            'skills_and_traits': 'skills_and_traits.json',
-            'life_stages': 'life_stages.json'
+    def __init__(self, config_folder: str | Path = "config") -> None:
+        self.config_folder = Path(config_folder)
+        self.config: dict = {}
+        self.dynasty_language_rules: dict[str, list[tuple[str, int, int]]] = {}
+
+        self._load_configs()
+        self._validate_configs()
+        self._build_language_rules()
+
+    # ── Loading ───────────────────────────────────────────────────────────────
+
+    def _load_configs(self) -> None:
+        """Read all three JSON config files into ``self.config``."""
+        config_files: dict[str, str] = {
+            "initialization":  "initialization.json",
+            "skills_and_traits": "skills_and_traits.json",
+            "life_stages":     "life_stages.json",
         }
 
         for category, filename in config_files.items():
-            file_path = os.path.join(self.config_folder, filename)
-            if not os.path.exists(file_path):
-                raise FileNotFoundError(f"Configuration file {filename} not found in {self.config_folder}.")
-            with open(file_path, 'r', encoding='utf-8') as file:
-                try:
-                    self.config[category] = json.load(file)
-                    if LOADED_INFO_FILES:
-                        logging.info(f"Loaded configuration from {filename}.")
-                except json.JSONDecodeError as e:
-                    raise ValueError(f"Error parsing {filename}: {e}")
+            path = self.config_folder / filename
+            if not path.exists():
+                raise FileNotFoundError(
+                    f"Configuration file '{filename}' not found in '{self.config_folder}'."
+                )
+            try:
+                self.config[category] = json.loads(path.read_text(encoding="utf-8"))
+                logger.debug("Loaded configuration from %s.", filename)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"Error parsing '{filename}': {exc}") from exc
 
-    def validate_configs(self):
-        # Validate initialization config
-        initialization = self.config.get('initialization', {})
-        required_initialization = ['dynasties', 'initialCharID', 'minYear', 'maxYear', 'generationMax']
-        for key in required_initialization:
-            if key not in initialization:
+    # ── Validation ────────────────────────────────────────────────────────────
+
+    def _validate_configs(self) -> None:
+        """Validate all loaded config sections, raising ``ValueError`` on failure."""
+        self._validate_initialization()
+        self._validate_life_stages()
+        self._validate_skills_and_traits()
+        self._warn_unused_parameters()
+
+    def _validate_initialization(self) -> None:
+        init = self.config.get("initialization", {})
+
+        for key in ("dynasties", "initialCharID", "minYear", "maxYear", "generationMax"):
+            if key not in init:
                 raise ValueError(f"Missing '{key}' in initialization configuration.")
 
-        # Validate dynasties
-        dynasties = self.config.get('initialization', {}).get('dynasties', [])
+        dynasties = init.get("dynasties", [])
         if not dynasties:
             raise ValueError("No dynasties defined in initialization configuration.")
 
         for dynasty in dynasties:
-            required_dynasty_fields = ['dynastyID', 'faithID', 'cultureID', 'gender_law', 'succession', 'progenitorMaleBirthYear', 'nameInheritance']
-            for field in required_dynasty_fields:
+            for field in (
+                "dynastyID", "faithID", "cultureID", "gender_law",
+                "succession", "progenitorMaleBirthYear", "nameInheritance",
+            ):
                 if field not in dynasty:
-                    raise ValueError(f"Missing '{field}' in dynasty configuration.")
-
-            # Validate nameInheritance fields
-            name_inheritance = dynasty['nameInheritance']
-            required_inheritance_fields = ['grandparentNameInheritanceChance', 'parentNameInheritanceChance', 'noNameInheritanceChance']
-            for field in required_inheritance_fields:
-                if field not in name_inheritance:
-                    raise ValueError(f"Missing '{field}' in nameInheritance configuration for dynasty {dynasty['dynastyID']}.")
-
-            # Check if chances sum to 1
-            total_chance = sum(name_inheritance.values())
-            if not abs(total_chance - 1.0) < 1e-6:
-                raise ValueError(f"Name inheritance chances for dynasty {dynasty['dynastyID']} do not sum to 1.")
-				
-        # Validate bastardy chances
-        life_stages = self.config.get('life_stages', {})
-        if 'bastardyChanceMale' not in life_stages or 'bastardyChanceFemale' not in life_stages:
-            raise ValueError("Missing bastardyChanceMale or bastardyChanceFemale in life_stages configuration.")
-
-        bastardy_chances = {
-            'bastardyChanceMale': life_stages['bastardyChanceMale'],
-            'bastardyChanceFemale': life_stages['bastardyChanceFemale']
-        }
-        for key, value in bastardy_chances.items():
-            if not (0.0 <= value <= 1.0):
-                raise ValueError(f"{key} must be between 0 and 1.")				
-		
-		# Validate mortalityRates
-        life_stages = self.config.get('life_stages', {})
-        mortality_rates = life_stages.get('mortalityRates', {})
-        for sex in ['Male', 'Female']:
-            if sex not in mortality_rates:
-                raise ValueError(f"Mortality rates for {sex} are not defined in life_stages configuration.")
-            if len(mortality_rates[sex]) != 121:
-                raise ValueError(
-                    f"Mortality rates for {sex} must have exactly 121 entries (ages 0 to 120). "
-                    f"Current count: {len(mortality_rates[sex])}"
-                )
-
-        # Validate marriageRates
-        marriage_rates = life_stages.get('marriageRates', {})
-        for sex in ['Male', 'Female']:
-            if sex not in marriage_rates:
-                raise ValueError(f"Marriage rates for {sex} are not defined in life_stages configuration.")
-            if len(marriage_rates[sex]) != 121:
-                raise ValueError(
-                    f"Marriage rates for {sex} must have exactly 121 entries (ages 0 to 120). "
-                    f"Current count: {len(marriage_rates[sex])}"
-                )
-
-        # Validate fertilityRates
-        fertility_rates = life_stages.get('fertilityRates', {})
-        for sex in ['Male', 'Female']:
-            if sex not in fertility_rates:
-                raise ValueError(f"Fertility rates for {sex} are not defined in life_stages configuration.")
-            if len(fertility_rates[sex]) != 121:
-                raise ValueError(
-                    f"Fertility rates for {sex} must have exactly 121 entries (ages 0 to 120). "
-                    f"Current count: {len(fertility_rates[sex])}"
-                )
-
-        # Validate maximumNumberOfChildren
-        if 'maximumNumberOfChildren' not in life_stages:
-            raise ValueError("Missing 'maximumNumberOfChildren' in life_stages configuration.")
-        if not isinstance(life_stages['maximumNumberOfChildren'], int) or life_stages['maximumNumberOfChildren'] < 0:
-            raise ValueError("'maximumNumberOfChildren' must be a non-negative integer.")
-
-        # Validate minimumYearsBetweenChildren
-        if 'minimumYearsBetweenChildren' not in life_stages:
-            raise ValueError("Missing 'minimumYearsBetweenChildren' in life_stages configuration.")
-        if not isinstance(life_stages['minimumYearsBetweenChildren'], int) or life_stages['minimumYearsBetweenChildren'] < 0:
-            raise ValueError("'minimumYearsBetweenChildren' must be a non-negative integer.")
-
-        # Validate childbirthMinAge and childbirthMaxAge are removed
-        if 'childbirthMinAge' in life_stages or 'childbirthMaxAge' in life_stages:
-            logging.warning("Parameters 'childbirthMinAge' and 'childbirthMaxAge' are obsolete and have been removed. Please update your configuration accordingly.")
-
-        # Validate skills_and_traits config
-        skills_and_traits = self.config.get('skills_and_traits', {})
-        required_skills_and_traits = ['sexualityDistribution', 'skillProbabilities', 'educationProbabilities', 'personalityTraits']
-        for key in required_skills_and_traits:
-            if key not in skills_and_traits:
-                raise ValueError(f"Missing '{key}' in skills_and_traits configuration.")
-				
-		# Validate educationWeightExponent
-        skills_and_traits = self.config.get('skills_and_traits', {})
-        education_weight_exponent = skills_and_traits.get('educationWeightExponent', 1)
-        if not isinstance(education_weight_exponent, (int, float)) or education_weight_exponent < 1:
-            logging.warning("Invalid 'educationWeightExponent' in skills_and_traits configuration. Using default value of 1.")
-            self.config['skills_and_traits']['educationWeightExponent'] = 1
-
-        # Flag unused parameters
-        # Initialization Configuration Unused Parameters
-        initialization_unused = ['bookmarkStartDate', 'childrenMax']
-        for key in initialization_unused:
-            if key in initialization:
-                logging.warning(f"Initialization parameter '{key}' is currently unused.")
-
-        # Skills and Traits Configuration Unused Parameters
-        skills_and_traits_unused = ['inheritanceChance', 'downgradeChance', 'randomMutationChance', 'mutationProbabilities']
-        for key in skills_and_traits_unused:
-            if key in skills_and_traits:
-                logging.warning(f"Skills and Traits parameter '{key}' is currently unused.")
-
-        # Life Stages Configuration Unused Parameters
-        life_stages_unused = ['battleDeathChance', 'illDeathChance', 'intrigueDeathChance', 
-                              'oldDeathMinAge', 'oldDeathMaxAge', 'siblingMinSpacing']
-        for key in life_stages_unused:
-            if key in life_stages:
-                logging.warning(f"Life Stages parameter '{key}' is currently unused.")
-
-    def get_initialization_config(self):
-        return self.config.get('initialization', {})
-		
-    def get_dynasty_config(self, dynasty_id):
-        dynasties = self.config.get('initialization', {}).get('dynasties', [])
-        for dynasty in dynasties:
-            if dynasty['dynastyID'] == dynasty_id:
-                return dynasty
-        return None
-
-    def get_skills_and_traits_config(self):
-        return self.config.get('skills_and_traits', {})
-
-    def get_life_stages_config(self):
-        return self.config.get('life_stages', {})
-
-    def get(self, category, key, default=None):
-        return self.config.get(category, {}).get(key, default)
-    
-    # ------------------------------------------------------------
-    #  Languages: dynasty_id → list[(language_id, start_year, end_year)]
-    # ------------------------------------------------------------
-    def build_language_rules(self) -> None:
-        """Parse the optional 'languages' array for every dynasty."""
-        self.dynasty_language_rules: dict[str, list[tuple[str,int,int]]] = {}
-
-        dynasties = self.config.get('initialization', {}).get('dynasties', [])
-        for entry in dynasties:
-            lang_rules = []
-            for spec in entry.get('languages', []):
-                try:
-                    lang, start, end = spec.split(',')
-                    lang_rules.append((lang.strip(), int(start), int(end)))
-                except ValueError:
-                    logging.warning(
-                        f"Bad language spec '{spec}' in dynasty {entry.get('dynastyID')}"
+                    raise ValueError(
+                        f"Missing '{field}' in dynasty '{dynasty.get('dynastyID', '?')}'."
                     )
-            self.dynasty_language_rules[entry['dynastyID']] = lang_rules
 
-    def get_language_rules(self):
+            ni = dynasty["nameInheritance"]
+            for field in (
+                "grandparentNameInheritanceChance",
+                "parentNameInheritanceChance",
+                "noNameInheritanceChance",
+            ):
+                if field not in ni:
+                    raise ValueError(
+                        f"Missing '{field}' in nameInheritance for dynasty '{dynasty['dynastyID']}'."
+                    )
+
+            total = sum(ni.values())
+            if abs(total - 1.0) >= 1e-6:
+                raise ValueError(
+                    f"Name inheritance chances for dynasty '{dynasty['dynastyID']}' "
+                    f"do not sum to 1.0 (got {total:.6f})."
+                )
+
+    def _validate_life_stages(self) -> None:
+        life = self.config.get("life_stages", {})
+
+        # Bastardy chances
+        for key in ("bastardyChanceMale", "bastardyChanceFemale"):
+            if key not in life:
+                raise ValueError(f"Missing '{key}' in life_stages configuration.")
+            if not (0.0 <= life[key] <= 1.0):
+                raise ValueError(f"'{key}' must be between 0.0 and 1.0.")
+
+        # Rate arrays — each must have exactly 121 entries (ages 0–120)
+        for rate_key in ("mortalityRates", "marriageRates", "fertilityRates"):
+            rates = life.get(rate_key, {})
+            for sex in ("Male", "Female"):
+                if sex not in rates:
+                    raise ValueError(
+                        f"{sex} rates are not defined in life_stages.{rate_key}."
+                    )
+                if len(rates[sex]) != 121:
+                    raise ValueError(
+                        f"life_stages.{rate_key}.{sex} must have exactly 121 entries "
+                        f"(ages 0–120); got {len(rates[sex])}."
+                    )
+
+        for key in ("maximumNumberOfChildren", "minimumYearsBetweenChildren"):
+            if key not in life:
+                raise ValueError(f"Missing '{key}' in life_stages configuration.")
+            if not isinstance(life[key], int) or life[key] < 0:
+                raise ValueError(f"'{key}' must be a non-negative integer.")
+
+        for key in ("childbirthMinAge", "childbirthMaxAge"):
+            if key in life:
+                logger.warning(
+                    "life_stages parameter '%s' is obsolete and ignored. "
+                    "Remove it from your config.",
+                    key,
+                )
+
+    def _validate_skills_and_traits(self) -> None:
+        skills = self.config.get("skills_and_traits", {})
+
+        for key in (
+            "sexualityDistribution", "skillProbabilities",
+            "educationProbabilities", "personalityTraits",
+        ):
+            if key not in skills:
+                raise ValueError(f"Missing '{key}' in skills_and_traits configuration.")
+
+        exponent = skills.get("educationWeightExponent", 1)
+        if not isinstance(exponent, (int, float)) or exponent < 1:
+            logger.warning(
+                "Invalid 'educationWeightExponent' (%r); defaulting to 1.", exponent
+            )
+            self.config["skills_and_traits"]["educationWeightExponent"] = 1
+
+    def _warn_unused_parameters(self) -> None:
+        """Log a warning for any parameters that are present but no longer used."""
+        init    = self.config.get("initialization", {})
+        skills  = self.config.get("skills_and_traits", {})
+        life    = self.config.get("life_stages", {})
+
+        unused: list[tuple[dict, list[str]]] = [
+            (init,   ["bookmarkStartDate", "childrenMax"]),
+            (skills, ["inheritanceChance", "downgradeChance", "randomMutationChance", "mutationProbabilities"]),
+            (life,   ["battleDeathChance", "illDeathChance", "intrigueDeathChance",
+                      "oldDeathMinAge", "oldDeathMaxAge", "siblingMinSpacing"]),
+        ]
+
+        for section, keys in unused:
+            for key in keys:
+                if key in section:
+                    logger.warning("Config parameter '%s' is unused and can be removed.", key)
+
+    # ── Language rules ────────────────────────────────────────────────────────
+
+    def _build_language_rules(self) -> None:
+        """
+        Parse the optional ``languages`` array for every dynasty.
+
+        Each entry must be a comma-separated string: ``"language_id,start_year,end_year"``.
+        Malformed entries are skipped with a warning.
+        """
+        dynasties = self.config.get("initialization", {}).get("dynasties", [])
+
+        for entry in dynasties:
+            dynasty_id = entry["dynastyID"]
+            rules: list[tuple[str, int, int]] = []
+
+            for spec in entry.get("languages", []):
+                parts = spec.split(",")
+                if len(parts) != 3:
+                    logger.warning(
+                        "Bad language spec '%s' in dynasty '%s': "
+                        "expected 'language_id,start_year,end_year'.",
+                        spec, dynasty_id,
+                    )
+                    continue
+                lang, start, end = parts
+                try:
+                    rules.append((lang.strip(), int(start), int(end)))
+                except ValueError:
+                    logger.warning(
+                        "Non-integer year in language spec '%s' for dynasty '%s'.",
+                        spec, dynasty_id,
+                    )
+
+            self.dynasty_language_rules[dynasty_id] = rules
+
+    # ── Public accessors ──────────────────────────────────────────────────────
+
+    def get_initialization_config(self) -> dict:
+        return self.config.get("initialization", {})
+
+    def get_dynasty_config(self, dynasty_id: str) -> dict | None:
+        dynasties = self.config.get("initialization", {}).get("dynasties", [])
+        return next((d for d in dynasties if d["dynastyID"] == dynasty_id), None)
+
+    def get_skills_and_traits_config(self) -> dict:
+        return self.config.get("skills_and_traits", {})
+
+    def get_life_stages_config(self) -> dict:
+        return self.config.get("life_stages", {})
+
+    def get(self, category: str, key: str, default=None):
+        return self.config.get(category, {}).get(key, default)
+
+    def get_language_rules(self) -> dict[str, list[tuple[str, int, int]]]:
         return self.dynasty_language_rules
-

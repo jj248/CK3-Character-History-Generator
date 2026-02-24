@@ -1,10 +1,12 @@
 import json
-import os
 import re
 import logging
 from collections import defaultdict
 from datetime import datetime
 from enum import Enum
+from pathlib import Path
+
+from ck3gen.paths import CHARACTER_OUTPUT_DIR
 
 # Set up logging to display info and errors
 logging.basicConfig(level=logging.INFO)
@@ -524,15 +526,13 @@ class TitleHistory:
                 print(f"Ruler: {ruler_id} | Inherited: {inherited} | Died: {died}")
         print("\n")
 
-    def write_title_histories_to_file(self):
+    def write_title_histories_to_file(self) -> None:
         """
-        Output the collected data (self.titles) to a file, 
-        in the style of placeholder_title blocks.
+        Output the collected title data to a CK3-compatible file,
+        written as placeholder_title blocks.
         """
-        output_folder = "Character and Title files"
-        os.makedirs(output_folder, exist_ok=True)  # Create the folder if it doesn't exist
-
-        output_path = os.path.join(output_folder, 'title_history.txt')  # Full path to the file
+        CHARACTER_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        output_path = CHARACTER_OUTPUT_DIR / "title_history.txt"
 
         with open(output_path, 'w', encoding='utf-8') as file:
             for dynasty, rulers in self.titles.items():

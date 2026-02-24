@@ -23,21 +23,23 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 
 # ---------------------------------------------------------------------------
-#  Path setup — works both in dev (repo root) and as a PyInstaller onefile
+#  Path setup — ensures project root is importable in dev and when frozen
 # ---------------------------------------------------------------------------
 
 # When frozen by PyInstaller, sys._MEIPASS is the temp extraction directory.
-# In dev, we just use the repo root (two levels up from api/main.py).
+# In dev, the project root is two levels up from api/main.py.
 if getattr(sys, "frozen", False):
-    PROJECT_ROOT = Path(sys._MEIPASS)  # type: ignore[attr-defined]
+    _project_root = Path(sys._MEIPASS)  # type: ignore[attr-defined]
 else:
-    PROJECT_ROOT = Path(__file__).parent.parent
+    _project_root = Path(__file__).parent.parent
 
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
 
-# Import the CLI runner — this is the single source of truth for the pipeline.
+# Import the CLI runner — single source of truth for the simulation pipeline.
 from main import run_main  # noqa: E402
+from api.models import InitializationConfig, LifeStagesConfig
+from ck3gen.paths import CONFIG_DIR, FALLBACK_CONFIG_DIR, TREE_OUTPUT_DIR
 
 # ---------------------------------------------------------------------------
 #  App setup
@@ -51,10 +53,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-CONFIG_DIR = PROJECT_ROOT / "config"
-FALLBACK_DIR = CONFIG_DIR / "fallback_config_files"
-OUTPUT_DIR = PROJECT_ROOT / "Dynasty Preview"
 
 # ---------------------------------------------------------------------------
 #  Config helpers
@@ -80,19 +78,19 @@ def _write_json(path: Path, data: dict) -> None:
 
 
 @app.get("/config/initialization")
-def get_initialization() -> dict:
+def get_initialization() -> InitializationConfig:
     return _read_json(CONFIG_DIR / "initialization.json")
 
 
 @app.put("/config/initialization")
-def put_initialization(body: dict) -> dict[str, str]:
-    _write_json(CONFIG_DIR / "initialization.json", body)
+def put_initialization(body: InitializationConfig) -> dict[str, str]:
+    _write_json(CONFIG_DIR / "initialization.json", body.model_dump(mode="json"))
     return {"status": "saved"}
 
 
 @app.post("/config/initialization/reset")
 def reset_initialization() -> dict[str, str]:
-    src = FALLBACK_DIR / "initialization.json"
+    src = FALLBACK_CONFIG_DIR / "initialization.json"
     dst = CONFIG_DIR / "initialization.json"
     if not src.exists():
         raise HTTPException(status_code=404, detail="Fallback initialization config not found")
@@ -103,7 +101,7 @@ def reset_initialization() -> dict[str, str]:
 @app.post("/config/initialization/set-fallback")
 def set_initialization_fallback() -> dict[str, str]:
     src = CONFIG_DIR / "initialization.json"
-    dst = FALLBACK_DIR / "initialization.json"
+    dst = FALLBACK_CONFIG_DIR / "initialization.json"
     if not src.exists():
         raise HTTPException(status_code=404, detail="Active initialization config not found")
     shutil.copy2(src, dst)
@@ -116,24 +114,24 @@ def set_initialization_fallback() -> dict[str, str]:
 
 
 @app.get("/config/life-stages")
-def get_life_stages() -> dict:
+def get_life_stages() -> LifeStagesConfig:
     return _read_json(CONFIG_DIR / "life_stages.json")
 
 
 @app.get("/config/life-stages/fallback")
-def get_life_stages_fallback() -> dict:
-    return _read_json(FALLBACK_DIR / "life_stages.json")
+def get_life_stages_fallback() -> LifeStagesConfig:
+    return _read_json(FALLBACK_CONFIG_DIR / "life_stages.json")
 
 
 @app.put("/config/life-stages")
-def put_life_stages(body: dict) -> dict[str, str]:
-    _write_json(CONFIG_DIR / "life_stages.json", body)
+def put_life_stages(body: LifeStagesConfig) -> dict[str, str]:
+    _write_json(CONFIG_DIR / "life_stages.json", body.model_dump(mode="json"))
     return {"status": "saved"}
 
 
 @app.post("/config/life-stages/reset")
 def reset_life_stages() -> dict[str, str]:
-    src = FALLBACK_DIR / "life_stages.json"
+    src = FALLBACK_CONFIG_DIR / "life_stages.json"
     dst = CONFIG_DIR / "life_stages.json"
     if not src.exists():
         raise HTTPException(status_code=404, detail="Fallback life stages config not found")
@@ -222,16 +220,16 @@ def run_simulation() -> StreamingResponse:
 
 @app.get("/images")
 def list_images() -> list[str]:
-    if not OUTPUT_DIR.exists():
+    if not TREE_OUTPUT_DIR.exists():
         return []
-    return sorted(p.name for p in OUTPUT_DIR.glob("family_tree_*.png"))
+    return sorted(p.name for p in TREE_OUTPUT_DIR.glob("family_tree_*.png"))
 
 
 @app.get("/images/{filename}")
 def get_image(filename: str) -> FileResponse:
     if not filename.startswith("family_tree_") or not filename.endswith(".png"):
         raise HTTPException(status_code=400, detail="Invalid image filename")
-    path = OUTPUT_DIR / filename
+    path = TREE_OUTPUT_DIR / filename
     if not path.exists():
         raise HTTPException(status_code=404, detail="Image not found")
     return FileResponse(path, media_type="image/png")

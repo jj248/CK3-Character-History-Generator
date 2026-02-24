@@ -1,3 +1,11 @@
+/**
+ * NegativeEvents.tsx
+ *
+ * Manages negative events that raise character death rates during a specified
+ * year and age window. Validates all required fields before adding or saving,
+ * mirroring the server-side Pydantic rules in api/models.py.
+ */
+
 import { useState } from "react";
 import {
   InitializationConfig,
@@ -5,8 +13,17 @@ import {
   saveInitializationConfig,
   resetInitializationConfig,
 } from "../api";
+import {
+  NEGATIVE_EVENT_RULES,
+  useValidation,
+  ValidationErrors,
+} from "../hooks/useValidation";
 
-const EVENT_TYPE_OPTIONS = ["event_plague", "event_war", "event_battle"];
+// ---------------------------------------------------------------------------
+//  Constants
+// ---------------------------------------------------------------------------
+
+const EVENT_TYPE_OPTIONS = ["event_plague", "event_war", "event_battle"] as const;
 
 const DEFAULT_EVENT: NegativeEvent = {
   eventID: "event_plague",
@@ -18,18 +35,26 @@ const DEFAULT_EVENT: NegativeEvent = {
   characterAgeEnd: 60,
 };
 
-interface Props {
-  config: InitializationConfig;
-  onConfigChange: (cfg: InitializationConfig) => void;
+// ---------------------------------------------------------------------------
+//  FieldError — inline error label beneath a form input
+// ---------------------------------------------------------------------------
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return <span className="field-error">{message}</span>;
 }
 
-function EventForm({
-  value,
-  onChange,
-}: {
+// ---------------------------------------------------------------------------
+//  EventForm — shared form for add and inline edit
+// ---------------------------------------------------------------------------
+
+interface EventFormProps {
   value: NegativeEvent;
   onChange: (v: NegativeEvent) => void;
-}) {
+  errors?: ValidationErrors<NegativeEvent>;
+}
+
+function EventForm({ value, onChange, errors = {} }: EventFormProps) {
   const set = <K extends keyof NegativeEvent>(key: K, val: NegativeEvent[K]) =>
     onChange({ ...value, [key]: val });
 
@@ -38,9 +63,14 @@ function EventForm({
       <div className="field-row">
         <div className="field">
           <label>Event ID</label>
-          <select value={value.eventID} onChange={(e) => set("eventID", e.target.value)}>
+          <select
+            value={value.eventID}
+            aria-invalid={!!errors.eventID}
+            onChange={(e) => set("eventID", e.target.value)}
+          >
             {EVENT_TYPE_OPTIONS.map((o) => <option key={o}>{o}</option>)}
           </select>
+          <FieldError message={errors.eventID} />
         </div>
         <div className="field">
           <label>Death Reason ID</label>
@@ -48,44 +78,95 @@ function EventForm({
             type="text"
             value={value.deathReason}
             placeholder="e.g. death_plague"
+            aria-invalid={!!errors.deathReason}
             onChange={(e) => set("deathReason", e.target.value)}
           />
+          <FieldError message={errors.deathReason} />
         </div>
       </div>
+
       <div className="field-row">
         <div className="field">
           <label>Start Year</label>
-          <input type="number" value={value.startYear} step={1} onChange={(e) => set("startYear", Number(e.target.value))} />
+          <input
+            type="number"
+            value={value.startYear}
+            step={1}
+            onChange={(e) => set("startYear", Number(e.target.value))}
+          />
         </div>
         <div className="field">
           <label>End Year</label>
-          <input type="number" value={value.endYear} step={1} onChange={(e) => set("endYear", Number(e.target.value))} />
+          <input
+            type="number"
+            value={value.endYear}
+            step={1}
+            aria-invalid={!!errors.endYear}
+            onChange={(e) => set("endYear", Number(e.target.value))}
+          />
+          <FieldError message={errors.endYear} />
         </div>
         <div className="field">
           <label>Lethality Factor (0–1)</label>
-          <input type="number" value={value.deathMultiplier} step={0.05} min={0} max={1} onChange={(e) => set("deathMultiplier", Number(e.target.value))} />
+          <input
+            type="number"
+            value={value.deathMultiplier}
+            step={0.05}
+            min={0}
+            max={1}
+            aria-invalid={!!errors.deathMultiplier}
+            onChange={(e) => set("deathMultiplier", Number(e.target.value))}
+          />
+          <FieldError message={errors.deathMultiplier} />
         </div>
       </div>
+
       <div className="field-row">
         <div className="field">
           <label>Min Character Age</label>
-          <input type="number" value={value.characterAgeStart} step={1} min={0} onChange={(e) => set("characterAgeStart", Number(e.target.value))} />
+          <input
+            type="number"
+            value={value.characterAgeStart}
+            step={1}
+            min={0}
+            onChange={(e) => set("characterAgeStart", Number(e.target.value))}
+          />
         </div>
         <div className="field">
           <label>Max Character Age</label>
-          <input type="number" value={value.characterAgeEnd} step={1} min={0} onChange={(e) => set("characterAgeEnd", Number(e.target.value))} />
+          <input
+            type="number"
+            value={value.characterAgeEnd}
+            step={1}
+            min={0}
+            aria-invalid={!!errors.characterAgeEnd}
+            onChange={(e) => set("characterAgeEnd", Number(e.target.value))}
+          />
+          <FieldError message={errors.characterAgeEnd} />
         </div>
       </div>
     </div>
   );
 }
 
+// ---------------------------------------------------------------------------
+//  Main component
+// ---------------------------------------------------------------------------
+
+interface Props {
+  config: InitializationConfig;
+  onConfigChange: (cfg: InitializationConfig) => void;
+}
+
 export default function NegativeEvents({ config, onConfigChange }: Props) {
-  const [saving, setSaving] = useState(false);
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [newEvent, setNewEvent] = useState<NegativeEvent>({ ...DEFAULT_EVENT });
-  const [addOpen, setAddOpen] = useState(false);
+  const [saving, setSaving]           = useState(false);
+  const [feedback, setFeedback]       = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [newEvent, setNewEvent]       = useState<NegativeEvent>({ ...DEFAULT_EVENT });
+  const [addOpen, setAddOpen]         = useState(false);
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
+
+  const { errors: newEventErrors, validate: validateNew, clearErrors: clearNew } =
+    useValidation(NEGATIVE_EVENT_RULES, newEvent);
 
   const events = [...(config.events ?? [])].sort((a, b) =>
     (a.eventID ?? "").localeCompare(b.eventID ?? "")
@@ -96,9 +177,10 @@ export default function NegativeEvents({ config, onConfigChange }: Props) {
     setTimeout(() => setFeedback(null), 3500);
   };
 
-  const updateConfig = (updatedEvents: NegativeEvent[]) => {
+  const updateConfig = (updatedEvents: NegativeEvent[]) =>
     onConfigChange({ ...config, events: updatedEvents });
-  };
+
+  // ── Save / reset ──────────────────────────────────────────────────────────
 
   const handleSave = async () => {
     setSaving(true);
@@ -116,7 +198,6 @@ export default function NegativeEvents({ config, onConfigChange }: Props) {
     setSaving(true);
     try {
       await resetInitializationConfig();
-      // Reload after reset — App will re-fetch on next mount; for now show message
       show("success", "Events reset to fallback. Reload to see changes.");
     } catch (err) {
       show("error", String(err));
@@ -125,22 +206,30 @@ export default function NegativeEvents({ config, onConfigChange }: Props) {
     }
   };
 
+  // ── Event CRUD ────────────────────────────────────────────────────────────
+
   const handleAdd = () => {
+    if (!validateNew()) return;
     updateConfig([...events, { ...newEvent }]);
     setNewEvent({ ...DEFAULT_EVENT });
+    clearNew();
+    setAddOpen(false);
+  };
+
+  const handleCancelAdd = () => {
+    clearNew();
     setAddOpen(false);
   };
 
   const handleDelete = (idx: number) => {
-    const next = events.filter((_, i) => i !== idx);
-    updateConfig(next);
+    updateConfig(events.filter((_, i) => i !== idx));
     if (expandedIdx === idx) setExpandedIdx(null);
   };
 
-  const handleEdit = (idx: number, updated: NegativeEvent) => {
-    const next = events.map((e, i) => (i === idx ? updated : e));
-    updateConfig(next);
-  };
+  const handleEdit = (idx: number, updated: NegativeEvent) =>
+    updateConfig(events.map((e, i) => (i === idx ? updated : e)));
+
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <div>
@@ -169,10 +258,18 @@ export default function NegativeEvents({ config, onConfigChange }: Props) {
       {addOpen && (
         <div className="panel" style={{ marginTop: "0.75rem" }}>
           <h3>New Event</h3>
-          <EventForm value={newEvent} onChange={setNewEvent} />
+          <EventForm
+            value={newEvent}
+            onChange={setNewEvent}
+            errors={newEventErrors}
+          />
           <div className="btn-row" style={{ marginTop: "0.5rem" }}>
-            <button className="btn btn-primary" onClick={handleAdd}>Add Event</button>
-            <button className="btn btn-secondary" onClick={() => setAddOpen(false)}>Cancel</button>
+            <button className="btn btn-primary" onClick={handleAdd}>
+              Add Event
+            </button>
+            <button className="btn btn-secondary" onClick={handleCancelAdd}>
+              Cancel
+            </button>
           </div>
         </div>
       )}
@@ -184,31 +281,71 @@ export default function NegativeEvents({ config, onConfigChange }: Props) {
       )}
 
       {events.map((event, idx) => (
-        <div key={idx} className="accordion">
-          <div className="accordion-header" onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}>
-            <span style={{ color: "var(--text-label)" }}>{event.eventID}</span>
-            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-              <span style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>
-                {event.startYear} – {event.endYear}
-              </span>
-              <button
-                className="btn btn-danger btn-sm"
-                onClick={(e) => { e.stopPropagation(); handleDelete(idx); }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-          {expandedIdx === idx && (
-            <div className="accordion-body">
-              <EventForm
-                value={event}
-                onChange={(updated) => handleEdit(idx, updated)}
-              />
-            </div>
-          )}
-        </div>
+        <EditableEventRow
+          key={event.eventID + idx}
+          event={event}
+          isExpanded={expandedIdx === idx}
+          onToggle={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
+          onEdit={(updated) => handleEdit(idx, updated)}
+          onDelete={() => handleDelete(idx)}
+        />
       ))}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+//  EditableEventRow — accordion row with its own isolated validation state
+// ---------------------------------------------------------------------------
+
+interface EditableEventRowProps {
+  event: NegativeEvent;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onEdit: (updated: NegativeEvent) => void;
+  onDelete: () => void;
+}
+
+function EditableEventRow({
+  event,
+  isExpanded,
+  onToggle,
+  onEdit,
+  onDelete,
+}: EditableEventRowProps) {
+  const { errors, validate } = useValidation(NEGATIVE_EVENT_RULES, event);
+
+  const handleChange = (updated: NegativeEvent) => {
+    onEdit(updated);
+    validate();
+  };
+
+  return (
+    <div className="accordion">
+      <div className="accordion-header" onClick={onToggle}>
+        <span style={{ color: "var(--text-label)" }}>{event.eventID}</span>
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          <span style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>
+            {event.startYear} – {event.endYear}
+          </span>
+          <button
+            className="btn btn-danger btn-sm"
+            onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+
+      {isExpanded && (
+        <div className="accordion-body">
+          <EventForm
+            value={event}
+            onChange={handleChange}
+            errors={errors}
+          />
+        </div>
+      )}
     </div>
   );
 }

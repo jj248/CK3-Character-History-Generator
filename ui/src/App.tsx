@@ -1,3 +1,11 @@
+/**
+ * App.tsx
+ *
+ * Root application shell. Loads configuration on mount, renders the tab
+ * navigation, and wraps the entire component tree in an ErrorBoundary so
+ * unexpected render errors produce a recoverable UI rather than a blank screen.
+ */
+
 import { useEffect, useState } from "react";
 import {
   fetchInitializationConfig,
@@ -5,10 +13,15 @@ import {
   InitializationConfig,
   LifeStagesConfig,
 } from "./api";
+import ErrorBoundary from "./components/ErrorBoundary";
 import DynastySettings from "./components/DynastySettings";
 import NegativeEvents from "./components/NegativeEvents";
 import DynastyTrees from "./components/DynastyTrees";
 import LifeCycleModifiers from "./components/LifeCycleModifiers";
+
+// ---------------------------------------------------------------------------
+//  Types
+// ---------------------------------------------------------------------------
 
 type TabId = "dynasties" | "trees" | "events" | "lifecycle";
 
@@ -19,11 +32,15 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "lifecycle", label: "Life Cycle Modifiers" },
 ];
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState<TabId>("dynasties");
+// ---------------------------------------------------------------------------
+//  Component
+// ---------------------------------------------------------------------------
+
+function AppShell() {
+  const [activeTab, setActiveTab]   = useState<TabId>("dynasties");
   const [initConfig, setInitConfig] = useState<InitializationConfig | null>(null);
   const [lifeConfig, setLifeConfig] = useState<LifeStagesConfig | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadError, setLoadError]   = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([fetchInitializationConfig(), fetchLifeStagesConfig()])
@@ -49,7 +66,10 @@ export default function App() {
   if (!initConfig || !lifeConfig) {
     return (
       <div className="app-shell">
-        <div className="tab-content" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+        <div
+          className="tab-content"
+          style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}
+        >
           <span className="spinner" />
           Loading configuration...
         </div>
@@ -88,5 +108,13 @@ export default function App() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ErrorBoundary>
+      <AppShell />
+    </ErrorBoundary>
   );
 }

@@ -9,14 +9,14 @@ jobs:
   build-and-release:
     runs-on: windows-latest
     permissions:
-      contents: write   # needed to create the GitHub Release
+      contents: write   # required to publish the GitHub Release
 
     steps:
       # ── 1. Checkout ──────────────────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ── 2. Python + FastAPI sidecar ──────────────────────────────────────────
+      # ── 2. Python + version sync + FastAPI sidecar ───────────────────────────
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -25,17 +25,18 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
+      - name: Sync version from tag
+        run: python scripts/set_version.py ${{ github.ref_name }}
+
       - name: Build FastAPI sidecar with PyInstaller
-        run: |
-          pyinstaller --onefile --name api_server api/main.py
+        run: pyinstaller --onefile --name api_server api/main.py
 
       - name: Copy sidecar to Tauri binaries directory
+        shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path ui/src-tauri/binaries
-          # Tauri expects the binary to be named with the target triple suffix.
-          # windows-latest produces x86_64-pc-windows-msvc.
+          # Tauri requires the binary name to include the target triple.
           Copy-Item dist/api_server.exe ui/src-tauri/binaries/api_server-x86_64-pc-windows-msvc.exe
-        shell: pwsh
 
       # ── 3. Node + Tauri bundle ───────────────────────────────────────────────
       - name: Set up Node
@@ -55,7 +56,7 @@ jobs:
         with:
           workspaces: ui/src-tauri -> target
 
-      - name: Build Tauri app
+      - name: Build Tauri app and publish release
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

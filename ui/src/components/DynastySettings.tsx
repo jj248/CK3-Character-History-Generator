@@ -1,3 +1,11 @@
+/**
+ * DynastySettings.tsx
+ *
+ * Manages dynasty definitions and global simulation settings.
+ * Validates all required fields before adding or saving, mirroring the
+ * server-side Pydantic rules so errors are caught without a network round-trip.
+ */
+
 import { useState } from "react";
 import {
   Dynasty,
@@ -9,6 +17,11 @@ import {
   streamSimulation,
   SimulationMessage,
 } from "../api";
+import {
+  DYNASTY_RULES,
+  useValidation,
+  ValidationErrors,
+} from "../hooks/useValidation";
 
 // ---------------------------------------------------------------------------
 //  Constants
@@ -20,9 +33,13 @@ const GENDER_LAW_OPTIONS = [
   "ABSOLUTE_COGNATIC",
   "ENATIC_COGNATIC",
   "ENATIC",
-];
+] as const;
 
-const SUCCESSION_OPTIONS = ["PRIMOGENITURE", "ULTIMOGENITURE", "SENIORITY"];
+const SUCCESSION_OPTIONS = [
+  "PRIMOGENITURE",
+  "ULTIMOGENITURE",
+  "SENIORITY",
+] as const;
 
 const DEFAULT_NAME_INHERITANCE: NameInheritance = {
   grandparentNameInheritanceChance: 0.05,
@@ -46,17 +63,34 @@ const EMPTY_DYNASTY: Dynasty = {
 };
 
 // ---------------------------------------------------------------------------
-//  DynastyForm - shared form for add and edit
+//  FieldError — inline error label beneath a form input
+// ---------------------------------------------------------------------------
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return <span className="field-error">{message}</span>;
+}
+
+// ---------------------------------------------------------------------------
+//  DynastyForm — shared form for add and inline edit
 // ---------------------------------------------------------------------------
 
 interface DynastyFormProps {
   value: Dynasty;
   onChange: (d: Dynasty) => void;
+  errors?: ValidationErrors<Dynasty>;
 }
 
-function DynastyForm({ value, onChange }: DynastyFormProps) {
+function DynastyForm({ value, onChange, errors = {} }: DynastyFormProps) {
   const set = <K extends keyof Dynasty>(key: K, val: Dynasty[K]) =>
     onChange({ ...value, [key]: val });
+
+  const setInheritance = (key: keyof NameInheritance, raw: string) => {
+    set("nameInheritance", {
+      ...value.nameInheritance,
+      [key]: Number(raw),
+    });
+  };
 
   const setLanguage = (idx: number, part: "id" | "start" | "end", raw: string) => {
     const langs = [...(value.languages ?? [])];
@@ -76,37 +110,72 @@ function DynastyForm({ value, onChange }: DynastyFormProps) {
 
   return (
     <div>
+      {/* Identity */}
       <div className="field-row">
         <div className="field">
           <label>Dynasty ID</label>
-          <input type="text" value={value.dynastyID} onChange={(e) => set("dynastyID", e.target.value)} />
+          <input
+            type="text"
+            value={value.dynastyID}
+            aria-invalid={!!errors.dynastyID}
+            onChange={(e) => set("dynastyID", e.target.value)}
+          />
+          <FieldError message={errors.dynastyID} />
         </div>
         <div className="field">
           <label>Dynasty Name</label>
-          <input type="text" value={value.dynastyName} onChange={(e) => set("dynastyName", e.target.value)} />
+          <input
+            type="text"
+            value={value.dynastyName}
+            aria-invalid={!!errors.dynastyName}
+            onChange={(e) => set("dynastyName", e.target.value)}
+          />
+          <FieldError message={errors.dynastyName} />
         </div>
         <div className="field">
           <label>Dynasty Motto</label>
-          <input type="text" value={value.dynastyMotto} onChange={(e) => set("dynastyMotto", e.target.value)} />
+          <input
+            type="text"
+            value={value.dynastyMotto}
+            onChange={(e) => set("dynastyMotto", e.target.value)}
+          />
         </div>
       </div>
 
+      {/* IDs */}
       <div className="field-row">
         <div className="field">
           <label>Faith ID</label>
-          <input type="text" value={value.faithID} onChange={(e) => set("faithID", e.target.value)} />
+          <input
+            type="text"
+            value={value.faithID}
+            aria-invalid={!!errors.faithID}
+            onChange={(e) => set("faithID", e.target.value)}
+          />
+          <FieldError message={errors.faithID} />
         </div>
         <div className="field">
           <label>Culture ID</label>
-          <input type="text" value={value.cultureID} onChange={(e) => set("cultureID", e.target.value)} />
+          <input
+            type="text"
+            value={value.cultureID}
+            aria-invalid={!!errors.cultureID}
+            onChange={(e) => set("cultureID", e.target.value)}
+          />
+          <FieldError message={errors.cultureID} />
         </div>
         <div className="field">
           <label>Progenitor Birth Year</label>
-          <input type="number" step={1} value={value.progenitorMaleBirthYear}
-            onChange={(e) => set("progenitorMaleBirthYear", Number(e.target.value))} />
+          <input
+            type="number"
+            step={1}
+            value={value.progenitorMaleBirthYear}
+            onChange={(e) => set("progenitorMaleBirthYear", Number(e.target.value))}
+          />
         </div>
       </div>
 
+      {/* Rules */}
       <div className="field-row">
         <div className="field">
           <label>Succession</label>
@@ -122,17 +191,30 @@ function DynastyForm({ value, onChange }: DynastyFormProps) {
         </div>
       </div>
 
+      {/* Toggles */}
       <div className="field-row">
         <label className="checkbox-field">
-          <input type="checkbox" checked={value.isHouse} onChange={(e) => set("isHouse", e.target.checked)} />
+          <input
+            type="checkbox"
+            checked={value.isHouse}
+            onChange={(e) => set("isHouse", e.target.checked)}
+          />
           Is House (cadet branch)
         </label>
         <label className="checkbox-field">
-          <input type="checkbox" checked={value.allowFirstCousinMarriage} onChange={(e) => set("allowFirstCousinMarriage", e.target.checked)} />
+          <input
+            type="checkbox"
+            checked={value.allowFirstCousinMarriage}
+            onChange={(e) => set("allowFirstCousinMarriage", e.target.checked)}
+          />
           Allow First Cousin Marriage
         </label>
         <label className="checkbox-field">
-          <input type="checkbox" checked={value.prioritiseLowbornMarriage} onChange={(e) => set("prioritiseLowbornMarriage", e.target.checked)} />
+          <input
+            type="checkbox"
+            checked={value.prioritiseLowbornMarriage}
+            onChange={(e) => set("prioritiseLowbornMarriage", e.target.checked)}
+          />
           Prioritise Lowborn Marriage
         </label>
       </div>
@@ -141,31 +223,94 @@ function DynastyForm({ value, onChange }: DynastyFormProps) {
       <div className="field" style={{ marginTop: "0.5rem" }}>
         <label>Numenor Blood Tier (0 = none)</label>
         <input
-          type="number" min={0} max={10} step={1}
+          type="number"
+          min={0}
+          max={10}
+          step={1}
           value={value.numenorBloodTier ?? 0}
           onChange={(e) => {
-            const v = Number(e.target.value);
+            const n = Number(e.target.value);
             const updated = { ...value };
-            if (v === 0) delete updated.numenorBloodTier;
-            else updated.numenorBloodTier = v;
+            if (n === 0) delete updated.numenorBloodTier;
+            else updated.numenorBloodTier = n;
             onChange(updated);
           }}
         />
       </div>
 
+      {/* Name inheritance */}
+      <div className="panel" style={{ marginTop: "0.75rem" }}>
+        <h4 style={{ marginBottom: "0.5rem" }}>Name Inheritance Chances (must sum to 1.0)</h4>
+        <FieldError message={errors.nameInheritance} />
+        <div className="field-row">
+          <div className="field">
+            <label>Grandparent</label>
+            <input
+              type="number"
+              min={0}
+              max={1}
+              step={0.01}
+              value={value.nameInheritance.grandparentNameInheritanceChance}
+              onChange={(e) => setInheritance("grandparentNameInheritanceChance", e.target.value)}
+            />
+          </div>
+          <div className="field">
+            <label>Parent</label>
+            <input
+              type="number"
+              min={0}
+              max={1}
+              step={0.01}
+              value={value.nameInheritance.parentNameInheritanceChance}
+              onChange={(e) => setInheritance("parentNameInheritanceChance", e.target.value)}
+            />
+          </div>
+          <div className="field">
+            <label>No Inheritance</label>
+            <input
+              type="number"
+              min={0}
+              max={1}
+              step={0.01}
+              value={value.nameInheritance.noNameInheritanceChance}
+              onChange={(e) => setInheritance("noNameInheritanceChance", e.target.value)}
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Languages */}
       <div style={{ marginTop: "0.75rem" }}>
-        <label style={{ marginBottom: "0.4rem" }}>Languages (format: language_id, start year, end year)</label>
+        <label style={{ marginBottom: "0.4rem" }}>
+          Languages (language_id, start year, end year)
+        </label>
         {(value.languages ?? []).map((entry, idx) => {
           const [lid = "", start = "0", end = "0"] = entry.split(",");
           return (
-            <div key={idx} style={{ display: "grid", gridTemplateColumns: "3fr 1fr 1fr auto", gap: "0.5rem", marginBottom: "0.4rem" }}>
-              <input type="text" value={lid.trim()} placeholder="language_id"
-                onChange={(e) => setLanguage(idx, "id", e.target.value)} />
-              <input type="number" step={1} value={Number(start.trim())} placeholder="start"
-                onChange={(e) => setLanguage(idx, "start", e.target.value)} />
-              <input type="number" step={1} value={Number(end.trim())} placeholder="end"
-                onChange={(e) => setLanguage(idx, "end", e.target.value)} />
+            <div
+              key={idx}
+              style={{ display: "grid", gridTemplateColumns: "3fr 1fr 1fr auto", gap: "0.5rem", marginBottom: "0.4rem" }}
+            >
+              <input
+                type="text"
+                value={lid.trim()}
+                placeholder="language_id"
+                onChange={(e) => setLanguage(idx, "id", e.target.value)}
+              />
+              <input
+                type="number"
+                step={1}
+                value={Number(start.trim())}
+                placeholder="start"
+                onChange={(e) => setLanguage(idx, "start", e.target.value)}
+              />
+              <input
+                type="number"
+                step={1}
+                value={Number(end.trim())}
+                placeholder="end"
+                onChange={(e) => setLanguage(idx, "end", e.target.value)}
+              />
               <button className="btn btn-danger btn-sm" onClick={() => removeLanguage(idx)}>
                 Remove
               </button>
@@ -190,13 +335,18 @@ interface Props {
 }
 
 export default function DynastySettings({ config, onConfigChange }: Props) {
-  const [saving, setSaving] = useState(false);
-  const [simRunning, setSimRunning] = useState(false);
-  const [logs, setLogs] = useState<string[]>([]);
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [newDynasty, setNewDynasty] = useState<Dynasty>({ ...EMPTY_DYNASTY, nameInheritance: { ...DEFAULT_NAME_INHERITANCE } });
-  const [addOpen, setAddOpen] = useState(false);
+  const [saving, setSaving]           = useState(false);
+  const [simRunning, setSimRunning]   = useState(false);
+  const [logs, setLogs]               = useState<string[]>([]);
+  const [feedback, setFeedback]       = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [newDynasty, setNewDynasty]   = useState<Dynasty>({ ...EMPTY_DYNASTY, nameInheritance: { ...DEFAULT_NAME_INHERITANCE } });
+  const [addOpen, setAddOpen]         = useState(false);
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
+
+  // Validation for the "add new dynasty" form only.
+  // Inline edits use per-row validation state managed in EditableDynastyRow.
+  const { errors: newDynastyErrors, validate: validateNew, clearErrors: clearNew } =
+    useValidation(DYNASTY_RULES, newDynasty);
 
   const show = (type: "success" | "error", text: string) => {
     setFeedback({ type, text });
@@ -207,9 +357,10 @@ export default function DynastySettings({ config, onConfigChange }: Props) {
     (a.dynastyID ?? "").localeCompare(b.dynastyID ?? "")
   );
 
-  const updateDynasties = (updated: Dynasty[]) => {
+  const updateDynasties = (updated: Dynasty[]) =>
     onConfigChange({ ...config, dynasties: updated });
-  };
+
+  // ── Save / reset handlers ─────────────────────────────────────────────────
 
   const handleSave = async () => {
     setSaving(true);
@@ -248,9 +399,18 @@ export default function DynastySettings({ config, onConfigChange }: Props) {
     }
   };
 
+  // ── Dynasty CRUD ──────────────────────────────────────────────────────────
+
   const handleAddDynasty = () => {
+    if (!validateNew()) return;
     updateDynasties([...dynasties, { ...newDynasty }]);
     setNewDynasty({ ...EMPTY_DYNASTY, nameInheritance: { ...DEFAULT_NAME_INHERITANCE } });
+    clearNew();
+    setAddOpen(false);
+  };
+
+  const handleCancelAdd = () => {
+    clearNew();
     setAddOpen(false);
   };
 
@@ -259,19 +419,18 @@ export default function DynastySettings({ config, onConfigChange }: Props) {
     if (expandedIdx === idx) setExpandedIdx(null);
   };
 
-  const handleEditDynasty = (idx: number, updated: Dynasty) => {
+  const handleEditDynasty = (idx: number, updated: Dynasty) =>
     updateDynasties(dynasties.map((d, i) => (i === idx ? updated : d)));
-  };
 
-  const handleDeleteAll = () => {
-    onConfigChange({ ...config, dynasties: [] });
-  };
+  const handleDeleteAll = () => onConfigChange({ ...config, dynasties: [] });
+
+  // ── Simulation ────────────────────────────────────────────────────────────
 
   const handleRunSimulation = () => {
     setLogs([]);
     setSimRunning(true);
 
-    const cancel = streamSimulation(
+    streamSimulation(
       (msg: SimulationMessage) => {
         if (msg.log)   setLogs((prev) => [...prev, msg.log!]);
         if (msg.error) setLogs((prev) => [...prev, `ERROR: ${msg.error!}`]);
@@ -282,44 +441,61 @@ export default function DynastySettings({ config, onConfigChange }: Props) {
         setSimRunning(false);
       }
     );
-
-    // Cancel is a no-op after done; kept for reference
-    void cancel;
   };
+
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <div>
       <h2>Dynasty Settings</h2>
 
-      {/* Global settings */}
+      {/* Global simulation settings */}
       <div className="panel">
         <h3>Global Simulation Settings</h3>
         <div className="field-row">
           <div className="field">
             <label>Start Year</label>
-            <input type="number" step={1} value={config.minYear}
-              onChange={(e) => onConfigChange({ ...config, minYear: Number(e.target.value) })} />
+            <input
+              type="number"
+              step={1}
+              value={config.minYear}
+              onChange={(e) => onConfigChange({ ...config, minYear: Number(e.target.value) })}
+            />
           </div>
           <div className="field">
             <label>End Year</label>
-            <input type="number" step={1} value={config.maxYear}
-              onChange={(e) => onConfigChange({ ...config, maxYear: Number(e.target.value) })} />
+            <input
+              type="number"
+              step={1}
+              value={config.maxYear}
+              onChange={(e) => onConfigChange({ ...config, maxYear: Number(e.target.value) })}
+            />
           </div>
           <div className="field">
             <label>Maximum Generations</label>
-            <input type="number" step={1} min={1} max={200} value={config.generationMax}
-              onChange={(e) => onConfigChange({ ...config, generationMax: Number(e.target.value) })} />
+            <input
+              type="number"
+              step={1}
+              min={1}
+              max={200}
+              value={config.generationMax}
+              onChange={(e) => onConfigChange({ ...config, generationMax: Number(e.target.value) })}
+            />
           </div>
         </div>
       </div>
 
-      {/* Action buttons */}
+      {/* Action bar */}
       <div className="btn-row">
         <button className="btn btn-secondary btn-sm" onClick={() => setAddOpen((o) => !o)}>
           {addOpen ? "Cancel" : "Add Dynasty"}
         </button>
-        <button className="btn btn-secondary btn-sm" onClick={handleDeleteAll} disabled={dynasties.length === 0}>
-          Delete All Dynasties
+        <button
+          className="btn btn-secondary btn-sm"
+          onClick={handleDeleteAll}
+          disabled={dynasties.length === 0}
+        >
+          Delete All
         </button>
         <button className="btn btn-secondary btn-sm" onClick={handleReset} disabled={saving}>
           Reset to Default
@@ -333,16 +509,26 @@ export default function DynastySettings({ config, onConfigChange }: Props) {
         </button>
       </div>
 
-      {feedback && <div className={`msg msg-${feedback.type}`}>{feedback.text}</div>}
+      {feedback && (
+        <div className={`msg msg-${feedback.type}`}>{feedback.text}</div>
+      )}
 
-      {/* Add dynasty form */}
+      {/* Add dynasty panel */}
       {addOpen && (
         <div className="panel" style={{ marginTop: "0.75rem" }}>
           <h3>New Dynasty</h3>
-          <DynastyForm value={newDynasty} onChange={setNewDynasty} />
+          <DynastyForm
+            value={newDynasty}
+            onChange={setNewDynasty}
+            errors={newDynastyErrors}
+          />
           <div className="btn-row" style={{ marginTop: "0.75rem" }}>
-            <button className="btn btn-primary" onClick={handleAddDynasty}>Add Dynasty</button>
-            <button className="btn btn-secondary" onClick={() => setAddOpen(false)}>Cancel</button>
+            <button className="btn btn-primary" onClick={handleAddDynasty}>
+              Add Dynasty
+            </button>
+            <button className="btn btn-secondary" onClick={handleCancelAdd}>
+              Cancel
+            </button>
           </div>
         </div>
       )}
@@ -354,35 +540,14 @@ export default function DynastySettings({ config, onConfigChange }: Props) {
       )}
 
       {dynasties.map((dynasty, idx) => (
-        <div key={dynasty.dynastyID + idx} className="accordion">
-          <div
-            className="accordion-header"
-            onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
-          >
-            <span style={{ color: "var(--text-label)" }}>
-              {dynasty.dynastyID || "(unnamed)"}
-            </span>
-            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-              <span style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>
-                {dynasty.succession} / {dynasty.gender_law}
-              </span>
-              <button
-                className="btn btn-danger btn-sm"
-                onClick={(e) => { e.stopPropagation(); handleDeleteDynasty(idx); }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-          {expandedIdx === idx && (
-            <div className="accordion-body">
-              <DynastyForm
-                value={dynasty}
-                onChange={(updated) => handleEditDynasty(idx, updated)}
-              />
-            </div>
-          )}
-        </div>
+        <EditableDynastyRow
+          key={dynasty.dynastyID + idx}
+          dynasty={dynasty}
+          isExpanded={expandedIdx === idx}
+          onToggle={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
+          onEdit={(updated) => handleEditDynasty(idx, updated)}
+          onDelete={() => handleDeleteDynasty(idx)}
+        />
       ))}
 
       {/* Run simulation */}
@@ -410,6 +575,69 @@ export default function DynastySettings({ config, onConfigChange }: Props) {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+//  EditableDynastyRow — accordion row with its own isolated validation state
+// ---------------------------------------------------------------------------
+
+interface EditableDynastyRowProps {
+  dynasty: Dynasty;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onEdit: (updated: Dynasty) => void;
+  onDelete: () => void;
+}
+
+/**
+ * Each row manages its own validation state so editing one dynasty never
+ * pollutes the error state of another.
+ */
+function EditableDynastyRow({
+  dynasty,
+  isExpanded,
+  onToggle,
+  onEdit,
+  onDelete,
+}: EditableDynastyRowProps) {
+  const { errors, validate } = useValidation(DYNASTY_RULES, dynasty);
+
+  const handleChange = (updated: Dynasty) => {
+    onEdit(updated);
+    // Re-validate on every change so errors clear as the user types.
+    validate();
+  };
+
+  return (
+    <div className="accordion">
+      <div className="accordion-header" onClick={onToggle}>
+        <span style={{ color: "var(--text-label)" }}>
+          {dynasty.dynastyID || "(unnamed)"}
+        </span>
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          <span style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>
+            {dynasty.succession} / {dynasty.gender_law}
+          </span>
+          <button
+            className="btn btn-danger btn-sm"
+            onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+
+      {isExpanded && (
+        <div className="accordion-body">
+          <DynastyForm
+            value={dynasty}
+            onChange={handleChange}
+            errors={errors}
+          />
+        </div>
+      )}
     </div>
   );
 }
