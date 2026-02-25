@@ -8,9 +8,6 @@ from pathlib import Path
 
 from ck3gen.paths import CHARACTER_OUTPUT_DIR
 
-# Set up logging to display info and errors
-logging.basicConfig(level=logging.INFO)
-
 ############################
 # Enums for Succession/Gender
 ############################

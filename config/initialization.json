@@ -11,7 +11,7 @@
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": true,
+            "prioritiseLowbornMarriage": true,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
@@ -30,7 +30,7 @@
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": true,
+            "prioritiseLowbornMarriage": true,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
@@ -49,7 +49,7 @@
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": true,
+            "prioritiseLowbornMarriage": true,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
@@ -68,7 +68,7 @@
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": true,
+            "prioritiseLowbornMarriage": true,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
@@ -87,7 +87,7 @@
             "gender_law": "AGNATIC",
             "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,
-            "prioritiseLowbornMarraige": true,
+            "prioritiseLowbornMarriage": true,
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,

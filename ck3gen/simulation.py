@@ -34,7 +34,7 @@ class Simulation:
         }
         
         self.prioritise_lowborn_marriage = {
-            d['dynastyID']: d.get('prioritiseLowbornMarraige', False)
+            d['dynastyID']: d.get('prioritiseLowbornMarriage', False)
             for d in config['initialization']['dynasties']
         }
 
