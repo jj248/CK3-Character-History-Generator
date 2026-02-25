@@ -6,7 +6,6 @@ import re
 from ck3gen.character import Character
 from utils.utils import generate_random_date, generate_char_id
 from ck3gen.name_loader import NameLoader
-from ck3gen.title_history import TitleHistory
 
 class Simulation:
     def __init__(self, config, name_loader):
@@ -1163,12 +1162,9 @@ class Simulation:
         self._process_survivor_deaths(max_year)
 
     def export_characters(self, output_filename="family_history.txt"):
-        # Set output folder and ensure it exists
-        output_folder = "Character and Title files"
-        os.makedirs(output_folder, exist_ok=True)
-
-        # Full path to the output file
-        output_path = os.path.join(output_folder, output_filename)
+        from ck3gen.paths import CHARACTER_OUTPUT_DIR
+        CHARACTER_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        output_path = CHARACTER_OUTPUT_DIR / output_filename
 
         dynasty_groups = {}
         exported_character_count = 0
