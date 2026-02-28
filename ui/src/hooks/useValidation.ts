@@ -11,13 +11,13 @@
  */
 
 import { useCallback, useState } from "react";
-import type { Dynasty, NegativeEvent } from "../src/api";
+import type { Dynasty, NegativeEvent } from "../api";
 
 // ---------------------------------------------------------------------------
 //  Core types
 // ---------------------------------------------------------------------------
 
-/** A map of field name → human-readable error string. Empty = valid. */
+/** A map of field name to human-readable error string. Empty means valid. */
 export type ValidationErrors<T> = Partial<Record<keyof T, string>>;
 
 /** A validation rule for a single field. Returns an error string or null. */
@@ -69,7 +69,7 @@ export function useValidation<T extends object>(
 }
 
 // ---------------------------------------------------------------------------
-//  Dynasty rules  (mirrors api/models.py → Dynasty + NameInheritance)
+//  Dynasty rules  (mirrors api/models.py -> Dynasty + NameInheritance)
 // ---------------------------------------------------------------------------
 
 export const DYNASTY_RULES: RuleSet<Dynasty> = {
@@ -98,7 +98,7 @@ export const DYNASTY_RULES: RuleSet<Dynasty> = {
 };
 
 // ---------------------------------------------------------------------------
-//  NegativeEvent rules  (mirrors api/models.py → NegativeEvent)
+//  NegativeEvent rules  (mirrors api/models.py -> NegativeEvent)
 // ---------------------------------------------------------------------------
 
 export const NEGATIVE_EVENT_RULES: RuleSet<NegativeEvent> = {
@@ -112,8 +112,8 @@ export const NEGATIVE_EVENT_RULES: RuleSet<NegativeEvent> = {
     v <= 0 ? "Lethality factor must be greater than 0." : null,
 
   endYear: (v, obj) =>
-    v < obj.startYear ? "End year must be ≥ start year." : null,
+    v < obj.startYear ? "End year must be >= start year." : null,
 
   characterAgeEnd: (v, obj) =>
-    v < obj.characterAgeStart ? "Max character age must be ≥ min character age." : null,
+    v < obj.characterAgeStart ? "Max character age must be >= min character age." : null,
 };
