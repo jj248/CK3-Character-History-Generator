@@ -132,11 +132,6 @@ class Simulation:
                 "Seeded progenitor %s (%s) for dynasty %s", char_id, prog_name, dynasty_id
             )
 
-        logger.info(
-            "_seed_progenitors complete: %d dynasties processed, %d characters seeded.",
-            len(dynasties),
-            len(self.all_characters),
-        )
 
     # ------------------------------------------------------------------
     #  Character pool management
@@ -990,7 +985,14 @@ class Simulation:
                 )
 
     def _process_marriages(self, year: int) -> None:
-        """Rebuild marriage pools and match eligible characters."""
+        """Rebuild marriage pools and match eligible characters.
+
+        Noble-to-noble matching only runs when both male and female pools are
+        non-empty.  However, desperation lowborn marriage is attempted for every
+        eligible unmarried male regardless of whether noble females are available;
+        without this pass, dynasties seeded with only male progenitors would never
+        produce marriages or children.
+        """
         self.unmarried_males.clear()
         self.unmarried_females.clear()
         self.update_unmarried_pools(year)
@@ -999,7 +1001,14 @@ class Simulation:
         all_females = [f for bucket in self.unmarried_females.values() for f in bucket]
 
         if all_males and all_females:
+            # Noble-to-noble matching also handles desperation inside match_marriages.
             self.match_marriages(all_males, all_females, year)
+        elif all_males:
+            # No noble females available: give every eligible male a desperation pass
+            # so that dynasties with only male progenitors can still acquire wives.
+            for male in all_males:
+                if male.alive and not male.married and male.can_marry:
+                    self.desperation_marriage_check(male, year)
 
     def _process_births(self, year: int) -> None:
         """Handle legitimate births and bastardy for the current year."""
@@ -1165,10 +1174,6 @@ class Simulation:
         CHARACTER_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
         output_path = CHARACTER_OUTPUT_DIR / output_filename
 
-        logger.info(
-            "export_characters: %d total characters in pool before grouping.",
-            len(self.all_characters),
-        )
         dynasty_groups: dict[str, list[Character]] = {}
         for character in self.all_characters:
             if not character.dynasty:
