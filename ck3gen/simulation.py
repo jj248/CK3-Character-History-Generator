@@ -47,6 +47,66 @@ class Simulation:
             "learning":     ["pensive", "curious"],
         }
 
+        # Seed one progenitor per dynasty before the simulation loop starts.
+        self._seed_progenitors()
+
+    def _seed_progenitors(self) -> None:
+        """Create the founding character for every dynasty in the config."""
+        dynasties = self.config['initialization'].get('dynasties', [])
+        skills_cfg = self.config['skills_and_traits']
+
+        for dynasty in dynasties:
+            dynasty_id   = dynasty['dynastyID']
+            culture      = dynasty['cultureID']
+            religion     = dynasty['faithID']
+            gender_law   = dynasty['gender_law']
+            is_house     = dynasty.get('isHouse', False)
+            blood_tier   = dynasty.get('numenorBloodTier', None)
+            birth_year   = dynasty['progenitorMaleBirthYear']
+
+            dynasty_prefix = dynasty_id.split('_')[1] if '_' in dynasty_id else dynasty_id
+            char_id = generate_char_id(dynasty_prefix, self.dynasty_char_counters)
+
+            # Use the dynasty's culture name list to pick a male name
+            prog_name = self.name_loader.load_names(culture, 'male')
+
+            progenitor = Character(
+                char_id=char_id,
+                name=prog_name,
+                sex='Male',
+                birth_year=birth_year,
+                dynasty=dynasty_id,
+                culture=culture,
+                religion=religion,
+                gender_law=gender_law,
+                sexuality_distribution=skills_cfg['sexualityDistribution'],
+                is_house=is_house,
+                generation=1,
+                is_progenitor=True,
+                birth_order=1,
+                numenorean_blood_tier=blood_tier,
+            )
+
+            # Assign skills, education, and personality traits
+            progenitor.assign_skills(skills_cfg['skillProbabilities'])
+            progenitor.assign_education(skills_cfg['educationProbabilities'])
+            progenitor.assign_personality_traits(skills_cfg['personalityTraits'])
+
+            # Emit childhood (age 3) and personality (age 16) trait events
+            skill = progenitor.education_skill or 'diplomacy'
+            childhood_trait = random.choice(
+                self.childhood_by_education.get(skill, ['charming', 'curious'])
+            )
+            progenitor.add_event(
+                f"{birth_year + 3}.01.01", f"trait = {childhood_trait}"
+            )
+            trait_lines = "\n    ".join(f"trait = {t}" for t in progenitor.personality_traits)
+            progenitor.add_event(f"{birth_year + 16}.01.01", trait_lines)
+
+            self.all_characters.append(progenitor)
+            self.add_character_to_pool(progenitor)
+            logging.info("Seeded progenitor %s (%s) for dynasty %s", char_id, prog_name, dynasty_id)
+
     def add_character_to_pool(self, character):
         """ Adjust fertility and mortality based on dynasty rules """
         mortality_penalty = character.apply_dynasty_mortality_penalty()
