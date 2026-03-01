@@ -1,10 +1,10 @@
 {
     "dynasties": [
         {
+            "dynastyID": "dynasty_enakynim",
             "dynastyName": "Enakynim",
             "dynastyMotto": "The Spirit of the Horse Grants Us Trust",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_enakynim",
             "isHouse": false,
             "faithID": "faith_uvag",
             "cultureID": "drenim",
@@ -12,18 +12,20 @@
             "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,
             "prioritiseLowbornMarriage": true,
+            "numenorBloodTier": null,
+            "forceDynastyAlive": false,
+            "languages": [],
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            },
-            "languages": []
+            }
         },
         {
+            "dynastyID": "dynasty_haayaarim",
             "dynastyName": "Haayaarim",
             "dynastyMotto": "Delight, Pleasure and Dread",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_haayaarim",
             "isHouse": false,
             "faithID": "faith_uvag",
             "cultureID": "drenim",
@@ -31,18 +33,20 @@
             "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,
             "prioritiseLowbornMarriage": true,
+            "numenorBloodTier": null,
+            "forceDynastyAlive": false,
+            "languages": [],
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            },
-            "languages": []
+            }
         },
         {
+            "dynastyID": "dynasty_lokalim",
             "dynastyName": "Lokalim",
             "dynastyMotto": "Dare to be Loyal",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_lokalim",
             "isHouse": false,
             "faithID": "faith_gan",
             "cultureID": "drenim",
@@ -50,18 +54,20 @@
             "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,
             "prioritiseLowbornMarriage": true,
+            "numenorBloodTier": null,
+            "forceDynastyAlive": false,
+            "languages": [],
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            },
-            "languages": []
+            }
         },
         {
+            "dynastyID": "dynasty_mbuumamim",
             "dynastyName": "Mbuumamim",
             "dynastyMotto": "By Bow and Axe",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_mbuumamim",
             "isHouse": false,
             "faithID": "faith_gan",
             "cultureID": "drenim",
@@ -69,18 +75,20 @@
             "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,
             "prioritiseLowbornMarriage": true,
+            "numenorBloodTier": null,
+            "forceDynastyAlive": false,
+            "languages": [],
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            },
-            "languages": []
+            }
         },
         {
+            "dynastyID": "dynasty_uyarazandim",
             "dynastyName": "Uyarazandim",
             "dynastyMotto": "By Fidelity and Trust",
             "succession": "PRIMOGENITURE",
-            "dynastyID": "dynasty_uyarazandim",
             "isHouse": false,
             "faithID": "faith_gan",
             "cultureID": "drenim",
@@ -88,12 +96,14 @@
             "progenitorMaleBirthYear": 6850,
             "allowFirstCousinMarriage": false,
             "prioritiseLowbornMarriage": true,
+            "numenorBloodTier": null,
+            "forceDynastyAlive": true,
+            "languages": [],
             "nameInheritance": {
                 "grandparentNameInheritanceChance": 0.05,
                 "parentNameInheritanceChance": 0.05,
                 "noNameInheritanceChance": 0.9
-            },
-            "languages": []
+            }
         }
     ],
     "events": [
@@ -116,10 +126,10 @@
             "characterAgeEnd": 50
         }
     ],
-    "initialCharID": 1,
     "minYear": 6800,
     "maxYear": 7033,
     "generationMax": 100,
+    "initialCharID": 1,
     "treeGeneration": "TB",
     "spouseVisible": "no",
     "numenorInheritance": {
@@ -128,15 +138,15 @@
         "farTierChance": 0.25
     },
     "numenorDecline": {
-        "10": 4283,
-        "9": 4933,
-        "8": 5233,
-        "7": 5683,
-        "6": 5783,
-        "5": 5933,
-        "4": 6133,
-        "3": 6433,
+        "1": 7233,
         "2": 6883,
-        "1": 7233
+        "3": 6433,
+        "4": 6133,
+        "5": 5933,
+        "6": 5783,
+        "7": 5683,
+        "8": 5233,
+        "9": 4933,
+        "10": 4283
     }
 }

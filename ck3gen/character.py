@@ -533,9 +533,8 @@ class Character:
             for _, event_lines in sorted(processed_events, key=lambda e: e[0]):
                 lines.extend(event_lines)
 
-        # Adoption memory — emitted as a character flag on the adoption year
-        if getattr(self, "is_adopted", False) and self.events:
-            # Find the adoption event date (stored as "adopted_by = char_id")
+        # Emit adoption memory event so CK3 records the guardian relationship.
+        if getattr(self, "is_adopted", False):
             for ev_date, ev_detail in self.events:
                 if ev_detail.startswith("adopted_by ="):
                     adopter_id = ev_detail.split("=", 1)[1].strip()
