@@ -132,6 +132,12 @@ class Simulation:
                 "Seeded progenitor %s (%s) for dynasty %s", char_id, prog_name, dynasty_id
             )
 
+        logger.info(
+            "_seed_progenitors complete: %d dynasties processed, %d characters seeded.",
+            len(dynasties),
+            len(self.all_characters),
+        )
+
     # ------------------------------------------------------------------
     #  Character pool management
     # ------------------------------------------------------------------
@@ -1159,6 +1165,10 @@ class Simulation:
         CHARACTER_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
         output_path = CHARACTER_OUTPUT_DIR / output_filename
 
+        logger.info(
+            "export_characters: %d total characters in pool before grouping.",
+            len(self.all_characters),
+        )
         dynasty_groups: dict[str, list[Character]] = {}
         for character in self.all_characters:
             if not character.dynasty:
