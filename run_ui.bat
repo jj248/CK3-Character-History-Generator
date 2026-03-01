@@ -1,11 +1,22 @@
 @echo off
 cd /d "%~dp0"
 
-:: ─────────────────────────────────────────────
-::  CK3 Character History Generator — Dev launcher
-::  Starts the FastAPI backend (uvicorn) then
-::  opens the Tauri / Vite dev front-end.
-:: ─────────────────────────────────────────────
+:: ─────────────────────────────────────────────────────────────────────────────
+::  CK3 Character History Generator — Development Launcher
+::
+::  This script:
+::    1. Creates / activates a Python venv in the repo root
+::    2. Installs Python dependencies
+::    3. Starts the FastAPI backend (uvicorn) in a background window
+::    4. Launches the Tauri + Vite dev UI from the ui/ folder
+::
+::  For a RELEASE BUILD (packaged installer) you must:
+::    a. Compile the Python backend:
+::         pyinstaller api/main.py --onefile --name api_server
+::         copy dist\api_server.exe ui\src-tauri\binaries\api_server-x86_64-pc-windows-msvc.exe
+::    b. Restore bundle fields in tauri.conf.json from tauri.conf.release.json
+::    c. Run: cd ui && npm run tauri build
+:: ─────────────────────────────────────────────────────────────────────────────
 
 :: Create virtual environment if it doesn't exist
 if not exist venv (
@@ -20,19 +31,19 @@ call venv\Scripts\activate.bat
 echo Installing Python dependencies...
 pip install -r requirements.txt --quiet
 
-:: ── Start the FastAPI backend in the background ──────────────────────────────
-::  The API file lives at api/main.py and is served on port 8000.
-::  We launch it in a new minimised window so its console output stays separate.
+:: ── Start the FastAPI backend in the background ───────────────────────────────
+::  Launched from the repo root so that "api.main" and "ck3gen.*" resolve correctly.
 echo Starting FastAPI backend on http://127.0.0.1:8000 ...
-start "CK3 API Server" /min cmd /c "venv\Scripts\activate.bat && uvicorn api.main:app --host 127.0.0.1 --port 8000"
+start "CK3 API Server" /min cmd /c "cd /d "%~dp0" && call venv\Scripts\activate.bat && uvicorn api.main:app --host 127.0.0.1 --port 8000 --reload"
 
-:: Give uvicorn a moment to bind the port before Tauri tries to proxy it
+:: Give uvicorn a moment to bind the port before Tauri proxies requests to it
 timeout /t 3 /nobreak >nul
 
-:: ── Launch the Tauri + Vite dev UI ──────────────────────────────────────────
+:: ── Launch the Tauri + Vite dev UI ───────────────────────────────────────────
+::  Must run from the ui\ folder where package.json lives.
 echo Starting Tauri dev UI...
 cd ui
 npm run tauri dev
 
-:: When Tauri exits, the API server window can be closed manually.
+:: When Tauri exits, close the background API Server window manually.
 pause
