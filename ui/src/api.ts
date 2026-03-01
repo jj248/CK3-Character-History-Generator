@@ -27,6 +27,7 @@ export interface Dynasty {
   progenitorMaleBirthYear: number;
   allowFirstCousinMarriage: boolean;
   prioritiseLowbornMarriage: boolean;
+  forceDynastyAlive: boolean;
   numenorBloodTier?: number;
   languages?: string[];
   nameInheritance: NameInheritance;

@@ -59,6 +59,7 @@ const EMPTY_DYNASTY: Dynasty = {
   progenitorMaleBirthYear: 6000,
   allowFirstCousinMarriage: false,
   prioritiseLowbornMarriage: false,
+  forceDynastyAlive: false,
   nameInheritance: { ...DEFAULT_NAME_INHERITANCE },
 };
 
@@ -216,6 +217,14 @@ function DynastyForm({ value, onChange, errors = {} }: DynastyFormProps) {
             onChange={(e) => set("prioritiseLowbornMarriage", e.target.checked)}
           />
           Prioritise Lowborn Marriage
+        </label>
+        <label className="checkbox-field">
+          <input
+            type="checkbox"
+            checked={value.forceDynastyAlive}
+            onChange={(e) => set("forceDynastyAlive", e.target.checked)}
+          />
+          Force Dynasty Alive
         </label>
       </div>
 

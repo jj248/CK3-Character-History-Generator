@@ -48,26 +48,28 @@ class Character:
     DYNASTY_LANGUAGE_RULES: dict = {}
 
     def __init__(
-        self, 
-        char_id, 
-        name, 
-        sex, 
-        birth_year, 
-        dynasty, 
-        culture, 
-        religion, 
-        gender_law, 
-        sexuality_distribution, 
-        is_house=False,
-        generation=1, 
-        is_progenitor=False,
-        is_bastard=False,
-        birth_order=1,  # Add birth_order as an argument
-        negativeEventDeathReason=None,
-        fertilityModifier=1,
-        numenorean_blood_tier=None
-    ):
+        self,
+        char_id: str,
+        name: str,
+        sex: str,
+        birth_year: int,
+        dynasty: str | None,
+        culture: str,
+        religion: str,
+        gender_law: str,
+        sexuality_distribution: dict,
+        is_house: bool = False,
+        generation: int = 1,
+        is_progenitor: bool = False,
+        is_bastard: bool = False,
+        is_adopted: bool = False,
+        birth_order: int = 1,
+        negativeEventDeathReason: str | None = None,
+        fertilityModifier: float = 1.0,
+        numenorean_blood_tier: int | None = None,
+    ) -> None:
         self.is_bastard = is_bastard
+        self.is_adopted = is_adopted
         self.char_id = char_id
         self.name = name
         self.sex = sex
@@ -530,6 +532,21 @@ class Character:
 
             for _, event_lines in sorted(processed_events, key=lambda e: e[0]):
                 lines.extend(event_lines)
+
+        # Adoption memory — emitted as a character flag on the adoption year
+        if getattr(self, "is_adopted", False) and self.events:
+            # Find the adoption event date (stored as "adopted_by = char_id")
+            for ev_date, ev_detail in self.events:
+                if ev_detail.startswith("adopted_by ="):
+                    adopter_id = ev_detail.split("=", 1)[1].strip()
+                    lines.append("")
+                    lines.append(f"\t{ev_date} = {{  # Adopted")
+                    lines.append(f"\t    effect = {{")
+                    lines.append(f"\t        add_character_flag = adopted")
+                    lines.append(f"\t        set_relation = {{ relation = guardian character = {adopter_id} }}")
+                    lines.append(f"\t    }}")
+                    lines.append(f"\t}}")
+                    break
 
         lines.append("}\n")
         return "\n".join(lines)

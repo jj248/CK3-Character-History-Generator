@@ -61,6 +61,10 @@ class Simulation:
             d["dynastyID"]: d.get("prioritiseLowbornMarriage", False)
             for d in dynasties_cfg
         }
+        self.force_dynasty_alive: dict[str, bool] = {
+            d["dynastyID"]: d.get("forceDynastyAlive", False)
+            for d in dynasties_cfg
+        }
 
         # Maps each education skill to two possible childhood trait strings.
         self.childhood_by_education: dict[str, list[str]] = {
@@ -1127,6 +1131,255 @@ class Simulation:
                 character.add_event(death_date, f"death = {{ death_reason = {death_cause} }}")
                 survivors.pop(i)
 
+
+    # ------------------------------------------------------------------
+    #  Dynasty survival enforcement
+    # ------------------------------------------------------------------
+
+    def _dynasty_can_continue(self, dynasty_id: str) -> bool:
+        """
+        Return True when the dynasty has at least one living member who can
+        still produce or father children.
+
+        For AGNATIC / AGNATIC_COGNATIC dynasties the continuation carrier is
+        an unmarried or widowed male of fertile age.  For ENATIC dynasties it
+        is a female.  ABSOLUTE_COGNATIC and ENATIC_COGNATIC treat either sex
+        as a valid carrier, so either is checked.
+
+        A dynasty that is not registered in force_dynasty_alive is always
+        considered able to continue (the guard is a no-op for it).
+        """
+        dynasties_cfg: list[dict] = self.config["initialization"]["dynasties"]
+        dynasty_cfg = next(
+            (d for d in dynasties_cfg if d["dynastyID"] == dynasty_id), None
+        )
+        gender_law: str = (dynasty_cfg or {}).get("gender_law", "AGNATIC_COGNATIC")
+
+        living: list[Character] = [
+            c for c in self.all_characters
+            if c.dynasty == dynasty_id and c.alive
+        ]
+        if not living:
+            return False
+
+        def _can_carry(c: Character) -> bool:
+            """True when c could produce a legitimate heir or be adopted into."""
+            if not c.alive or not c.can_marry:
+                return False
+            if c.sex == "Male":
+                return 16 <= c.age <= 80
+            return 16 <= c.age <= 50
+
+        if gender_law in ("AGNATIC", "AGNATIC_COGNATIC"):
+            return any(c.sex == "Male" and _can_carry(c) for c in living)
+        if gender_law in ("ENATIC", "ENATIC_COGNATIC"):
+            return any(c.sex == "Female" and _can_carry(c) for c in living)
+        # ABSOLUTE_COGNATIC — either sex
+        return any(_can_carry(c) for c in living)
+
+    def _emergency_marriage_and_birth(
+        self, dynasty_id: str, year: int
+    ) -> bool:
+        """
+        Attempt an emergency marriage for the most suitable living dynasty
+        member, then force an immediate birth in the same year.
+
+        Returns True when a child was successfully created.
+        """
+        dynasties_cfg: list[dict] = self.config["initialization"]["dynasties"]
+        dynasty_cfg = next(
+            (d for d in dynasties_cfg if d["dynastyID"] == dynasty_id), None
+        )
+        gender_law: str = (dynasty_cfg or {}).get("gender_law", "AGNATIC_COGNATIC")
+
+        # Pick the best candidate to receive the emergency spouse.
+        # Prefer unmarried characters; accept widowed ones too.
+        candidates = [
+            c for c in self.all_characters
+            if c.dynasty == dynasty_id
+            and c.alive
+            and not c.married
+            and c.can_marry
+            and (
+                (gender_law in ("AGNATIC", "AGNATIC_COGNATIC") and c.sex == "Male" and 16 <= c.age <= 80)
+                or (gender_law in ("ENATIC", "ENATIC_COGNATIC") and c.sex == "Female" and 16 <= c.age <= 50)
+                or (gender_law == "ABSOLUTE_COGNATIC" and 16 <= c.age <= 80)
+            )
+        ]
+        if not candidates:
+            return False
+
+        # Prefer the youngest eligible candidate to maximise remaining fertility.
+        carrier = min(candidates, key=lambda c: abs(c.age - 25))
+
+        logger.info(
+            "Dynasty %s at extinction risk — forcing emergency marriage for %s (age %d).",
+            dynasty_id,
+            carrier.char_id,
+            carrier.age,
+        )
+        self.generate_lowborn_and_marry(carrier, year)
+
+        # After marriage, force a birth immediately this year.
+        if not carrier.married or not carrier.spouse:
+            return False
+
+        mother = carrier if carrier.sex == "Female" else carrier.spouse
+        father = carrier if carrier.sex == "Male" else carrier.spouse
+
+        if not (mother.alive and father.alive):
+            return False
+
+        child = self.create_child(mother, father, year)
+        if child:
+            self.add_character_to_pool(child)
+            self.all_characters.append(child)
+            logger.info(
+                "Emergency birth: %s (%s) born to %s and %s for dynasty %s.",
+                child.char_id,
+                child.name,
+                father.char_id,
+                mother.char_id,
+                dynasty_id,
+            )
+            return True
+        return False
+
+    def _adopt_heir(self, dynasty_id: str, year: int) -> bool:
+        """
+        Create an adopted child for the dynasty when no emergency marriage is
+        possible.
+
+        The adopted child is taken from a living member who is of parenting age.
+        If no such adopter exists the child is created as a standalone member of
+        the dynasty (orphan adoption — e.g. a ward taken in by the court).
+
+        The adopted character receives:
+          - ``is_adopted = True``
+          - An ``adopted_by = <adopter_char_id>`` event on the adoption year,
+            which format_for_export() converts into the CK3 character-flag and
+            guardian relationship.
+        """
+        # Find the best adopter: oldest living dynasty member of parenting age.
+        adopter = next(
+            (
+                c for c in sorted(
+                    self.all_characters,
+                    key=lambda x: -x.age,
+                )
+                if c.dynasty == dynasty_id and c.alive and 20 <= c.age <= 60
+            ),
+            None,
+        )
+
+        dynasty_prefix = (
+            dynasty_id.split("_")[1] if "_" in dynasty_id else dynasty_id
+        )
+        child_char_id = generate_char_id(dynasty_prefix, self.dynasty_char_counters)
+
+        # Determine culture/religion/gender_law from config or from adopter.
+        dynasties_cfg: list[dict] = self.config["initialization"]["dynasties"]
+        dynasty_cfg = next(
+            (d for d in dynasties_cfg if d["dynastyID"] == dynasty_id), None
+        )
+        culture = (adopter.culture if adopter else (dynasty_cfg or {}).get("cultureID", ""))
+        religion = (adopter.religion if adopter else (dynasty_cfg or {}).get("faithID", ""))
+        gender_law = (adopter.gender_law if adopter else (dynasty_cfg or {}).get("gender_law", "AGNATIC_COGNATIC"))
+        blood_tier: int | None = (
+            adopter.numenorean_blood_tier if adopter else (dynasty_cfg or {}).get("numenorBloodTier")
+        )
+
+        # Adopted heirs are always young children (age 0–5 at adoption time).
+        birth_year = year - random.randint(0, 5)
+        child_name: str = self.name_loader.load_names(culture, "male")
+        generation = (adopter.generation + 1) if adopter else 2
+
+        child = Character(
+            char_id=child_char_id,
+            name=child_name,
+            sex="Male",
+            birth_year=birth_year,
+            dynasty=dynasty_id,
+            is_house=(dynasty_cfg or {}).get("isHouse", False),
+            culture=culture,
+            religion=religion,
+            gender_law=gender_law,
+            sexuality_distribution=self.config["skills_and_traits"]["sexualityDistribution"],
+            generation=generation,
+            is_adopted=True,
+            birth_order=1,
+            numenorean_blood_tier=blood_tier,
+        )
+
+        skills_cfg = self.config["skills_and_traits"]
+        child.assign_skills(skills_cfg["skillProbabilities"])
+        child.assign_education(skills_cfg["educationProbabilities"])
+        child.assign_personality_traits(skills_cfg["personalityTraits"])
+
+        skill = child.education_skill or "diplomacy"
+        childhood_trait = random.choice(
+            self.childhood_by_education.get(skill, ["charming", "curious"])
+        )
+        child.add_event(
+            f"{birth_year + 3}.{child.birth_month:02d}.{child.birth_day:02d}",
+            f"trait = {childhood_trait}",
+        )
+        trait_lines = "\n    ".join(
+            f"trait = {t}" for t in child.personality_traits
+        )
+        child.add_event(
+            f"{birth_year + 16}.{child.birth_month:02d}.{child.birth_day:02d}",
+            trait_lines,
+        )
+
+        # Record the adoption event (year of adoption, not birth).
+        adopter_id = adopter.char_id if adopter else "unknown"
+        adoption_date = f"{year}.{child.birth_month:02d}.{child.birth_day:02d}"
+        child.add_event(adoption_date, f"adopted_by = {adopter_id}")
+
+        if adopter:
+            adopter.children.append(child)
+            child.father = adopter if adopter.sex == "Male" else None
+            child.mother = adopter if adopter.sex == "Female" else None
+
+        self.add_character_to_pool(child)
+        self.all_characters.append(child)
+
+        logger.info(
+            "Dynasty %s adopted heir %s (%s) via %s.",
+            dynasty_id,
+            child_char_id,
+            child.name,
+            adopter_id,
+        )
+        return True
+
+    def _enforce_dynasty_survival(self, year: int) -> None:
+        """
+        For every dynasty flagged with forceDynastyAlive, check whether it can
+        still continue naturally.  If not, attempt:
+          1. Emergency marriage + immediate birth.
+          2. Adoption as fallback when no marriageable member exists.
+        """
+        for dynasty_id, forced in self.force_dynasty_alive.items():
+            if not forced:
+                continue
+            if self._dynasty_can_continue(dynasty_id):
+                continue
+
+            logger.warning(
+                "Dynasty %s cannot continue naturally in year %d — triggering survival protocol.",
+                dynasty_id,
+                year,
+            )
+
+            if not self._emergency_marriage_and_birth(dynasty_id, year):
+                logger.info(
+                    "Emergency marriage failed for %s — falling back to adoption.",
+                    dynasty_id,
+                )
+                self._adopt_heir(dynasty_id, year)
+
     def run_simulation(self) -> None:
         """Execute the full year-by-year simulation loop."""
         self._prepare_simulation_vars()
@@ -1142,6 +1395,7 @@ class Simulation:
             self._process_births(year)
             self._process_deaths(year)
             self.update_unmarried_pools(year)
+            self._enforce_dynasty_survival(year)
 
         logger.info("Main simulation loop complete. Processing survivors...")
         self._process_survivor_deaths(max_year)

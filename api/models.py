@@ -85,6 +85,7 @@ class Dynasty(BaseModel):
     allowFirstCousinMarriage: bool = False
     prioritiseLowbornMarriage: bool = False
     numenorBloodTier: int | None = None
+    forceDynastyAlive: bool = False
     # Each entry is a comma-separated "language_id,start_year,end_year" string.
     languages: list[str] = Field(default_factory=list)
     nameInheritance: NameInheritance
