@@ -5,10 +5,6 @@ description = "CK3 Character History Generator"
 authors = ["jj248"]
 edition = "2021"
 
-[lib]
-name = "app_lib"
-crate-type = ["staticlib", "cdylib", "rlib"]
-
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 

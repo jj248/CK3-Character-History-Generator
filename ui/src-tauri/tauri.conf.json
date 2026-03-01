@@ -11,7 +11,6 @@
   "app": {
     "windows": [
       {
-        "label": "main",
         "title": "CK3 Character History Generator",
         "width": 1280,
         "height": 800,
@@ -22,8 +21,7 @@
       }
     ],
     "security": {
-      "csp": null,
-      "capabilities": ["main-capability"]
+      "csp": null
     }
   },
   "bundle": {
@@ -35,9 +33,6 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ],
-    "externalBin": [
-      "binaries/api_server"
     ],
     "resources": [
       "../../../config",
