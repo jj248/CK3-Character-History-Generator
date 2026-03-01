@@ -1160,8 +1160,26 @@ class Simulation:
             return False
 
         def _can_carry(c: Character) -> bool:
-            """Return True when c could still produce or father a legitimate heir."""
-            return c.alive and c.can_marry and (
+            """Return True when c could still produce or father a legitimate heir.
+
+            For already-married members the spouse must be alive and within her
+            own fertile window, otherwise the couple cannot produce children.
+            Unmarried members are evaluated on their own fertile window only.
+            """
+            if not (c.alive and c.can_marry):
+                return False
+
+            if c.married:
+                spouse = c.spouse
+                if not (spouse and spouse.alive):
+                    return False
+                if c.sex == "Male":
+                    return c.age <= 80 and 16 <= spouse.age <= 50
+                # Female carrier: her own age determines fertility.
+                return 16 <= c.age <= 50
+
+            # Unmarried — check only own fertile window.
+            return (
                 (c.sex == "Male" and 16 <= c.age <= 80)
                 or (c.sex == "Female" and 16 <= c.age <= 50)
             )
@@ -1174,15 +1192,19 @@ class Simulation:
 
     def _emergency_marriage_and_birth(self, dynasty_id: str, year: int) -> bool:
         """
-        Force a lowborn marriage for the most suitable living dynasty member,
-        then guarantee an immediate birth in the same year.
+        Guarantee at least one new heir for the dynasty this year.
 
-        The candidate is the unmarried dynasty member closest to age 25 who
-        still falls within their fertile window.  After marriage a child is
-        created unconditionally (bypassing fertility rolls) so the dynasty has
-        at least one heir.
+        Two strategies are attempted in priority order:
 
-        Returns True when a child was successfully created, False otherwise.
+        1. Force a birth from an already-married couple where the female is
+           still within her fertile window.  This avoids an unnecessary
+           lowborn marriage when the dynasty already has a viable couple.
+        2. Find the unmarried dynasty member closest to age 25, marry them
+           to a generated lowborn spouse, then create a child unconditionally
+           (bypassing fertility rolls) so a heir is guaranteed.
+
+        Returns True when a child was created, False when no eligible member
+        exists and adoption should be used instead.
         """
         dynasties_cfg: list[dict] = self.config["initialization"]["dynasties"]
         dynasty_cfg = next(
@@ -1190,23 +1212,50 @@ class Simulation:
         )
         gender_law: str = (dynasty_cfg or {}).get("gender_law", "AGNATIC_COGNATIC")
 
-        candidates: list[Character] = [
+        def _gender_eligible(c: Character) -> bool:
+            """Return True when c satisfies the dynasty gender-law fertility check."""
+            if gender_law in ("AGNATIC", "AGNATIC_COGNATIC"):
+                return c.sex == "Male" and 16 <= c.age <= 80
+            if gender_law in ("ENATIC", "ENATIC_COGNATIC"):
+                return c.sex == "Female" and 16 <= c.age <= 50
+            return 16 <= c.age <= 80  # ABSOLUTE_COGNATIC
+
+        living: list[Character] = [
             c for c in self.all_characters
-            if c.dynasty == dynasty_id
-            and c.alive
-            and not c.married
-            and c.can_marry
-            and (
-                (gender_law in ("AGNATIC", "AGNATIC_COGNATIC") and c.sex == "Male" and 16 <= c.age <= 80)
-                or (gender_law in ("ENATIC", "ENATIC_COGNATIC") and c.sex == "Female" and 16 <= c.age <= 50)
-                or (gender_law == "ABSOLUTE_COGNATIC" and 16 <= c.age <= 80)
-            )
+            if c.dynasty == dynasty_id and c.alive
         ]
-        if not candidates:
+
+        # Strategy 1: existing married couple with a fertile wife.
+        for carrier in sorted(living, key=lambda c: abs(c.age - 25)):
+            if not (carrier.can_marry and carrier.married and _gender_eligible(carrier)):
+                continue
+            spouse = carrier.spouse
+            if not (spouse and spouse.alive):
+                continue
+            female = carrier if carrier.sex == "Female" else spouse
+            male = carrier if carrier.sex == "Male" else spouse
+            if not (16 <= female.age <= 50):
+                continue
+
+            child = self.create_child(female, male, year)
+            if child:
+                self.add_character_to_pool(child)
+                self.all_characters.append(child)
+                logger.info(
+                    "Emergency birth from existing couple: %s (%s) born to %s + %s for dynasty %s.",
+                    child.char_id, child.name, male.char_id, female.char_id, dynasty_id,
+                )
+                return True
+
+        # Strategy 2: unmarried fertile member receives a lowborn spouse.
+        unmarried: list[Character] = [
+            c for c in living
+            if c.can_marry and not c.married and _gender_eligible(c)
+        ]
+        if not unmarried:
             return False
 
-        # Prefer the member closest to prime fertility age.
-        carrier = min(candidates, key=lambda c: abs(c.age - 25))
+        carrier = min(unmarried, key=lambda c: abs(c.age - 25))
 
         logger.warning(
             "Dynasty %s at extinction risk in year %d — forcing emergency marriage for %s (age %d).",
@@ -1214,7 +1263,7 @@ class Simulation:
         )
         self.generate_lowborn_and_marry(carrier, year)
 
-        if not carrier.married or not carrier.spouse:
+        if not (carrier.married and carrier.spouse):
             return False
 
         mother = carrier if carrier.sex == "Female" else carrier.spouse
@@ -1223,7 +1272,6 @@ class Simulation:
         if not (mother.alive and father.alive):
             return False
 
-        # Force a birth this year regardless of normal fertility rolls.
         child = self.create_child(mother, father, year)
         if child:
             self.add_character_to_pool(child)

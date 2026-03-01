@@ -412,13 +412,22 @@ class Character:
                 sections.append(f"\tdynasty_house = {self.dynasty}")
             else:
                 sections.append(f"\tdynasty = {self.dynasty}")
-        if self.father:
-            sections.append(f"\tfather = {self.father.char_id}")
-        if self.mother:
-            sections.append(f"\tmother = {self.mother.char_id}")
         if sections:
             lines.append("")
             lines.extend(sections)
+
+        # Adopted characters establish parentage through set_father/set_mother inside
+        # the adoption effect block rather than via top-level declarations, so their
+        # father/mother fields are intentionally omitted from the header section.
+        if not self.is_adopted:
+            parent_lines: list[str] = []
+            if self.father:
+                parent_lines.append(f"\tfather = {self.father.char_id}")
+            if self.mother:
+                parent_lines.append(f"\tmother = {self.mother.char_id}")
+            if parent_lines:
+                lines.append("")
+                lines.extend(parent_lines)
 
         lines.append("")
         lines.append(f"\tsexuality = {self.sexuality}")
@@ -492,6 +501,10 @@ class Character:
 
                     event_detail = "\n".join(non_child_trait_lines)
 
+                # adopted_by is handled exclusively by the adoption block below.
+                if event_detail.startswith("adopted_by ="):
+                    continue
+
                 # Standard event formatting
                 event_lines = []
                 if event_detail == "birth = yes":
@@ -533,16 +546,30 @@ class Character:
             for _, event_lines in sorted(processed_events, key=lambda e: e[0]):
                 lines.extend(event_lines)
 
-        # Emit adoption memory event so CK3 records the guardian relationship.
-        if getattr(self, "is_adopted", False):
+        # Emit the adoption effect block for adopted characters.
+        # set_father / set_mother establish the adoptive parentage at the script
+        # level; create_character_memory records the adoption for CK3's memory system.
+        if self.is_adopted:
             for ev_date, ev_detail in self.events:
                 if ev_detail.startswith("adopted_by ="):
-                    adopter_id = ev_detail.split("=", 1)[1].strip()
                     lines.append("")
                     lines.append(f"\t{ev_date} = {{  # Adopted")
                     lines.append(f"\t    effect = {{")
-                    lines.append(f"\t        add_character_flag = adopted")
-                    lines.append(f"\t        set_relation = {{ relation = guardian character = {adopter_id} }}")
+                    if self.father:
+                        lines.append(f"\t        set_father = {self.father.char_id}")
+                    if self.mother:
+                        lines.append(f"\t        set_mother = {self.mother.char_id}")
+                    parent_id: str = (
+                        self.father.char_id if self.father
+                        else self.mother.char_id if self.mother
+                        else ev_detail.split("=", 1)[1].strip()
+                    )
+                    lines.append(f"\t        create_character_memory = {{")
+                    lines.append(f"\t            type = was_adopted")
+                    lines.append(f"\t            participants = {{")
+                    lines.append(f"\t                parent = {parent_id}")
+                    lines.append(f"\t            }}")
+                    lines.append(f"\t        }}")
                     lines.append(f"\t    }}")
                     lines.append(f"\t}}")
                     break
