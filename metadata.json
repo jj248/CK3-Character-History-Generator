@@ -1,0 +1,5 @@
+{
+  "name": "CK3 Dynasty Simulator Engine",
+  "description": "A procedural history simulation engine for Crusader Kings III modding that generates deep, interconnected historical data.",
+  "requestFramePermissions": []
+}

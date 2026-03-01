@@ -1,0 +1,16 @@
+{
+    "traits": {
+        "genius": {
+            "inheritance_chance": 0.15,
+            "mutation_chance": 0.01
+        },
+        "strong": {
+            "inheritance_chance": 0.10,
+            "mutation_chance": 0.02
+        },
+        "beautiful": {
+            "inheritance_chance": 0.10,
+            "mutation_chance": 0.02
+        }
+    }
+}
