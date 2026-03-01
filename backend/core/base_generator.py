@@ -11,15 +11,15 @@ class BaseGenerator(ABC, Generic[T]):
     """
     
     @abstractmethod
-    def generate(self, **kwargs: Any) -> T:
+    def generate_script(self, entity: T) -> str:
         """
-        Generates a specific CK3 entity.
+        Generates the CK3 script string for the given entity.
         
         Args:
-            **kwargs: Generation parameters and constraints.
+            entity (T): The Pydantic model representing the entity.
             
         Returns:
-            T: A Pydantic model representing the generated entity.
+            str: The formatted CK3 script string.
         """
         pass
         
