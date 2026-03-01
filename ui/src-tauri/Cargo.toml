@@ -5,6 +5,9 @@ description = "CK3 Character History Generator"
 authors = ["jj248"]
 edition = "2021"
 
+# Required by tauri-build v2 — must be present even if empty
+[package.metadata.bundle]
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
