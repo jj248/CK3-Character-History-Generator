@@ -13,6 +13,7 @@ import logging
 import queue
 import shutil
 import sys
+import os
 import threading
 from pathlib import Path
 from typing import AsyncGenerator
@@ -29,7 +30,8 @@ from fastapi.responses import FileResponse, StreamingResponse
 # When frozen by PyInstaller, sys._MEIPASS is the temp extraction directory.
 # In dev, the project root is two levels up from api/main.py.
 if getattr(sys, "frozen", False):
-    _project_root = Path(sys._MEIPASS)  # type: ignore[attr-defined]
+    _project_root = Path(sys._MEIPASS)
+    os.chdir(_project_root)
 else:
     _project_root = Path(__file__).parent.parent
 

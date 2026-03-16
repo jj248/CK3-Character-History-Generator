@@ -78,12 +78,62 @@ export interface SimulationMessage {
 }
 
 // ---------------------------------------------------------------------------
+//  Retry / health-check utilities
+// ---------------------------------------------------------------------------
+
+/**
+ * Fetch a URL, retrying on network failure or non-OK responses.
+ *
+ * Used on startup so the UI waits for the FastAPI sidecar to finish binding
+ * its port before attempting to load config. Without this, a race between
+ * Tauri spawning the sidecar and the first React render causes the server to
+ * return an HTML error page instead of JSON, which surfaces as:
+ *   "Failed to load configuration: Unexpected token '<', "<!DOCTYPE "..."
+ *
+ * @param url     Full URL to fetch.
+ * @param retries Maximum number of attempts (default 10).
+ * @param delay   Milliseconds to wait between attempts (default 800).
+ */
+async function fetchWithRetry(
+  url: string,
+  retries = 10,
+  delay = 800
+): Promise<Response> {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) return res;
+      // A 4xx means the server is up but the request itself is wrong —
+      // no point retrying, surface immediately.
+      if (res.status >= 400 && res.status < 500) {
+        throw new Error(`${res.status} ${res.statusText}`);
+      }
+      // 5xx or unexpected — fall through to retry.
+    } catch (err) {
+      if (attempt === retries - 1) throw err;
+      console.warn(
+        `[api] Connection attempt ${attempt + 1}/${retries} failed — retrying in ${delay}ms`
+      );
+    }
+    await new Promise<void>((resolve) => setTimeout(resolve, delay));
+  }
+  throw new Error(`Could not connect to the API server after ${retries} attempts.`);
+}
+
+/**
+ * Poll the API until the sidecar responds, then resolve.
+ * Rejects after all retries are exhausted — treat as a fatal startup error.
+ */
+export async function waitForApi(retries = 10, delay = 800): Promise<void> {
+  await fetchWithRetry(`${BASE}/config/initialization`, retries, delay);
+}
+
+// ---------------------------------------------------------------------------
 //  Config — Initialization
 // ---------------------------------------------------------------------------
 
 export async function fetchInitializationConfig(): Promise<InitializationConfig> {
-  const res = await fetch(`${BASE}/config/initialization`);
-  if (!res.ok) throw new Error(await res.text());
+  const res = await fetchWithRetry(`${BASE}/config/initialization`);
   return res.json();
 }
 
@@ -117,8 +167,7 @@ export async function setInitializationFallback(): Promise<void> {
 // ---------------------------------------------------------------------------
 
 export async function fetchLifeStagesConfig(): Promise<LifeStagesConfig> {
-  const res = await fetch(`${BASE}/config/life-stages`);
-  if (!res.ok) throw new Error(await res.text());
+  const res = await fetchWithRetry(`${BASE}/config/life-stages`);
   return res.json();
 }
 

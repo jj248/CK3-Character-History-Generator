@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+import os
 
 
 def _find_project_root() -> Path:
@@ -28,18 +29,15 @@ def _find_project_root() -> Path:
 
 # ── Root ──────────────────────────────────────────────────────────────────────
 
-PROJECT_ROOT: Path = _find_project_root()
+ROOT_DIR = Path(os.getcwd())
 
 # ── Input directories ─────────────────────────────────────────────────────────
 
-CONFIG_DIR: Path = PROJECT_ROOT / "config"
-FALLBACK_CONFIG_DIR: Path = CONFIG_DIR / "fallback_config_files"
-NAME_LISTS_DIR: Path = PROJECT_ROOT / "name_lists"
+CONFIG_DIR = ROOT_DIR / "config"
+FALLBACK_CONFIG_DIR = CONFIG_DIR / "fallback_config_files"
+NAME_LISTS_DIR = ROOT_DIR / "name_lists"
 
 # ── Output directories ────────────────────────────────────────────────────────
 
-# Character history, title history, and dynasty definition exports
-CHARACTER_OUTPUT_DIR: Path = PROJECT_ROOT / "Character and Title files"
-
-# Rendered family tree PNG images (served by the FastAPI /images endpoint)
-TREE_OUTPUT_DIR: Path = PROJECT_ROOT / "Dynasty Preview"
+CHARACTER_OUTPUT_DIR = ROOT_DIR / "Character and Title files"
+TREE_OUTPUT_DIR = ROOT_DIR / "Dynasty Preview"

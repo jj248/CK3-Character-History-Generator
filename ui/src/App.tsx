@@ -8,6 +8,7 @@
 
 import { useEffect, useState } from "react";
 import {
+  waitForApi,
   fetchInitializationConfig,
   fetchLifeStagesConfig,
   InitializationConfig,
@@ -41,8 +42,23 @@ function AppShell() {
   const [initConfig, setInitConfig] = useState<InitializationConfig | null>(null);
   const [lifeConfig, setLifeConfig] = useState<LifeStagesConfig | null>(null);
   const [loadError, setLoadError]   = useState<string | null>(null);
+  const [apiReady, setApiReady]     = useState(false);
 
+  // Phase 1: wait for the FastAPI sidecar to be reachable before fetching config.
   useEffect(() => {
+    waitForApi(12, 800)
+      .then(() => setApiReady(true))
+      .catch((err: Error) => {
+        setLoadError(
+          `Could not reach the API server. Is the backend running?\n\n${err.message}`
+        );
+      });
+  }, []);
+
+  // Phase 2: once the API is confirmed up, load both config files.
+  useEffect(() => {
+    if (!apiReady) return;
+
     Promise.all([fetchInitializationConfig(), fetchLifeStagesConfig()])
       .then(([init, life]) => {
         setInitConfig(init);
@@ -51,13 +67,15 @@ function AppShell() {
       .catch((err: Error) => {
         setLoadError(`Failed to load configuration: ${err.message}`);
       });
-  }, []);
+  }, [apiReady]);
 
   if (loadError) {
     return (
       <div className="app-shell">
         <div className="tab-content">
-          <div className="msg msg-error">{loadError}</div>
+          <div className="msg msg-error" style={{ whiteSpace: "pre-wrap" }}>
+            {loadError}
+          </div>
         </div>
       </div>
     );
@@ -71,7 +89,7 @@ function AppShell() {
           style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}
         >
           <span className="spinner" />
-          Loading configuration...
+          {apiReady ? "Loading configuration..." : "Waiting for API server to start..."}
         </div>
       </div>
     );
