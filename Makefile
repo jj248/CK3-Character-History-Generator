@@ -22,9 +22,9 @@ dev:
 build:
 	@echo "Building FastAPI sidecar with PyInstaller..."
 	pyinstaller --onefile --name api_server api/main.py
-	@echo "Copying sidecar to Tauri binaries directory..."
-	mkdir -p ui/src-tauri/binaries
-	cp dist/api_server* ui/src-tauri/binaries/
+	@echo "Copying sidecar to Tauri bin directory..."
+	mkdir -p ui/src-tauri/bin
+	cp dist/api_server* ui/src-tauri/bin/
 	@echo "Building Tauri app..."
 	cd ui && npm run tauri build
 

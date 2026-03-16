@@ -93,7 +93,7 @@ make build
 
 This will:
 1. Bundle the FastAPI server into a standalone `api_server` binary via PyInstaller
-2. Copy the binary into `ui/src-tauri/binaries/`
+2. Copy the binary into `ui/src-tauri/bin/`
 3. Build the Tauri app (installer + `.exe`) via `npm run tauri build`
 
 The packaged app automatically spawns the `api_server` sidecar on launch — no Python installation required on the end user's machine.

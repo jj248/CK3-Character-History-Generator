@@ -31,12 +31,12 @@ jobs:
       - name: Build FastAPI sidecar with PyInstaller
         run: pyinstaller --onefile --name api_server api/main.py
 
-      - name: Copy sidecar to Tauri binaries directory
+      - name: Copy sidecar to Tauri bin directory
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path ui/src-tauri/binaries
+          New-Item -ItemType Directory -Force -Path ui/src-tauri/bin
           # Tauri requires the binary name to include the target triple.
-          Copy-Item dist/api_server.exe ui/src-tauri/binaries/api_server-x86_64-pc-windows-msvc.exe
+          Copy-Item dist/api_server.exe ui/src-tauri/bin/api_server-x86_64-pc-windows-msvc.exe
 
       # ── 3. Node + Tauri bundle ───────────────────────────────────────────────
       - name: Set up Node

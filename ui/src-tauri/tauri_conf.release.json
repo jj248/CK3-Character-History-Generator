@@ -1,7 +1,7 @@
 {
   "bundle": {
     "externalBin": [
-      "binaries/api_server"
+      "bin/api_server"
     ],
     "resources": [
       "../../../config",

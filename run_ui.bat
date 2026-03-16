@@ -17,7 +17,7 @@ cd /d "%~dp0"
 ::
 ::  Release build:
 ::    a. pyinstaller api/main.py --onefile --name api_server
-::       copy dist\api_server.exe ui\src-tauri\binaries\api_server-x86_64-pc-windows-msvc.exe
+::       copy dist\api_server.exe ui\src-tauri\bin\api_server-x86_64-pc-windows-msvc.exe
 ::    b. copy ui\src-tauri\tauri.conf.release.json ui\src-tauri\tauri.conf.json
 ::    c. cd ui && npm run tauri build
 :: -----------------------------------------------------------------------------

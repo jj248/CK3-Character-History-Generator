@@ -11,8 +11,8 @@ build/
 *.spec
 
 # ── PyInstaller ───────────────────────────────────────────────────────────────
-# Sidecar binary is built into ui/src-tauri/binaries/ at build time
-ui/src-tauri/binaries/
+# Sidecar binary is built into ui/src-tauri/bin/ at build time
+ui/src-tauri/bin/
 
 # ── Node / Tauri frontend ─────────────────────────────────────────────────────
 node_modules/
