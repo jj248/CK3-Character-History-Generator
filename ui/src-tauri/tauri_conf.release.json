@@ -2,6 +2,26 @@
   "productName": "CK3 Character History Generator",
   "version": "0.1.0",
   "identifier": "com.ck3gen.historygen",
+  "build": {
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "CK3 Character History Generator",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 900,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
   "bundle": {
     "active": true,
     "targets": "all",
