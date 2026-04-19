@@ -36,6 +36,11 @@ if str(_project_root) not in sys.path:
 from ck3gen.paths import set_project_root
 set_project_root(_project_root)
 
+# Temporarily add bundled Graphviz to the system PATH so family_tree.py can find dot.exe
+graphviz_bin_path = _project_root / "bin" / "graphviz" / "bin"
+if graphviz_bin_path.exists():
+    os.environ["PATH"] = f"{graphviz_bin_path}{os.pathsep}{os.environ.get('PATH', '')}"
+
 # Now it is safe to import local modules that depend on these paths
 from main import run_main  # noqa: E402
 from api.models import InitializationConfig, LifeStagesConfig

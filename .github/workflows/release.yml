@@ -34,6 +34,7 @@ jobs:
           --collect-all utils
           --add-data "config;config"
           --add-data "name_lists;name_lists"
+          --add-data "bin/graphviz;bin/graphviz"
           --collect-data fastapi
           --hidden-import uvicorn.logging
           --hidden-import uvicorn.protocols.http.h11_impl

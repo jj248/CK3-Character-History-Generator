@@ -79,6 +79,7 @@ $pyinstallerArgs = @(
     "--collect-all", "utils",
     "--add-data", "$ProjectRoot/config;config",
     "--add-data", "$ProjectRoot/name_lists;name_lists",
+    "--add-data", "$ProjectRoot/bin/graphviz;bin/graphviz",
     "--collect-data", "fastapi",
     "--hidden-import", "uvicorn.logging",
     "--hidden-import", "uvicorn.protocols.http.h11_impl",
