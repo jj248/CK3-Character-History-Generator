@@ -1,11 +1,24 @@
 {
+  "productName": "CK3 Character History Generator",
+  "version": "0.1.0",
+  "identifier": "com.ck3gen.historygen",
   "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
     "externalBin": [
       "bin/api_server"
     ],
-    "resources": [
-      "../../../config",
-      "../../../name_lists"
-    ]
+    "windows": {
+      "webviewInstallMode": {
+        "type": "embedBootstrapper"
+      }
+    }
   }
 }
