@@ -3,7 +3,7 @@
 // In the packaged app the sidecar is already bound on port 8000 so the
 // same base URL works without modification.
 
-const BASE = "/api";
+const BASE = import.meta.env.PROD ? "http://127.0.0.1:8000" : "/api";
 
 // ---------------------------------------------------------------------------
 //  Shared types

@@ -12,11 +12,9 @@ jobs:
       contents: write   # required to publish the GitHub Release
 
     steps:
-      # ── 1. Checkout ──────────────────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ── 2. Python + version sync + FastAPI sidecar ───────────────────────────
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -29,16 +27,32 @@ jobs:
         run: python scripts/set_version.py ${{ github.ref_name }}
 
       - name: Build FastAPI sidecar with PyInstaller
-        run: pyinstaller --onefile --name api_server api/main.py
+        # Added all the necessary flags from build_app.ps1
+        run: >
+          pyinstaller api/main.py --onefile --name api_server
+          --collect-all ck3gen
+          --collect-all utils
+          --add-data "config;config"
+          --add-data "name_lists;name_lists"
+          --collect-data fastapi
+          --hidden-import uvicorn.logging
+          --hidden-import uvicorn.protocols.http.h11_impl
+          --hidden-import uvicorn.protocols.http.httptools_impl
+          --hidden-import uvicorn.protocols.websockets.auto
+          --hidden-import uvicorn.lifespan.on
+          --hidden-import uvicorn.lifespan.off
 
       - name: Copy sidecar to Tauri bin directory
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path ui/src-tauri/bin
-          # Tauri requires the binary name to include the target triple.
           Copy-Item dist/api_server.exe ui/src-tauri/bin/api_server-x86_64-pc-windows-msvc.exe
 
-      # ── 3. Node + Tauri bundle ───────────────────────────────────────────────
+      - name: Apply release Tauri configuration
+        shell: pwsh
+        run: |
+          Copy-Item ui/src-tauri/tauri_conf.release.json ui/src-tauri/tauri.conf.json -Force
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
